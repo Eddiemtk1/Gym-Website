@@ -1,0 +1,9 @@
+Replace static 'Eddie M' and 'Pro Elite' as well as profile picture with data fetched from profiles table
+
+Make calories burned dynamic
+
+Membership status active/inactive, profile score, billing dates
+
+Create a classes table so class scheduling and bookings are dynamic
+
+make a personal records table so those scores are dynamic.
