@@ -1,9 +1,11 @@
-Replace static 'Eddie M' and 'Pro Elite' as well as profile picture with data fetched from profiles table
+Replace static 'Eddie M' and 'Pro Elite' as well as profile picture with data fetched from profiles table.
 
-Make calories burned dynamic
+Make calories burned dynamic.
 
-Membership status active/inactive, profile score, billing dates
+Membership status active/inactive, profile score, billing dates.
 
-Create a classes table so class scheduling and bookings are dynamic
+Create a classes table so class scheduling and bookings are dynamic.
 
-make a personal records table so those scores are dynamic.
+Make a personal records table so those scores are dynamic.
+
+The website should be dynamic, adding tables and connecting the website to supabase will be benefitial.
