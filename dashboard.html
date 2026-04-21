@@ -352,6 +352,14 @@
       if (error) {
         console.error("Error fetching subscription:", error.message);
         return;
+
+        const { data: prData, error: prError } = await supabaseClient
+          .from('personal_records')
+          .select('*')
+          .eq('user_id', testUserId)
+          .single();
+
+        if (prError) console.error('Error fetching personal records:', prError.message);
       }
 
       // 3. Inject the Data into the HTML
@@ -386,12 +394,16 @@
         // 4. Inject the final string (e.g., "+20% vs last mo.")
         document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
       }
-    }
+      if (prData) {
+        document.getElementById('pr-deadlift').innerText = `${prData.deadlift} kg`;
+        document.getElementById('pr-bench').innerText = `${prData.bench_press} kg`;
+        document.getElementById('pr-squat').innerText = `${prData.squat} kg`;
+      }}
 
-    // Run the function as soon as the page loads
-    document.addEventListener("DOMContentLoaded", () => {
-      loadSubscriptionData();
-    });
+      // Run the function as soon as the page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        loadSubscriptionData();
+      });
   </script>
 </body>
 
