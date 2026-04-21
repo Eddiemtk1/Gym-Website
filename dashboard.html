@@ -333,16 +333,16 @@
   </div>
   </div>
   <script>
-    //
+    // 1. Initialize Supabase
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     // 2. Fetch the Data
     async function loadSubscriptionData() {
-      // We are using the dummy user_id we created in the SQL editor
       const testUserId = "00000000-0000-0000-0000-000000000000";
 
+      // --- FETCH SUBSCRIPTION DATA ---
       const { data, error } = await supabaseClient
         .from("user_subscriptions")
         .select("*")
@@ -351,15 +351,18 @@
 
       if (error) {
         console.error("Error fetching subscription:", error.message);
-        return;
+      }
 
-        const { data: prData, error: prError } = await supabaseClient
-          .from('personal_records')
-          .select('*')
-          .eq('user_id', testUserId)
-          .single();
+      // --- FETCH PERSONAL RECORDS DATA ---
+      // FIXED: Moved this completely outside of the error block above!
+      const { data: prData, error: prError } = await supabaseClient
+        .from('personal_records')
+        .select('*')
+        .eq('user_id', testUserId)
+        .single();
 
-        if (prError) console.error('Error fetching personal records:', prError.message);
+      if (prError) {
+        console.error('Error fetching personal records:', prError.message);
       }
 
       // 3. Inject the Data into the HTML
@@ -370,41 +373,36 @@
 
         document.getElementById("mem-status").innerText = data.status;
         document.getElementById("sub-plan").innerText = data.plan_name;
-        document.getElementById("next-billing").innerText =
-          `Next billing: ${data.next_billing_date}`;
+        document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date}`;
 
-        document.getElementById("profile-score-text").innerText =
-          `${data.profile_score}% Profile Score`;
-        // This animates the progress bar to the correct percentage
-        document.getElementById("profile-score-bar").style.width =
-          `${data.profile_score}%`;
+        document.getElementById("profile-score-text").innerText = `${data.profile_score}% Profile Score`;
+        document.getElementById("profile-score-bar").style.width = `${data.profile_score}%`;
 
         // --- DYNAMIC WORKOUT MATH ---
-        // 1. Inject the total number of workouts
         document.getElementById('workouts-count').innerText = data.workouts_this_month;
 
-        // 2. Calculate the percentage difference
         let diff = data.workouts_this_month - data.workouts_last_month;
         let percentChange = (diff / data.workouts_last_month) * 100;
 
-        // 3. Round the number and add a "+" sign if it's positive
         let roundedChange = Math.round(percentChange);
         let sign = roundedChange >= 0 ? '+' : '';
 
-        // 4. Inject the final string (e.g., "+20% vs last mo.")
         document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
       }
+      
+      // 4. Inject the Personal Records Data
       if (prData) {
         document.getElementById('pr-deadlift').innerText = `${prData.deadlift} kg`;
         document.getElementById('pr-bench').innerText = `${prData.bench_press} kg`;
         document.getElementById('pr-squat').innerText = `${prData.squat} kg`;
-      }}
+      }
+    } // FIXED: Properly closed the loadSubscriptionData function here
 
-      // Run the function as soon as the page loads
-      document.addEventListener("DOMContentLoaded", () => {
-        loadSubscriptionData();
-      });
-  </script>
+    // Run the function as soon as the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSubscriptionData();
+    });
+</script>
 </body>
 
 </html>
