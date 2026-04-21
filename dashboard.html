@@ -209,14 +209,11 @@
             <div
               class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group">
               <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
-                  Workouts this Month
-                </p>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Workouts this
+                  Month</p>
                 <div class="flex items-baseline gap-2">
-                  <h3 class="font-headline text-5xl font-black text-white" style="">
-                    18
-                  </h3>
-                  <span class="text-primary font-bold text-sm" style="">+12% vs last mo.</span>
+                  <h3 id="workouts-count" class="font-headline text-5xl font-black text-white">...</h3>
+                  <span id="workouts-trend" class="text-primary font-bold text-sm">...</span>
                 </div>
               </div>
               <div class="mt-8 flex gap-1 items-end h-12 relative z-10">
@@ -294,49 +291,46 @@
             </div>
 
             <!-- Personal Records -->
-            <div class="lg:col-span-2 space-y-6">
-              <div class="bg-surface p-8 space-y-6 border-t-2 border-primary">
-                <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">
-                  Personal Records
-                </h3>
-                <div class="space-y-4">
-                  <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span class="text-on-surface-variant font-medium">Deadlift</span>
-                    <span class="font-headline font-bold text-white">180 kg</span>
-                  </div>
-                  <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span class="text-on-surface-variant font-medium">Bench Press</span>
-                    <span class="font-headline font-bold text-white">125 kg</span>
-                  </div>
-                  <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span class="text-on-surface-variant font-medium">Squat</span>
-                    <span class="font-headline font-bold text-white">225 kg</span>
-                  </div>
+            <div class="bg-surface p-8 space-y-6 border-t-2 border-primary">
+              <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-white/5">
+                  <span class="text-on-surface-variant font-medium">Deadlift</span>
+                  <span id="pr-deadlift" class="font-headline font-bold text-white">...</span>
                 </div>
-                <button
-                  class="w-full py-4 kinetic-gradient text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all">
-                  Update Records
-                </button>
+                <div class="flex justify-between items-center pb-3 border-b border-white/5">
+                  <span class="text-on-surface-variant font-medium">Bench Press</span>
+                  <span id="pr-bench" class="font-headline font-bold text-white">...</span>
+                </div>
+                <div class="flex justify-between items-center pb-3 border-b border-white/5">
+                  <span class="text-on-surface-variant font-medium">Squat</span>
+                  <span id="pr-squat" class="font-headline font-bold text-white">...</span>
+                </div>
               </div>
-              <div class="relative aspect-video bg-surface overflow-hidden group cursor-pointer border border-white/5">
-                <img alt="Workout"
-                  class="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDloYAlseV5AfiylN7plj6skKYh64FBW2ROPncrgMCMaL1uInTmPoORDr5qRyQRJgka4J5kUiHlGWc7B06j2dfpfNL7Za_b0fdEA2wA2_YaE4sKtf3wr8CIWz5kAsUzjD5lDA4U8m6LCjeSgOmHd7sZRgyryjQCxzBnG9sqPLDEHugan1v-vx6BNLAnuoKL9r9iDIkc09sgUORMQ7KMFziX-dintIJCSlfMZkn-iD-YXCBXEWV7l3rA35BWmeUzuykKro4CV5Cl974" />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-6">
-                  <h4 class="font-headline text-xl font-bold text-white">
-                    The Elite Protocol
-                  </h4>
-                  <p class="text-[10px] font-bold text-primary uppercase tracking-widest">
-                    New Program Available
-                  </p>
-                </div>
+              <button
+                class="w-full py-4 kinetic-gradient text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all">
+                Update Records
+              </button>
+            </div>
+            <div class="relative aspect-video bg-surface overflow-hidden group cursor-pointer border border-white/5">
+              <img alt="Workout"
+                class="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDloYAlseV5AfiylN7plj6skKYh64FBW2ROPncrgMCMaL1uInTmPoORDr5qRyQRJgka4J5kUiHlGWc7B06j2dfpfNL7Za_b0fdEA2wA2_YaE4sKtf3wr8CIWz5kAsUzjD5lDA4U8m6LCjeSgOmHd7sZRgyryjQCxzBnG9sqPLDEHugan1v-vx6BNLAnuoKL9r9iDIkc09sgUORMQ7KMFziX-dintIJCSlfMZkn-iD-YXCBXEWV7l3rA35BWmeUzuykKro4CV5Cl974" />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-6">
+                <h4 class="font-headline text-xl font-bold text-white">
+                  The Elite Protocol
+                </h4>
+                <p class="text-[10px] font-bold text-primary uppercase tracking-widest">
+                  New Program Available
+                </p>
               </div>
             </div>
           </div>
-        </section>
-      </main>
     </div>
+    </section>
+    </main>
+  </div>
   </div>
   <script>
     //
@@ -376,6 +370,21 @@
         // This animates the progress bar to the correct percentage
         document.getElementById("profile-score-bar").style.width =
           `${data.profile_score}%`;
+
+        // --- DYNAMIC WORKOUT MATH ---
+        // 1. Inject the total number of workouts
+        document.getElementById('workouts-count').innerText = data.workouts_this_month;
+
+        // 2. Calculate the percentage difference
+        let diff = data.workouts_this_month - data.workouts_last_month;
+        let percentChange = (diff / data.workouts_last_month) * 100;
+
+        // 3. Round the number and add a "+" sign if it's positive
+        let roundedChange = Math.round(percentChange);
+        let sign = roundedChange >= 0 ? '+' : '';
+
+        // 4. Inject the final string (e.g., "+20% vs last mo.")
+        document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
       }
     }
 
