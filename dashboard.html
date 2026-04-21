@@ -84,7 +84,8 @@
 
           <!-- Horizontal Navigation -->
           <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="dashboard.html">
+            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all"
+              href="dashboard.html">
               <span class="material-symbols-outlined" style="
                     font-variation-settings: &quot;FILL&quot; 1;
                     font-size: 20px;
@@ -112,16 +113,15 @@
           <!-- Profile Mini -->
           <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
             <div class="text-right">
-              <p class="font-headline font-bold text-white text-xs">
-                Eddie M
+              <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
+                ...
               </p>
-              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">
-                Pro Elite
+              <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">
+                ...
               </p>
             </div>
             <div class="size-8 rounded-full border border-primary overflow-hidden">
-              <img alt="Profile" class="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9MiqOPezYLZCPljdC5PFOc7z17KZWjo6GZ766106W-xq7HFPdqHRWkyRkMQrNDtv5rXKv_rnFWBnfGZ_HCVNK3vdnUUF1hTiOJqRvBsGGvSKJZHvGp9AZ7oD_NesnSufnBjoLLnZZ6UW2aoAt3kC50puL9f8_LLKbe1jsM5Yt0aroavTecq_u2FMwN6FZagZuVu8Ul8PlB-Iz-tmJ-4Qyt62NCAakccSTNTcLVdMnSoLqwSjYxSRtCeUaxRs_MCRcQ77yGE3x9rA" />
+              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
             </div>
           </div>
           <div class="flex gap-4">
@@ -161,7 +161,6 @@
           </div>
           <!-- Grid Layout -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
             <!-- Membership Status Card -->
             <div
               class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group">
@@ -169,17 +168,17 @@
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
                   Membership Status
                 </p>
-                <h3 class="font-headline text-3xl font-black text-white">
-                  ACTIVE
+                <h3 id="mem-status" class="font-headline text-3xl font-black text-white">
+                  ...
                 </h3>
               </div>
               <div class="mt-8 relative z-10">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm text-on-surface-variant">Next billing: Oct 24</span>
-                  <span class="text-sm font-bold text-primary">92% Profile Score</span>
+                  <span id="next-billing" class="text-sm text-on-surface-variant">Next billing: ...</span>
+                  <span id="profile-score-text" class="text-sm font-bold text-primary">...</span>
                 </div>
                 <div class="w-full h-1 bg-surface-variant">
-                  <div class="h-full bg-primary w-[92%]"></div>
+                  <div id="profile-score-bar" class="h-full bg-primary w-[0%] transition-all duration-1000"></div>
                 </div>
               </div>
               <span
@@ -189,11 +188,11 @@
             <!-- Subscription Plan Card -->
             <div class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group">
               <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2" style="">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">
                   Subscription Plan
                 </p>
-                <h3 class="font-headline text-3xl font-black text-on-primary" style="">
-                  PRO ELITE
+                <h3 id="sub-plan" class="font-headline text-3xl font-black text-on-primary">
+                  ...
                 </h3>
               </div>
               <div class="mt-8 relative z-10">
@@ -339,6 +338,52 @@
       </main>
     </div>
   </div>
+  <script>
+    //
+    const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
+    const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // 2. Fetch the Data
+    async function loadSubscriptionData() {
+      // We are using the dummy user_id we created in the SQL editor
+      const testUserId = "00000000-0000-0000-0000-000000000000";
+
+      const { data, error } = await supabaseClient
+        .from("user_subscriptions")
+        .select("*")
+        .eq("user_id", testUserId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching subscription:", error.message);
+        return;
+      }
+
+      // 3. Inject the Data into the HTML
+      if (data) {
+        document.getElementById('nav-user-name').innerText = `${data.first_name} ${data.last_name}`;
+        document.getElementById('nav-user-plan').innerText = data.plan_name;
+        document.getElementById('nav-user-avatar').src = data.avatar_url;
+
+        document.getElementById("mem-status").innerText = data.status;
+        document.getElementById("sub-plan").innerText = data.plan_name;
+        document.getElementById("next-billing").innerText =
+          `Next billing: ${data.next_billing_date}`;
+
+        document.getElementById("profile-score-text").innerText =
+          `${data.profile_score}% Profile Score`;
+        // This animates the progress bar to the correct percentage
+        document.getElementById("profile-score-bar").style.width =
+          `${data.profile_score}%`;
+      }
+    }
+
+    // Run the function as soon as the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSubscriptionData();
+    });
+  </script>
 </body>
 
 </html>
