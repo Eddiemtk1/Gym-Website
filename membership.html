@@ -136,120 +136,115 @@
             </p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
 
-            <div
-              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group hover:bg-surface-variant transition-colors">
+            <!-- GOLD CARD -->
+            <div id="card-gold"
+              class="bg-surface text-white p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group hover:bg-surface-variant transition-colors">
+              <div id="badge-gold" class="hidden absolute top-0 right-0 bg-primary text-black font-headline font-bold px-4 py-1 text-[10px] uppercase tracking-widest z-20">
+                Current Plan
+              </div>
               <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Protocol 01</p>
-                <h3 class="font-headline text-3xl font-black text-white mb-6">GOLD</h3>
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">Protocol 01</p>
+                <h3 class="font-headline text-3xl font-black mb-6">GOLD</h3>
                 <div class="flex items-baseline gap-2 mb-10">
-                  <span class="text-5xl font-black font-headline text-white">£25</span>
-                  <span class="text-on-surface-variant text-sm font-bold uppercase tracking-widest">/ month</span>
+                  <span class="text-5xl font-black font-headline">£25</span>
+                  <span class="text-sm font-bold uppercase tracking-widest opacity-60">/ month</span>
                 </div>
                 <ul class="space-y-4 mb-12">
-                  <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">24/7 Gym Access</span>
                   </li>
-                  <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Standard Strength Floor</span>
                   </li>
-                  <li class="flex items-center gap-3 text-white/30">
-                    <span class="material-symbols-outlined text-white/20 text-sm">cancel</span>
+                  <li class="flex items-center gap-3 opacity-30">
+                    <span class="material-symbols-outlined text-sm">cancel</span>
                     <span class="font-medium text-sm line-through">Free Classes</span>
                   </li>
-                  <li class="flex items-center gap-3 text-white/30">
-                    <span class="material-symbols-outlined text-white/20 text-sm">cancel</span>
+                  <li class="flex items-center gap-3 opacity-30">
+                    <span class="material-symbols-outlined text-sm">cancel</span>
                     <span class="font-medium text-sm line-through">Trainer Credits</span>
                   </li>
                 </ul>
               </div>
-              <button
-                class="w-full py-4 bg-surface-variant text-white font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
+              <button class="w-full py-4 bg-black/20 font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
 
-            <div
-              class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group shadow-[0px_40px_80px_rgba(215,255,0,0.1)]">
-              <div
-                class="absolute top-0 right-0 bg-black text-primary px-4 py-2 font-headline font-black text-[10px] tracking-widest uppercase z-20">
-                MOST POPULAR
+            <!-- PLATINUM CARD -->
+            <div id="card-platinum"
+              class="bg-surface text-white p-8 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:bg-surface-variant transition-colors">
+              <div id="badge-platinum" class="hidden absolute top-0 right-0 bg-black text-primary font-headline font-bold px-4 py-1 text-[10px] uppercase tracking-widest z-20">
+                Current Plan
               </div>
               <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">Protocol 02</p>
-                <h3 class="font-headline text-4xl font-black uppercase text-on-primary mb-6">PLATINUM</h3>
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">Protocol 02</p>
+                <h3 class="font-headline text-4xl font-black uppercase mb-6">PLATINUM</h3>
                 <div class="flex items-baseline gap-2 mb-10">
-                  <span class="text-6xl font-black font-headline text-on-primary">£50</span>
-                  <span class="text-on-primary/60 text-sm font-bold uppercase tracking-widest">/ month</span>
+                  <span class="text-6xl font-black font-headline">£50</span>
+                  <span class="text-sm font-bold uppercase tracking-widest opacity-60">/ month</span>
                 </div>
                 <ul class="space-y-4 mb-12">
-                  <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">bolt</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">Unlimited Performance Classes</span>
                   </li>
-                  <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">bolt</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">Recovery Lounge Access</span>
                   </li>
-                  <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">bolt</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">2 Monthly Trainer Credits</span>
                   </li>
-                  <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">bolt</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">Priority Lab Bookings</span>
                   </li>
                 </ul>
               </div>
-              <button
-                class="relative z-10 w-full py-4 bg-on-primary text-primary font-headline font-black text-xs tracking-widest uppercase hover:brightness-150 transition-all">
+              <button class="relative z-10 w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
 
-            <div
-              class="bg-surface p-8 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:bg-surface-variant transition-colors">
+            <!-- DIAMOND CARD -->
+            <div id="card-diamond"
+              class="bg-surface text-white p-8 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:bg-surface-variant transition-colors">
+              <div id="badge-diamond" class="hidden absolute top-0 right-0 bg-primary text-black font-headline font-bold px-4 py-1 text-[10px] uppercase tracking-widest z-20">
+                Current Plan
+              </div>
               <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Protocol 03</p>
-                <h3 class="font-headline text-3xl font-black text-white mb-6">DIAMOND</h3>
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">Protocol 03</p>
+                <h3 class="font-headline text-3xl font-black mb-6">DIAMOND</h3>
                 <div class="flex items-baseline gap-2 mb-10">
-                  <span class="text-5xl font-black font-headline text-white">£99</span>
-                  <span class="text-on-surface-variant text-sm font-bold uppercase tracking-widest">/ month</span>
+                  <span class="text-5xl font-black font-headline">£99</span>
+                  <span class="text-sm font-bold uppercase tracking-widest opacity-60">/ month</span>
                 </div>
                 <ul class="space-y-4 mb-12">
-                  <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Full Lab Access</span>
                   </li>
-                  <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Biometric Performance Tracking</span>
                   </li>
-                  <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">8 Monthly Trainer Credits</span>
                   </li>
-                  <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm"
-                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  <li class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Nutritional Protocol Design</span>
                   </li>
                 </ul>
               </div>
-              <button
-                class="w-full py-4 bg-surface-variant text-white font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
+              <button class="w-full py-4 bg-black/20 font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
@@ -325,8 +320,40 @@
         document.getElementById('nav-user-name').innerText = `${data.first_name} ${data.last_name}`;
         document.getElementById('nav-user-plan').innerText = data.plan_name;
         document.getElementById('nav-user-avatar').src = data.avatar_url;
+
+        const formattedPlanName = data.plan_name.toLowerCase().replace(/\s+/g, '-'); 
+        
+        // Find the badge ID that matches this plan
+        const activeBadge = document.getElementById(`badge-${formattedPlanName}`);
+        
+        if (activeBadge) {
+          activeBadge.classList.remove('hidden', 'bg-primary', 'text-black');
+          activeBadge.classList.add('bg-black', 'text-primary');
+        }
+        const activeCard = document.getElementById(`card-${formattedPlanName}`);
+        if (activeCard) {
+          // Remove the dark background and white text
+          activeCard.classList.remove('bg-surface', 'text-white', 'border-white/5', 'hover:bg-surface-variant');
+          // Add the bright yellow background and black text
+          activeCard.classList.add('bg-primary', 'text-black', 'border-primary');
+
+          const activeButton = activeCard.querySelector('button');
+          if (activeButton) {
+            // Remove the semi-transparent background
+            activeButton.classList.remove('bg-black/20');
+            // Make it solid black with neon yellow text (the hover:bg-white is already in your HTML!)
+            activeButton.classList.add('bg-black', 'text-primary');
+          }
+
+          const activeIcons = activeCard.querySelectorAll('.material-symbols-outlined');
+          activeIcons.forEach(icon => {
+            icon.classList.remove('text-primary'); // Remove the neon yellow
+            icon.classList.add('text-white');      // Turn them white
+          });
+
       }
     }
+  }
 
     // Run the function as soon as the page loads
     document.addEventListener("DOMContentLoaded", () => {
