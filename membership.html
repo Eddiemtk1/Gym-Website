@@ -129,11 +129,7 @@
             <h1
               class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
               Select Your <br /> <span class="text-primary">Caliber.</span>
-            </h1>
-            <p class="text-on-surface-variant mt-4 text-lg max-w-xl">
-              Engineered for high-performance athletes. No fluff, just pure kinetic output. Choose the protocol that
-              fits your mission.
-            </p>
+          </h1>
           </div>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
@@ -141,9 +137,6 @@
             <!-- GOLD CARD -->
             <div id="card-gold"
               class="bg-surface text-white p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group hover:bg-surface-variant transition-colors">
-              <div id="badge-gold" class="hidden absolute top-0 right-0 bg-primary text-black font-headline font-bold px-4 py-1 text-[10px] uppercase tracking-widest z-20">
-                Current Plan
-              </div>
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">Protocol 01</p>
                 <h3 class="font-headline text-3xl font-black mb-6">GOLD</h3>
@@ -178,9 +171,6 @@
             <!-- PLATINUM CARD -->
             <div id="card-platinum"
               class="bg-surface text-white p-8 flex flex-col justify-between relative overflow-hidden border border-white/5 group hover:bg-surface-variant transition-colors">
-              <div id="badge-platinum" class="hidden absolute top-0 right-0 bg-black text-primary font-headline font-bold px-4 py-1 text-[10px] uppercase tracking-widest z-20">
-                Current Plan
-              </div>
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">Protocol 02</p>
                 <h3 class="font-headline text-4xl font-black uppercase mb-6">PLATINUM</h3>
@@ -215,9 +205,6 @@
             <!-- DIAMOND CARD -->
             <div id="card-diamond"
               class="bg-surface text-white p-8 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:bg-surface-variant transition-colors">
-              <div id="badge-diamond" class="hidden absolute top-0 right-0 bg-primary text-black font-headline font-bold px-4 py-1 text-[10px] uppercase tracking-widest z-20">
-                Current Plan
-              </div>
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">Protocol 03</p>
                 <h3 class="font-headline text-3xl font-black mb-6">DIAMOND</h3>
@@ -324,12 +311,7 @@
         const formattedPlanName = data.plan_name.toLowerCase().replace(/\s+/g, '-'); 
         
         // Find the badge ID that matches this plan
-        const activeBadge = document.getElementById(`badge-${formattedPlanName}`);
-        
-        if (activeBadge) {
-          activeBadge.classList.remove('hidden', 'bg-primary', 'text-black');
-          activeBadge.classList.add('bg-black', 'text-primary');
-        }
+     
         const activeCard = document.getElementById(`card-${formattedPlanName}`);
         if (activeCard) {
           // Remove the dark background and white text
