@@ -5,11 +5,9 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>GymFlow | Memberships</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap"
     rel="stylesheet">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -73,13 +71,15 @@
           </div>
 
           <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
+              href="dashboard.html">
               <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
               <span class="text-xs uppercase tracking-widest">Dashboard</span>
             </a>
             <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all"
               href="membership.html">
-              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">card_membership</span>
+              <span class="material-symbols-outlined"
+                style="font-variation-settings: 'FILL' 1; font-size: 20px;">card_membership</span>
               <span class="text-xs uppercase tracking-widest">Memberships</span>
             </a>
             <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
@@ -98,12 +98,15 @@
 
           <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
             <div class="text-right">
-              <p class="font-headline font-bold text-white text-xs">Eddie M</p>
-              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Pro Elite</p>
+              <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
+                ...
+              </p>
+              <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">
+                ...
+              </p>
             </div>
             <div class="size-8 rounded-full border border-primary overflow-hidden">
-              <img alt="Profile" class="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9MiqOPezYLZCPljdC5PFOc7z17KZWjo6GZ766106W-xq7HFPdqHRWkyRkMQrNDtv5rXKv_rnFWBnfGZ_HCVNK3vdnUUF1hTiOJqRvBsGGvSKJZHvGp9AZ7oD_NesnSufnBjoLLnZZ6UW2aoAt3kC50puL9f8_LLKbe1jsM5Yt0aroavTecq_u2FMwN6FZagZuVu8Ul8PlB-Iz-tmJ-4Qyt62NCAakccSTNTcLVdMnSoLqwSjYxSRtCeUaxRs_MCRcQ77yGE3x9rA">
+              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
             </div>
           </div>
           <div class="flex gap-4">
@@ -123,17 +126,20 @@
         <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto max-w-7xl mx-auto w-full">
 
           <div class="mb-10">
-            <h1 class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
-              Select Your <br/> <span class="text-primary">Caliber.</span>
+            <h1
+              class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
+              Select Your <br /> <span class="text-primary">Caliber.</span>
             </h1>
             <p class="text-on-surface-variant mt-4 text-lg max-w-xl">
-              Engineered for high-performance athletes. No fluff, just pure kinetic output. Choose the protocol that fits your mission.
+              Engineered for high-performance athletes. No fluff, just pure kinetic output. Choose the protocol that
+              fits your mission.
             </p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-            
-            <div class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group hover:bg-surface-variant transition-colors">
+
+            <div
+              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group hover:bg-surface-variant transition-colors">
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Protocol 01</p>
                 <h3 class="font-headline text-3xl font-black text-white mb-6">GOLD</h3>
@@ -143,11 +149,13 @@
                 </div>
                 <ul class="space-y-4 mb-12">
                   <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="material-symbols-outlined text-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">24/7 Gym Access</span>
                   </li>
                   <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="material-symbols-outlined text-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Standard Strength Floor</span>
                   </li>
                   <li class="flex items-center gap-3 text-white/30">
@@ -160,13 +168,16 @@
                   </li>
                 </ul>
               </div>
-              <button class="w-full py-4 bg-surface-variant text-white font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
+              <button
+                class="w-full py-4 bg-surface-variant text-white font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
 
-            <div class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group shadow-[0px_40px_80px_rgba(215,255,0,0.1)]">
-              <div class="absolute top-0 right-0 bg-black text-primary px-4 py-2 font-headline font-black text-[10px] tracking-widest uppercase z-20">
+            <div
+              class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group shadow-[0px_40px_80px_rgba(215,255,0,0.1)]">
+              <div
+                class="absolute top-0 right-0 bg-black text-primary px-4 py-2 font-headline font-black text-[10px] tracking-widest uppercase z-20">
                 MOST POPULAR
               </div>
               <div class="relative z-10">
@@ -178,29 +189,35 @@
                 </div>
                 <ul class="space-y-4 mb-12">
                   <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    <span class="material-symbols-outlined text-on-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">Unlimited Performance Classes</span>
                   </li>
                   <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    <span class="material-symbols-outlined text-on-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">Recovery Lounge Access</span>
                   </li>
                   <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    <span class="material-symbols-outlined text-on-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">2 Monthly Trainer Credits</span>
                   </li>
                   <li class="flex items-center gap-3 text-on-primary">
-                    <span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    <span class="material-symbols-outlined text-on-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">bolt</span>
                     <span class="font-bold text-sm">Priority Lab Bookings</span>
                   </li>
                 </ul>
               </div>
-              <button class="relative z-10 w-full py-4 bg-on-primary text-primary font-headline font-black text-xs tracking-widest uppercase hover:brightness-150 transition-all">
+              <button
+                class="relative z-10 w-full py-4 bg-on-primary text-primary font-headline font-black text-xs tracking-widest uppercase hover:brightness-150 transition-all">
                 ACTIVATE
               </button>
             </div>
 
-            <div class="bg-surface p-8 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:bg-surface-variant transition-colors">
+            <div
+              class="bg-surface p-8 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:bg-surface-variant transition-colors">
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Protocol 03</p>
                 <h3 class="font-headline text-3xl font-black text-white mb-6">DIAMOND</h3>
@@ -210,24 +227,29 @@
                 </div>
                 <ul class="space-y-4 mb-12">
                   <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="material-symbols-outlined text-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Full Lab Access</span>
                   </li>
                   <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="material-symbols-outlined text-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Biometric Performance Tracking</span>
                   </li>
                   <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="material-symbols-outlined text-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">8 Monthly Trainer Credits</span>
                   </li>
                   <li class="flex items-center gap-3 text-white">
-                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="material-symbols-outlined text-primary text-sm"
+                      style="font-variation-settings: 'FILL' 1;">check_circle</span>
                     <span class="font-medium text-sm">Nutritional Protocol Design</span>
                   </li>
                 </ul>
               </div>
-              <button class="w-full py-4 bg-surface-variant text-white font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
+              <button
+                class="w-full py-4 bg-surface-variant text-white font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
@@ -235,9 +257,11 @@
 
           <div class="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div class="bg-surface p-12 border-l-4 border-primary">
-              <h4 class="font-headline text-2xl font-black text-white uppercase italic tracking-tighter mb-4">The GymFlow Promise</h4>
+              <h4 class="font-headline text-2xl font-black text-white uppercase italic tracking-tighter mb-4">The
+                GymFlow Promise</h4>
               <p class="text-on-surface-variant font-body leading-relaxed mb-8">
-                Our memberships aren't just entries to a gym—they are commitments to a higher standard of physical excellence. Every tier includes access to our proprietary tracking app and baseline performance testing.
+                Our memberships aren't just entries to a gym—they are commitments to a higher standard of physical
+                excellence. Every tier includes access to our proprietary tracking app and baseline performance testing.
               </p>
               <div class="flex gap-8">
                 <div>
@@ -250,10 +274,13 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="relative aspect-video bg-surface overflow-hidden group border border-white/5">
-              <img alt="Gym environment" class="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8qVtlNtPkAgM9AZ9nePOqZELmT0uUgoNcqUhAg6w_Noz-nBqaD-UKg1QieZJC9TDW6QJ4MjA3enVqCC8qdtVdg86N9qHb4hT0nLHl_eg6ejy3MyEOnz0rRqRT1bW9p14nPdHa5LA0Y_8JpcQx_NmNVANjO5_X7fDZtPctlBfCLiizTbHa5nCxZp5I9kb5zohXqCsgNKs2n4WfoPQsAKYOtFxchRXG-maMFDcDMOGoKExVBDIdMfZkw1mkQ9F7iKdiirHS_8jlyTM">
-              <div class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-6">
+              <img alt="Gym environment"
+                class="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8qVtlNtPkAgM9AZ9nePOqZELmT0uUgoNcqUhAg6w_Noz-nBqaD-UKg1QieZJC9TDW6QJ4MjA3enVqCC8qdtVdg86N9qHb4hT0nLHl_eg6ejy3MyEOnz0rRqRT1bW9p14nPdHa5LA0Y_8JpcQx_NmNVANjO5_X7fDZtPctlBfCLiizTbHa5nCxZp5I9kb5zohXqCsgNKs2n4WfoPQsAKYOtFxchRXG-maMFDcDMOGoKExVBDIdMfZkw1mkQ9F7iKdiirHS_8jlyTM">
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-6">
                 <h4 class="font-headline text-xl font-bold text-white">Live Atmosphere</h4>
                 <p class="text-[10px] font-bold text-primary uppercase tracking-widest">Industrial Protocol</p>
               </div>
@@ -270,6 +297,44 @@
       </main>
     </div>
   </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 1. Initialize Supabase
+    const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
+    const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // 2. Fetch only the data needed for the Navbar
+    async function loadNavbarData() {
+      const testUserId = "00000000-0000-0000-0000-000000000000";
+
+      const { data, error } = await supabaseClient
+        .from("user_subscriptions")
+        .select("first_name, last_name, plan_name, avatar_url")
+        .eq("user_id", testUserId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching navbar data:", error.message);
+        return;
+      }
+
+      // 3. Inject the Data into the Navbar HTML
+      if (data) {
+        document.getElementById('nav-user-name').innerText = `${data.first_name} ${data.last_name}`;
+        document.getElementById('nav-user-plan').innerText = data.plan_name;
+        document.getElementById('nav-user-avatar').src = data.avatar_url;
+      }
+    }
+
+    // Run the function as soon as the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      loadNavbarData();
+    });
+  </script>
+
+
 </body>
 
 </html>
