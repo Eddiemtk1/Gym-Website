@@ -170,7 +170,7 @@
                   </li>
                 </ul>
               </div>
-              <button class="w-full py-4 bg-black/20 font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
+              <button onclick="changePlan('GOLD')" class="w-full py-4 bg-black/20 font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
@@ -207,7 +207,7 @@
                   </li>
                 </ul>
               </div>
-              <button class="relative z-10 w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
+              <button onclick="changePlan('PLATINUM')" class="relative z-10 w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
@@ -244,7 +244,7 @@
                   </li>
                 </ul>
               </div>
-              <button class="w-full py-4 bg-black/20 font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
+              <button onclick="changePlan('DIAMOND')" class="w-full py-4 bg-black/20 font-headline font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">
                 ACTIVATE
               </button>
             </div>
@@ -339,10 +339,10 @@
 
           const activeButton = activeCard.querySelector('button');
           if (activeButton) {
-            // Remove the semi-transparent background
             activeButton.classList.remove('bg-black/20');
-            // Make it solid black with neon yellow text (the hover:bg-white is already in your HTML!)
             activeButton.classList.add('bg-black', 'text-primary');
+            activeButton.innerText = "CURRENT PLAN";
+            activeButton.disabled = true;
           }
 
           const activeIcons = activeCard.querySelectorAll('.material-symbols-outlined');
@@ -354,6 +354,25 @@
       }
     }
   }
+
+  async function changePlan(newPlanName) {
+      const testUserId = "00000000-0000-0000-0000-000000000000";
+
+      // 1. Tell Supabase to update the row
+      const { error } = await supabaseClient
+        .from('user_subscriptions')
+        .update({ plan_name: newPlanName })
+        .eq('user_id', testUserId);
+
+      if (error) {
+        console.error("Error updating plan:", error.message);
+        alert("Failed to update plan. Check console for details.");
+        return;
+      }
+
+      // 2. Refresh the page so the HTML recalculates the active yellow card!
+      window.location.reload();
+    }
 
     // Run the function as soon as the page loads
     document.addEventListener("DOMContentLoaded", () => {
