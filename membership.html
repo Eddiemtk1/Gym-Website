@@ -250,6 +250,17 @@
             </li>
           `;
         });
+        if (plan.excluded_benefits) {
+          plan.excluded_benefits.forEach(benefit => {
+            // We use opacity-40 to fade it out, and line-through to cross it out
+            benefitsHTML += `
+              <li class="flex items-center gap-4 opacity-40">
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">cancel</span>
+                <span class="font-medium text-sm line-through">${benefit}</span>
+              </li>
+            `;
+          });
+        }
 
         // Combine everything into the final card HTML
         const cardHTML = `
