@@ -125,7 +125,7 @@
           <p class="text-on-surface-variant">Enter your secure transaction details to finalise activation.</p>
         </div>
         
-        <form class="space-y-8">######
+        <form id="payment-form" class="space-y-8">
           <!-- This is the empty bucket where Stripe will inject the secure card input -->
           <div id="payment-element" class="bg-surface border border-white/5 p-4 min-h-[120px]">
             <!-- Stripe Elements will load here automatically -->
@@ -175,54 +175,42 @@
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-    const stripe = Stripe('pk_test_51TTQoLP3N58mW1OAC1buqxRf888Rbqf5kqGApFClbi8NsQVqKRX1dtPHfxot7nwg6bcpEWwGZVpugM1v1XHtEyv400NZQ94v9k');
 
-    function toggleCVV() {
-      const cvvInput = document.getElementById('cvv-input');
-      const cvvIcon = document.getElementById('cvv-icon');
-      
-      if (cvvInput.type === 'password') {
-        cvvInput.type = 'text';
-        cvvIcon.innerText = 'lock_open'; // Changes to the open padlock icon
-      } else {
-        cvvInput.type = 'password';
-        cvvIcon.innerText = 'lock';      // Changes back to the closed padlock icon
-      }
-    }
+    // 2. Initialize Stripe (PASTE YOUR FULL pk_test_... KEY HERE!)
+    const stripe = Stripe('pk_test_51TTQoLP3N58mW1OAC1buqxRf888Rbqf5kqGApFClbi8NsQVqKRX1dtPHfxot7nwg6bcpEWwGZVpugM1v1XHtEyv400NZQ94v9k'); 
 
     document.addEventListener("DOMContentLoaded", async () => {
-      // 2. Read the URL to find out which plan they clicked
+      
+      // 3. Read the URL to find out which plan they clicked
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.has('plan')) {
-        window.location.href = 'membership.html';
-        return;
+        window.location.href = 'membership.html'; // Kick them back if lost
+        return; 
       }
-      const selectedPlanId = urlParams.get('plan'); 
+      const selectedPlanId = urlParams.get('plan');
 
-      // 3. Fetch the exact plan details from your new Supabase table!
-      const { data: activePlan, error } = await supabaseClient
+      // 4. Fetch the exact plan details from Supabase
+      const { data: activePlan, error: planError } = await supabaseClient
         .from('membership_plans')
         .select('*')
-        .ilike('name', selectedPlanId) // ilike means it ignores capital letters
+        .ilike('name', selectedPlanId)
         .single();
 
-      if (error || !activePlan) {
-        console.error("Error fetching plan from Supabase:", error.message);
-        return;
+      if (planError || !activePlan) {
+        console.error("Error fetching plan:", planError);
+        return; // Stops the script if the database fails
       }
 
-      // 4. Inject the Supabase data into the HTML!
+      // 5. Inject the Supabase data into the HTML
       document.getElementById("summary-plan-name").innerText = activePlan.name;
       document.getElementById("summary-plan-price").innerText = `£${activePlan.price}`;
       document.getElementById("checkout-plan-name").innerText = activePlan.name;
       document.getElementById("checkout-total").innerText = `£${activePlan.price}.00`;
 
-      // 5. Build the benefits list dynamically
-      // 5. Build the benefits list dynamically
+      // 6. Build the benefits list
       const benefitsContainer = document.getElementById("summary-plan-benefits");
       benefitsContainer.innerHTML = ""; 
 
-      // Render the INCLUDED benefits (Neon Green Checkmarks)
       if (activePlan.benefits) {
         activePlan.benefits.forEach(benefit => {
           benefitsContainer.innerHTML += `
@@ -234,7 +222,6 @@
         });
       }
 
-      // Render the EXCLUDED benefits (Faded, Crossed Out, with an 'X')
       if (activePlan.excluded_benefits) {
         activePlan.excluded_benefits.forEach(benefit => {
           benefitsContainer.innerHTML += `
@@ -245,7 +232,64 @@
           `;
         });
       }
-      });
+
+      // 7. STRIPE INTEGRATION (The Edge Function)
+      try {
+        // Ping the backend we just built!
+        const { data: secretData, error: secretError } = await supabaseClient.functions.invoke('create-payment-intent', {
+          body: { planId: selectedPlanId }
+        });
+
+        if (secretError) throw secretError;
+
+        // Unlock the UI
+        const clientSecret = secretData.clientSecret;
+        const elements = stripe.elements({ 
+          clientSecret, 
+          appearance: { theme: 'night', variables: { colorPrimary: '#D7FF00' } } 
+        }); 
+        
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element'); // Paints the box!
+
+        // Handle the Submit Button
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault(); 
+
+          const btn = form.querySelector('button');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<span>PROCESSING...</span><span class="material-symbols-outlined animate-spin" style="font-size: 20px;">sync</span>';
+          btn.disabled = true;
+
+          // Tell Stripe to process the card
+          const { error: stripeError } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+              return_url: window.location.origin + '/dashboard.html', 
+            }
+          });
+
+          // If the card is declined (Test mode handles this automatically!)
+          if (stripeError) {
+            const messageContainer = document.getElementById('payment-message');
+            messageContainer.innerText = stripeError.message;
+            messageContainer.classList.remove('hidden');
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        });
+
+      } catch (err) {
+        console.error("Stripe Setup Error:", err);
+        const messageContainer = document.getElementById('payment-message');
+        if(messageContainer) {
+          messageContainer.innerText = "System connection error. Please try again later.";
+          messageContainer.classList.remove('hidden');
+        }
+      }
+    });
   </script>
 
 
