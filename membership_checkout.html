@@ -220,18 +220,34 @@
       document.getElementById("checkout-total").innerText = `£${activePlan.price}.00`;
 
       // 5. Build the benefits list dynamically
+      // 5. Build the benefits list dynamically
       const benefitsContainer = document.getElementById("summary-plan-benefits");
       benefitsContainer.innerHTML = ""; 
 
-      activePlan.benefits.forEach(benefit => {
-        benefitsContainer.innerHTML += `
-          <li class="flex items-center gap-5">
-            <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-            <span class="text-white font-medium text-lg">${benefit}</span>
-          </li>
-        `;
+      // Render the INCLUDED benefits (Neon Green Checkmarks)
+      if (activePlan.benefits) {
+        activePlan.benefits.forEach(benefit => {
+          benefitsContainer.innerHTML += `
+            <li class="flex items-center gap-5">
+              <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+              <span class="text-white font-medium text-lg">${benefit}</span>
+            </li>
+          `;
+        });
+      }
+
+      // Render the EXCLUDED benefits (Faded, Crossed Out, with an 'X')
+      if (activePlan.excluded_benefits) {
+        activePlan.excluded_benefits.forEach(benefit => {
+          benefitsContainer.innerHTML += `
+            <li class="flex items-center gap-5 opacity-40">
+              <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings: 'FILL' 0;">cancel</span>
+              <span class="text-white font-medium text-lg line-through">${benefit}</span>
+            </li>
+          `;
+        });
+      }
       });
-    });
   </script>
 
 
