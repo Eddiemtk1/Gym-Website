@@ -149,8 +149,8 @@
             <div class="space-y-2 group">
               <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Security Code (CVV)</label>
               <div class="relative">
-                <input class="w-full bg-surface border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary h-16 px-6 text-white font-medium placeholder:text-on-surface-variant/30 transition-all outline-none" placeholder="***" type="password" />
-                <span class="absolute right-6 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant" style="font-size: 20px;">lock</span>
+                <input id="cvv-input" class="w-full bg-surface border border-white/5 focus:border-primary focus:ring-1 focus:ring-primary h-16 px-6 text-white font-medium placeholder:text-on-surface-variant/30 transition-all outline-none" placeholder="***" type="password" />
+                <span id="cvv-icon" onclick="toggleCVV()" class="absolute right-6 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant" style="font-size: 20px;">lock</span>
               </div>
             </div>
           </div>
@@ -195,6 +195,20 @@
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    function toggleCVV() {
+      const cvvInput = document.getElementById('cvv-input');
+      const cvvIcon = document.getElementById('cvv-icon');
+      
+      if (cvvInput.type === 'password') {
+        cvvInput.type = 'text';
+        cvvIcon.innerText = 'lock_open'; // Changes to the open padlock icon
+      } else {
+        cvvInput.type = 'password';
+        cvvIcon.innerText = 'lock';      // Changes back to the closed padlock icon
+      }
+    }
+
 
     document.addEventListener("DOMContentLoaded", async () => {
       // 2. Read the URL to find out which plan they clicked
