@@ -339,6 +339,32 @@
     async function loadSubscriptionData() {
       const testUserId = "00000000-0000-0000-0000-000000000000";
 
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // Did they just come from a successful checkout?
+      if (urlParams.get('success') === 'true') {
+        const upgradedPlan = urlParams.get('new_plan');
+        
+        if (upgradedPlan) {
+          // 1. Update the database immediately
+          const { error: updateError } = await supabaseClient
+            .from('user_subscriptions')
+            .update({ plan_name: upgradedPlan.toUpperCase() })
+            .eq('user_id', testUserId);
+
+          if (updateError) {
+            console.error("Failed to update plan:", updateError);
+          } else {
+            window.location.href = window.location.origin + '/dashboard.html';
+            return;
+          }
+        }
+        
+        // 3. Clean the URL so if they hit refresh, it doesn't upgrade them again
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
       // --- FETCH SUBSCRIPTION DATA ---
       const { data, error } = await supabaseClient
         .from("user_subscriptions")
