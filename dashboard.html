@@ -318,24 +318,23 @@
   </div>
   </div>
   <script>
-    // 1. Initialize Supabase
+    // Initialize Supabase
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // 2. Fetch the Data
+    //Fetch the Data
     async function loadSubscriptionData() {
       const testUserId = "00000000-0000-0000-0000-000000000000";
 
       
       const urlParams = new URLSearchParams(window.location.search);
       
-      // Did they just come from a successful checkout?
       if (urlParams.get('success') === 'true') {
         const upgradedPlan = urlParams.get('new_plan');
         
         if (upgradedPlan) {
-          // 1. Update the database immediately
+          //Update the database
           const { error: updateError } = await supabaseClient
             .from('user_subscriptions')
             .update({ plan_name: upgradedPlan.toUpperCase() })
@@ -349,11 +348,9 @@
           }
         }
         
-        // 3. Clean the URL so if they hit refresh, it doesn't upgrade them again
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      // --- FETCH SUBSCRIPTION DATA ---
       const { data, error } = await supabaseClient
         .from("user_subscriptions")
         .select("*")
@@ -364,8 +361,6 @@
         console.error("Error fetching subscription:", error.message);
       }
 
-      // --- FETCH PERSONAL RECORDS DATA ---
-      // FIXED: Moved this completely outside of the error block above!
       const { data: prData, error: prError } = await supabaseClient
         .from('personal_records')
         .select('*')
@@ -376,7 +371,7 @@
         console.error('Error fetching personal records:', prError.message);
       }
 
-      // 3. Inject the Data into the HTML
+      //Injects the Data into the HTML
       if (data) {
         document.getElementById('nav-user-name').innerText = `${data.first_name} ${data.last_name}`;
         document.getElementById('nav-user-plan').innerText = data.plan_name;
@@ -389,7 +384,6 @@
         document.getElementById("profile-score-text").innerText = `${data.profile_score}% Profile Score`;
         document.getElementById("profile-score-bar").style.width = `${data.profile_score}%`;
 
-        // --- DYNAMIC WORKOUT MATH ---
         document.getElementById('workouts-count').innerText = data.workouts_this_month;
 
         let diff = data.workouts_this_month - data.workouts_last_month;
@@ -401,15 +395,14 @@
         document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
       }
       
-      // 4. Inject the Personal Records Data
+      // Injects the Personal Records Data
       if (prData) {
         document.getElementById('pr-deadlift').innerText = `${prData.deadlift} kg`;
         document.getElementById('pr-bench').innerText = `${prData.bench_press} kg`;
         document.getElementById('pr-squat').innerText = `${prData.squat} kg`;
       }
-    } // FIXED: Properly closed the loadSubscriptionData function here
+    }
 
-    // Run the function as soon as the page loads
     document.addEventListener("DOMContentLoaded", () => {
       loadSubscriptionData();
     });

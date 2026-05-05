@@ -126,16 +126,13 @@
         </div>
         
         <form id="payment-form" class="space-y-8">
-          <!-- This is the empty bucket where Stripe will inject the secure card input -->
           <div id="payment-element" class="bg-surface border border-white/5 p-4 min-h-[120px]">
-            <!-- Stripe Elements will load here automatically -->
           </div>
 
-          <!-- If there is a card error (e.g., declined), it will show up here -->
           <div id="payment-message" class="hidden text-red-500 text-xs font-bold uppercase tracking-widest mt-2"></div>
           
 
-          <!-- Additional Details -->
+          <!-- Subscriptiion Details -->
           <div class="bg-surface border border-white/5 p-8 space-y-4">
             <div class="flex justify-between items-center text-sm">
               <span class="text-on-surface-variant font-medium">Subscription Plan</span>
@@ -171,17 +168,15 @@
   </div>
 
   <script>
-    // 1. Initialize Supabase
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // 2. Initialize Stripe (PASTE YOUR FULL pk_test_... KEY HERE!)
+    //Stripe public key
     const stripe = Stripe('pk_test_51TTQoLP3N58mW1OAC1buqxRf888Rbqf5kqGApFClbi8NsQVqKRX1dtPHfxot7nwg6bcpEWwGZVpugM1v1XHtEyv400NZQ94v9k'); 
 
     document.addEventListener("DOMContentLoaded", async () => {
       
-      // 3. Read the URL to find out which plan they clicked
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.has('plan')) {
         window.location.href = 'membership.html'; // Kick them back if lost
@@ -189,7 +184,7 @@
       }
       const selectedPlanId = urlParams.get('plan');
 
-      // 4. Fetch the exact plan details from Supabase
+      // Fetch the plan details from Supabase
       const { data: activePlan, error: planError } = await supabaseClient
         .from('membership_plans')
         .select('*')
@@ -198,16 +193,15 @@
 
       if (planError || !activePlan) {
         console.error("Error fetching plan:", planError);
-        return; // Stops the script if the database fails
+        return;
       }
 
-      // 5. Inject the Supabase data into the HTML
+      //Inject the Supabase data into the HTML
       document.getElementById("summary-plan-name").innerText = activePlan.name;
       document.getElementById("summary-plan-price").innerText = `£${activePlan.price}`;
       document.getElementById("checkout-plan-name").innerText = activePlan.name;
       document.getElementById("checkout-total").innerText = `£${activePlan.price}.00`;
 
-      // 6. Build the benefits list
       const benefitsContainer = document.getElementById("summary-plan-benefits");
       benefitsContainer.innerHTML = ""; 
 
@@ -233,16 +227,14 @@
         });
       }
 
-      // 7. STRIPE INTEGRATION (The Edge Function)
+      // stripe integration
       try {
-        // Ping the backend we just built!
         const { data: secretData, error: secretError } = await supabaseClient.functions.invoke('create-payment-intent', {
           body: { planId: selectedPlanId }
         });
 
         if (secretError) throw secretError;
 
-        // Unlock the UI
         const clientSecret = secretData.clientSecret;
         const elements = stripe.elements({ 
           clientSecret, 
@@ -252,7 +244,7 @@
         const paymentElement = elements.create('payment');
         paymentElement.mount('#payment-element'); // Paints the box!
 
-        // Handle the Submit Button
+        //the Submit Button
         const form = document.getElementById('payment-form');
         form.addEventListener('submit', async (event) => {
           event.preventDefault(); 
@@ -262,7 +254,7 @@
           btn.innerHTML = '<span>PROCESSING...</span><span class="material-symbols-outlined animate-spin" style="font-size: 20px;">sync</span>';
           btn.disabled = true;
 
-          // Tell Stripe to process the card
+          //Stripe processing the card
           const { error: stripeError } = await stripe.confirmPayment({
             elements,
             confirmParams: {
@@ -270,7 +262,7 @@
             }
           });
 
-          // If the card is declined (Test mode handles this automatically!)
+          // If the card is declined
           if (stripeError) {
             const messageContainer = document.getElementById('payment-message');
             messageContainer.innerText = stripeError.message;
