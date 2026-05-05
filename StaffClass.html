@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>GymFlow Staff | Schedule Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#D7FF00",
+            "on-primary": "#0e0e0e",
+            "background": "#0e0e0e",
+            "surface": "#131313",
+            "surface-variant": "#1a1a1a",
+            "outline": "#404040",
+            "on-surface": "#ffffff",
+            "on-surface-variant": "#a3a3a3",
+          },
+          fontFamily: {
+            "headline": ["Lexend"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {
+            "DEFAULT": "0px",
+            "lg": "0px",
+            "xl": "0px",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .glass-nav {
+      background: rgba(14, 14, 14, 0.8);
+      backdrop-filter: blur(12px);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23D7FF00' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+      background-position: right 0.5rem center !important;
+      background-repeat: no-repeat !important;
+      background-size: 1.5em 1.5em !important;
+      appearance: none;
+    }
+    
+    .specialty-card {
+      backdrop-filter: blur(16px);
+      background: rgba(26, 26, 26, 0.95);
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body antialiased">
+  <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+
+      <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+        <div class="flex items-center gap-12">
+          <div class="flex items-center gap-4 text-primary">
+            <div class="size-6">
+              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+              </svg>
+            </div>
+            <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW <span class="text-primary/50 text-[10px] italic ml-1 tracking-widest uppercase">Staff</span></h2>
+          </div>
+
+          <nav class="hidden md:flex items-center h-10">
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+              <span class="text-xs uppercase tracking-widest font-bold">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="membership.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">card_membership</span>
+              <span class="text-xs uppercase tracking-widest font-bold">Memberships</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="timetable.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
+              <span class="text-xs uppercase tracking-widest font-bold">Timetable</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
+            <div class="text-right">
+              <p class="font-headline font-bold text-white text-xs">Staff Admin</p>
+              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Manager Mode</p>
+            </div>
+            <div class="size-8 rounded-full border border-primary overflow-hidden">
+              <img alt="Profile" class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=Staff+Member&background=D7FF00&color=0e0e0e">
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 flex items-center justify-center p-6 lg:p-10">
+        <div class="w-full max-w-2xl bg-surface border border-white/5 p-8 lg:p-12 shadow-2xl relative">
+          <div class="absolute top-0 right-0 w-24 h-1 bg-primary"></div>
+
+          <div class="mb-10">
+            <h1 class="font-headline text-4xl lg:text-6xl font-black text-white uppercase italic leading-none tracking-tighter">
+              Schedule <span class="text-primary">New Class</span>
+            </h1>
+            <p class="text-on-surface-variant mt-4 uppercase text-[10px] tracking-[0.2em] font-bold">Timetable Management Console</p>
+          </div>
+
+          <form id="staffClassForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+              <label class="block text-[10px] font-bold text-primary uppercase mb-2 tracking-widest">Class Name</label>
+              <input type="text" id="className" required placeholder="e.g. Advanced Kettlebell" class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4 text-lg font-headline font-bold uppercase placeholder:text-white/10">
+            </div>
+
+            <div class="md:col-span-2 relative">
+              <div class="flex justify-between items-end mb-2">
+                <label class="block text-[10px] font-bold text-primary uppercase tracking-widest">Class Leader (Coach)</label>
+                <button type="button" onclick="toggleSpecialties()" class="flex items-center gap-1 text-[10px] font-bold text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest">
+                  <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
+                  Coach Specialties
+                </button>
+              </div>
+              
+              <select id="classCoach" required class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4 font-bold uppercase text-sm">
+                <option value="" disabled selected>Select Leader</option>
+                <option value="Alex Rivers">Alex Rivers</option>
+                <option value="Jordan Vance">Jordan Vance</option>
+                <option value="Casey Morgan">Casey Morgan</option>
+                <option value="Taylor Brooks">Taylor Brooks</option>
+                <option value="Riley Quinn">Riley Quinn</option>
+                <option value="Morgan Hayes">Morgan Hayes</option>
+                <option value="Skyler Reed">Skyler Reed</option>
+                <option value="Charlie Lane">Charlie Lane</option>
+                <option value="Dakota West">Dakota West</option>
+                <option value="Jamie Sterling">Jamie Sterling</option>
+                <option value="Parker Solis">Parker Solis</option>
+                <option value="Emerson Knight">Emerson Knight</option>
+                <option value="Rowan Blair">Rowan Blair</option>
+                <option value="Hayden Frost">Hayden Frost</option>
+              </select>
+
+              <!-- SPECIALTY EXPANSION PANEL -->
+              <div id="specialtyPanel" class="hidden absolute left-0 right-0 top-full mt-2 z-20 specialty-card border border-white/10 p-6 shadow-2xl">
+                <h4 class="text-primary font-headline font-bold text-xs uppercase tracking-widest mb-4 border-b border-primary/20 pb-2">Coach Expertise Directory</h4>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[10px] uppercase tracking-wider font-bold">
+                  <div><span class="text-white">Alex Rivers:</span> <span class="text-on-surface-variant">Swimming, HIIT</span></div>
+                  <div><span class="text-white">Jordan Vance:</span> <span class="text-on-surface-variant">Yoga, Pilates</span></div>
+                  <div><span class="text-white">Casey Morgan:</span> <span class="text-on-surface-variant">Benchpress, Powerlifting</span></div>
+                  <div><span class="text-white">Taylor Brooks:</span> <span class="text-on-surface-variant">Treadmill, Cardio</span></div>
+                  <div><span class="text-white">Riley Quinn:</span> <span class="text-on-surface-variant">Spinning, Endurance</span></div>
+                  <div><span class="text-white">Morgan Hayes:</span> <span class="text-on-surface-variant">Zumba, Dance</span></div>
+                  <div><span class="text-white">Skyler Reed:</span> <span class="text-on-surface-variant">CrossFit, Kettlebell</span></div>
+                  <div><span class="text-white">Charlie Lane:</span> <span class="text-on-surface-variant">Boxing, MMA Fit</span></div>
+                  <div><span class="text-white">Dakota West:</span> <span class="text-on-surface-variant">Stretching, Recovery</span></div>
+                  <div><span class="text-white">Jamie Sterling:</span> <span class="text-on-surface-variant">Bodybuilding</span></div>
+                  <div><span class="text-white">Parker Solis:</span> <span class="text-on-surface-variant">Calisthenics</span></div>
+                  <div><span class="text-white">Emerson Knight:</span> <span class="text-on-surface-variant">Olympic Lifting</span></div>
+                  <div><span class="text-white">Rowan Blair:</span> <span class="text-on-surface-variant">Aquatics</span></div>
+                  <div><span class="text-white">Hayden Frost:</span> <span class="text-on-surface-variant">Mobility, TRX</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-primary uppercase mb-2 tracking-widest">Scheduled Date</label>
+              <input type="date" id="classDate" required class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4">
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-primary uppercase mb-2 tracking-widest">Start Time</label>
+              <input type="time" id="classTime" required class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4">
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-primary uppercase mb-2 tracking-widest">Max Capacity</label>
+              <input type="number" id="classCapacity" required placeholder="25" class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4">
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-primary uppercase mb-2 tracking-widest">Location / Studio</label>
+              <select id="classLocation" required class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4 font-bold uppercase text-sm">
+                <option value="" disabled selected>Select Studio</option>
+                <option value="Studio A">Studio A</option>
+                <option value="Studio B">Studio B</option>
+                <option value="Studio C">Studio C</option>
+                <option value="Studio D">Studio D</option>
+                <option value="Studio E">Studio E</option>
+                <option value="Studio F">Studio F</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2 mt-4">
+              <button type="submit" id="submitBtn" class="w-full py-5 bg-primary text-on-primary font-headline font-black uppercase italic text-lg tracking-[0.1em] hover:bg-white hover:scale-[1.01] transition-all flex justify-center items-center gap-3">
+                <span id="btnText">Publish to Timetable</span>
+              </button>
+            </div>
+          </form>
+
+          <div id="successMessage" class="hidden mt-6 p-4 bg-primary/10 border border-primary/20 text-primary text-center uppercase text-xs font-bold tracking-widest animate-pulse">
+            Class has been added successfully!
+          </div>
+        </div>
+      </main>
+
+      <footer class="bg-surface border-t border-white/10 p-10 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+          <div class="flex items-center gap-4 text-primary opacity-50 grayscale hover:grayscale-0 transition-all cursor-default">
+            <div class="size-5"><svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path></svg></div>
+            <h2 class="text-white font-headline text-lg font-black tracking-tighter uppercase italic">GymFlow</h2>
+          </div>
+          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.3em]">© 2026 GymFlow Systems • Performance Driven</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Toggle Specialties Panel
+    function toggleSpecialties() {
+      const panel = document.getElementById('specialtyPanel');
+      panel.classList.toggle('hidden');
+    }
+
+    // Close panel if clicking outside
+    document.addEventListener('click', function(event) {
+      const panel = document.getElementById('specialtyPanel');
+      const infoBtn = event.target.closest('button');
+      if (panel && !panel.contains(event.target) && (!infoBtn || infoBtn.getAttribute('onclick') !== 'toggleSpecialties()')) {
+        panel.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('staffClassForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const msg = document.getElementById('successMessage');
+
+      btnText.innerText = 'Syncing...';
+      btn.disabled = true;
+
+      const classData = {
+        name: document.getElementById('className').value,
+        coach: document.getElementById('classCoach').value,
+        date: document.getElementById('classDate').value,
+        time: document.getElementById('classTime').value,
+        capacity: parseInt(document.getElementById('classCapacity').value),
+        location: document.getElementById('classLocation').value
+      };
+
+      try {
+        const { error } = await _supabase
+          .from('gym_classes')
+          .insert([classData]);
+
+        if (error) throw error;
+
+        msg.classList.remove('hidden');
+        btnText.innerText = 'Class Published!';
+        this.reset();
+
+        setTimeout(() => {
+          msg.classList.add('hidden');
+          btnText.innerText = 'Publish to Timetable';
+          btn.disabled = false;
+        }, 2500);
+
+      } catch (error) {
+        console.error("Submission Error:", error);
+        alert("Submission failed: " + error.message);
+        btnText.innerText = 'Error - Try Again';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>
