@@ -115,7 +115,7 @@
           <div class="mb-10">
             <h1
               class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
-              Select Your <br /> <span class="text-primary">Caliber.</span>
+              choose your <br /> <span class="text-primary">Future.</span>
           </h1>
           </div>
 
@@ -169,7 +169,6 @@
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // 1. Initialize Supabase
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -177,7 +176,6 @@
     async function loadPageData() {
       const testUserId = "00000000-0000-0000-0000-000000000000";
 
-      // --- PART A: LOAD NAVBAR DATA & GET CURRENT PLAN ---
       const { data: userData, error: userError } = await supabaseClient
         .from("user_subscriptions")
         .select("first_name, last_name, plan_name, avatar_url")
@@ -187,21 +185,17 @@
       if (userError) {
         console.error("Error fetching user data:", userError.message);
       } else if (userData) {
-        // Inject user data into the top right navbar
         document.getElementById('nav-user-name').innerText = `${userData.first_name} ${userData.last_name}`;
         document.getElementById('nav-user-plan').innerText = userData.plan_name;
         document.getElementById('nav-user-avatar').src = userData.avatar_url;
       }
 
-      // Save the name of their current plan so we can highlight it later
       const currentPlanName = userData ? userData.plan_name.toUpperCase() : null;
 
-
-      // --- PART B: GENERATE DYNAMIC MEMBERSHIP CARDS ---
       const { data: plans, error: plansError } = await supabaseClient
         .from('membership_plans')
         .select('*')
-        .order('price', { ascending: true }); // Sorts Gold -> Platinum -> Diamond
+        .order('price', { ascending: true }); 
 
       if (plansError) {
         console.error("Error fetching plans:", plansError.message);
@@ -209,9 +203,8 @@
       }
 
       const container = document.getElementById('plans-container');
-      container.innerHTML = ''; // Clear the bucket
+      container.innerHTML = ''; 
 
-      // Loop through the plans and build the cards
       plans.forEach((plan, index) => {
         // Check if this card is their active plan
         const isActive = plan.name.toUpperCase() === currentPlanName;
@@ -222,12 +215,11 @@
           : 'bg-surface text-white border-white/5 hover:bg-surface-variant';
         const iconClasses = isActive ? 'text-white' : 'text-primary';
 
-        // Setup the button to go to the checkout page!
         const buttonHTML = isActive
           ? `<button disabled class="w-full py-4 bg-black text-primary font-headline font-black text-xs tracking-widest uppercase transition-all">CURRENT PLAN</button>`
           : `<button onclick="window.location.href='membership_checkout.html?plan=${plan.name.toLowerCase()}'" class="w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">ACTIVATE</button>`;
 
-        // Build the list of benefits
+        // creates the list of benefits
         let benefitsHTML = '';
         plan.benefits.forEach(benefit => {
           benefitsHTML += `
@@ -239,7 +231,6 @@
         });
         if (plan.excluded_benefits) {
           plan.excluded_benefits.forEach(benefit => {
-            // We use opacity-40 to fade it out, and line-through to cross it out
             benefitsHTML += `
               <li class="flex items-center gap-4 opacity-40">
                 <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">cancel</span>
@@ -249,7 +240,6 @@
           });
         }
 
-        // Combine everything into the final card HTML
         const cardHTML = `
           <div class="flex flex-col p-8 border transition-all duration-300 ${cardClasses}">
             <div class="mb-8 flex-grow">
@@ -269,12 +259,10 @@
           </div>
         `;
 
-        // Inject it into the screen!
         container.innerHTML += cardHTML;
       });
     }
 
-    // Run the master function as soon as the page loads
     document.addEventListener("DOMContentLoaded", loadPageData);
   </script>
 
