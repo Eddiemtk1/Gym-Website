@@ -174,12 +174,19 @@
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     async function loadPageData() {
-      const testUserId = "00000000-0000-0000-0000-000000000000";
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const realUserId = session.user.id;
 
       const { data: userData, error: userError } = await supabaseClient
         .from("user_subscriptions")
         .select("first_name, last_name, plan_name, avatar_url")
-        .eq("user_id", testUserId)
+        .eq("user_id", realUserId)
         .single();
 
       if (userError) {

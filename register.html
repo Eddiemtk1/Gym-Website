@@ -270,6 +270,27 @@
           email: formValues.email,
           phone: formValues.phone || null,
         }, { onConflict: 'user_id' });
+
+        const nameParts = formValues.name.trim().split(' ');
+        const firstName = nameParts[0];
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+        const { error: subError } = await db.from('user_subscriptions').insert([{
+          user_id: data.user.id,
+          first_name: firstName,
+          last_name: lastName,
+          plan_name: 'GUEST PASS',
+          status: 'PENDING',
+          profile_score: 0,
+          workouts_this_month: 0,
+          workouts_last_month: 0,
+          next_billing_date: 'Select a plan',
+          avatar_url: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=D7FF00&color=0e0e0e`
+        }]);
+
+        if (subError) {
+          console.error("Failed to build default dashboard:", subError);
+        }
       }
 
       ui.form.style.display = 'none';
