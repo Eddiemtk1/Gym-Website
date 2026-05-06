@@ -305,10 +305,19 @@
         const upgradedPlan = urlParams.get('new_plan');
         
         if (upgradedPlan) {
+          const nextBilling = new Date();
+          nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+          const formattedBillingDate = nextBilling.toLocaleDateString('en-UK', { day: 'numeric', month: 'short', year: 'numeric' });
+
           //Update the database
           const { error: updateError } = await supabaseClient
             .from('user_subscriptions')
-            .update({ plan_name: upgradedPlan.toUpperCase() })
+            .update({ 
+              plan_name: upgradedPlan.toUpperCase(),
+              status: 'ACTIVE',
+              next_billing_date: formattedBillingDate
+             })
             .eq('user_id', realUserId);
 
           if (updateError) {
