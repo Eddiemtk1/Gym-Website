@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>My Schedule – GymFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#D7FF00",
+            "on-primary": "#0e0e0e",
+            "background": "#0e0e0e",
+            "surface": "#131313",
+            "surface-variant": "#1a1a1a",
+            "outline": "#404040",
+            "on-surface": "#ffffff",
+            "on-surface-variant": "#a3a3a3",
+          },
+          fontFamily: { "headline": ["Lexend"], "body": ["Inter"], "label": ["Inter"] },
+          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body antialiased">
+  <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
+    <div class="flex h-full grow flex-col">
+
+      <!-- Header -->
+      <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+        <div class="flex items-center gap-12">
+          <div class="flex items-center gap-4 text-primary">
+            <div class="size-6">
+              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+              </svg>
+            </div>
+            <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
+          </div>
+          <nav class="hidden md:flex items-center h-10">
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+              <span class="text-xs uppercase tracking-widest">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
+              <span class="material-symbols-outlined" style="font-size: 20px;">fitness_center</span>
+              <span class="text-xs uppercase tracking-widest">Workouts</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
+              <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
+              <span class="text-xs uppercase tracking-widest">Classes</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="trainer-schedule.html">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">manage_accounts</span>
+              <span class="text-xs uppercase tracking-widest">Trainers</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+              <span class="text-xs uppercase tracking-widest">Settings</span>
+            </a>
+          </nav>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
+            <div class="text-right">
+              <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
+              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Trainer</p>
+            </div>
+            <div class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+              <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
+              <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">?</span>
+            </div>
+          </a>
+          <button id="logout-btn" title="Sign out"
+            class="flex items-center gap-2 px-4 h-10 bg-surface-variant text-on-surface-variant hover:bg-white hover:text-black transition-colors text-xs font-bold uppercase tracking-widest">
+            <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+            <span class="hidden sm:inline">Sign out</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main content -->
+      <main class="flex-1 p-6 lg:p-10 space-y-8">
+
+        <!-- Page title -->
+        <div class="border-b border-white/10 pb-6">
+          <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
+            My Schedule
+          </h1>
+          <p class="text-on-surface-variant mt-3">All classes you are currently assigned to lead.</p>
+        </div>
+
+        <!-- Not a trainer message (hidden by default) -->
+        <div id="not-trainer-msg" class="hidden">
+          <div class="bg-surface border border-outline/40 p-10 text-center space-y-3">
+            <span class="material-symbols-outlined text-5xl text-on-surface-variant opacity-40 block">person_off</span>
+            <h2 class="font-headline font-bold text-white text-xl">No trainer profile found</h2>
+            <p class="text-on-surface-variant text-sm max-w-sm mx-auto">
+              This page is for registered trainers. If you believe this is an error, ask a staff member to add you as a trainer in Supabase.
+            </p>
+            <a href="dashboard.html" class="inline-flex items-center gap-2 mt-4 px-5 h-10 border border-outline/60 text-on-surface-variant hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
+              Back to Dashboard
+            </a>
+          </div>
+        </div>
+
+        <!-- Schedule content (shown when trainer record found) -->
+        <div id="schedule-content" class="space-y-8">
+
+          <!-- Trainer info card -->
+          <div class="bg-surface border border-outline/40 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            <div class="size-14 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+              <span id="trainer-initial" class="font-headline font-black text-on-primary text-2xl">?</span>
+            </div>
+            <div class="flex-1">
+              <h2 id="trainer-name" class="font-headline font-bold text-white text-xl">Loading...</h2>
+              <p id="trainer-spec" class="text-primary text-xs font-bold uppercase tracking-wider mt-0.5">General Trainer</p>
+            </div>
+            <div class="flex gap-6">
+              <div class="text-center">
+                <p id="stat-upcoming" class="font-headline font-black text-primary text-2xl">—</p>
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider">Upcoming</p>
+              </div>
+              <div class="text-center">
+                <p id="stat-total" class="font-headline font-black text-white text-2xl">—</p>
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider">Total Assigned</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming classes -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Upcoming Sessions</h2>
+            <div id="upcoming-empty" class="hidden bg-surface border border-outline/40 p-10 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-40 block mb-2">event_available</span>
+              <p class="text-on-surface-variant text-sm">No upcoming classes assigned yet.</p>
+            </div>
+            <div id="upcoming-list" class="space-y-3"></div>
+          </div>
+
+          <!-- Past classes -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Past Sessions</h2>
+            <div id="past-empty" class="hidden bg-surface border border-outline/40 p-10 text-center">
+              <span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-40 block mb-2">history</span>
+              <p class="text-on-surface-variant text-sm">No completed sessions yet.</p>
+            </div>
+            <div id="past-list" class="space-y-3"></div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+    let trainerRecord = null;
+
+    // Start page
+    async function init() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { window.location.replace('login.html'); return; }
+      currentUser = session.user;
+      loadHeader();
+
+      // Check if user has a trainer record
+      const { data: trainer } = await db
+        .from('trainers')
+        .select('id, name, specialisation')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      if (!trainer) {
+        document.getElementById('not-trainer-msg').classList.remove('hidden');
+        document.getElementById('schedule-content').classList.add('hidden');
+        return;
+      }
+
+      trainerRecord = trainer;
+      document.getElementById('trainer-name').textContent = trainer.name;
+      document.getElementById('trainer-spec').textContent = trainer.specialisation || 'General Trainer';
+      document.getElementById('trainer-initial').textContent = trainer.name.charAt(0).toUpperCase();
+
+      await loadSchedule();
+    }
+
+    // Header user info
+    async function loadHeader() {
+      const { data: profile } = await db.from('profiles').select('name, avatar_url').eq('user_id', currentUser.id).single();
+      if (!profile) return;
+      const name = profile.name || currentUser.email;
+      document.getElementById('header-name').textContent = name;
+      document.getElementById('header-avatar-initial').textContent = name.charAt(0).toUpperCase();
+      if (profile.avatar_url) {
+        const img = document.getElementById('header-avatar-img');
+        img.src = profile.avatar_url;
+        img.classList.remove('hidden');
+        document.getElementById('header-avatar-initial').classList.add('hidden');
+      }
+    }
+
+    // Load trainer schedule
+    async function loadSchedule() {
+      const { data: assignments, error } = await db
+        .from('class_trainers')
+        .select(`class_id, classes ( id, name, description, datetime, duration_minutes, location, status )`)
+        .eq('trainer_id', trainerRecord.id);
+
+      if (error) { console.error('Schedule error:', error); return; }
+
+      const classes = (assignments || [])
+        .map(a => a.classes)
+        .filter(Boolean)
+        .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+
+      const upcoming = classes.filter(c => c.status !== 'completed' && c.status !== 'cancelled');
+      const past = classes.filter(c => c.status === 'completed' || c.status === 'cancelled');
+
+      document.getElementById('stat-upcoming').textContent = upcoming.length;
+      document.getElementById('stat-total').textContent = classes.length;
+
+      renderClassList(upcoming, 'upcoming-list', 'upcoming-empty');
+      renderClassList(past, 'past-list', 'past-empty');
+    }
+
+    // Render class cards
+    function renderClassList(classes, listId, emptyId) {
+      const container = document.getElementById(listId);
+      const emptyEl = document.getElementById(emptyId);
+      container.innerHTML = '';
+
+      if (!classes.length) {
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+      emptyEl.classList.add('hidden');
+
+      classes.forEach(cls => {
+        const dt = new Date(cls.datetime);
+        const dateStr = dt.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+        const timeStr = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const duration = cls.duration_minutes || 60;
+        const isToday = new Date().toDateString() === dt.toDateString();
+
+        const card = document.createElement('div');
+        card.className = 'bg-surface border border-outline/40 p-5 flex items-start gap-4 hover:border-primary/30 transition-colors';
+        card.innerHTML = `
+          <div class="size-14 bg-primary/10 border border-primary/20 flex flex-col items-center justify-center flex-shrink-0">
+            <span class="text-primary font-headline font-black text-xl leading-none">${dt.getDate()}</span>
+            <span class="text-primary text-[9px] font-bold uppercase tracking-wider">
+              ${dt.toLocaleDateString('en-GB', { month: 'short' })}
+            </span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <h3 class="font-headline font-bold text-white">${cls.name}</h3>
+              ${isToday ? `<span class="px-1.5 py-0.5 bg-primary text-on-primary text-[9px] font-black uppercase tracking-wider">Today</span>` : ''}
+              ${cls.status === 'completed' ? `<span class="px-1.5 py-0.5 bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-wider">Completed</span>` : ''}
+              ${cls.status === 'cancelled' ? `<span class="px-1.5 py-0.5 bg-red-500/10 text-red-400 text-[9px] font-bold uppercase tracking-wider">Cancelled</span>` : ''}
+            </div>
+            <p class="text-xs text-on-surface-variant">
+              ${dateStr}
+            </p>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              ${timeStr}
+              &nbsp;·&nbsp; ${duration} min
+              ${cls.location ? `&nbsp;·&nbsp; ${cls.location}` : ''}
+            </p>
+            ${cls.description ? `<p class="text-xs text-on-surface-variant/60 mt-1 line-clamp-1">${cls.description}</p>` : ''}
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await db.auth.signOut(); window.location.replace('login.html');
+    });
+
+    init();
+  </script>
+</body>
+</html>

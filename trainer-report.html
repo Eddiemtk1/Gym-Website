@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Hours Report – GymFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#D7FF00",
+            "on-primary": "#0e0e0e",
+            "background": "#0e0e0e",
+            "surface": "#131313",
+            "surface-variant": "#1a1a1a",
+            "outline": "#404040",
+            "on-surface": "#ffffff",
+            "on-surface-variant": "#a3a3a3",
+          },
+          fontFamily: { "headline": ["Lexend"], "body": ["Inter"], "label": ["Inter"] },
+          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body antialiased">
+  <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
+    <div class="flex h-full grow flex-col">
+
+      <!-- Header -->
+      <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+        <div class="flex items-center gap-12">
+          <div class="flex items-center gap-4 text-primary">
+            <div class="size-6">
+              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+              </svg>
+            </div>
+            <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
+          </div>
+          <nav class="hidden md:flex items-center h-10">
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+              <span class="text-xs uppercase tracking-widest">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
+              <span class="material-symbols-outlined" style="font-size: 20px;">fitness_center</span>
+              <span class="text-xs uppercase tracking-widest">Workouts</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
+              <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
+              <span class="text-xs uppercase tracking-widest">Classes</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="trainer-report.html">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">manage_accounts</span>
+              <span class="text-xs uppercase tracking-widest">Trainers</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+              <span class="text-xs uppercase tracking-widest">Settings</span>
+            </a>
+          </nav>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
+            <div class="text-right">
+              <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
+              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
+            </div>
+            <div class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+              <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
+              <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">?</span>
+            </div>
+          </a>
+          <button id="logout-btn" title="Sign out"
+            class="flex items-center gap-2 px-4 h-10 bg-surface-variant text-on-surface-variant hover:bg-white hover:text-black transition-colors text-xs font-bold uppercase tracking-widest">
+            <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+            <span class="hidden sm:inline">Sign out</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main content -->
+      <main class="flex-1 p-6 lg:p-10 space-y-8">
+
+        <!-- Page title -->
+        <div class="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
+              Hours Report
+            </h1>
+            <p id="page-subtitle" class="text-on-surface-variant mt-3">Summary of trainer hours across all sessions.</p>
+          </div>
+          <!-- Staff only: link back to assignment page -->
+          <a id="staff-link" href="assign-trainer.html"
+            class="self-start sm:self-auto flex items-center gap-2 px-5 h-10 border border-outline/60 text-on-surface-variant hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
+            Trainer Assignment
+          </a>
+        </div>
+
+        <!-- Alert -->
+        <div id="page-alert" class="hidden px-4 py-3 text-sm font-medium border"></div>
+
+        <!-- Filter bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex items-center gap-0 border border-outline/40 self-start">
+            <button data-range="today"
+              class="px-5 h-9 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">Today</button>
+            <button data-range="week"
+              class="px-5 h-9 bg-primary text-on-primary text-xs font-bold uppercase tracking-widest transition-colors border-l border-r border-outline/40">This Week</button>
+            <button data-range="month"
+              class="px-5 h-9 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">This Month</button>
+          </div>
+          <p id="date-range" class="text-on-surface-variant text-xs"></p>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-surface border border-outline/40 p-4">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Total Hours</p>
+            <p id="stat-hours" class="font-headline font-black text-primary text-3xl">—</p>
+          </div>
+          <div class="bg-surface border border-outline/40 p-4">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Sessions</p>
+            <p id="stat-sessions" class="font-headline font-black text-white text-3xl">—</p>
+          </div>
+          <div id="stat-trainers-card" class="bg-surface border border-outline/40 p-4">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Active Trainers</p>
+            <p id="stat-trainers" class="font-headline font-black text-white text-3xl">—</p>
+          </div>
+          <div class="bg-surface border border-outline/40 p-4">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Pending Confirmation</p>
+            <p id="stat-unconfirmed" class="font-headline font-black text-white text-3xl">—</p>
+          </div>
+        </div>
+
+        <!-- Grouped totals (staff only) -->
+        <div id="grouped-section" class="space-y-3">
+          <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest">By Trainer</h2>
+          <div id="grouped-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- Detail table -->
+        <div>
+          <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Session Breakdown</h2>
+          <div class="bg-surface border border-outline/40 overflow-x-auto">
+            <table class="w-full min-w-[600px]">
+              <thead>
+                <tr class="border-b border-white/10">
+                  <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Date</th>
+                  <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Trainer</th>
+                  <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Class</th>
+                  <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Hours</th>
+                  <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Status</th>
+                </tr>
+              </thead>
+              <tbody id="report-tbody">
+                <tr>
+                  <td colspan="5" class="text-center py-12 text-on-surface-variant text-sm">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const ui = {
+      headerName: document.getElementById('header-name'),
+      headerAvatarImg: document.getElementById('header-avatar-img'),
+      headerAvatarInitial: document.getElementById('header-avatar-initial'),
+      pageSubtitle: document.getElementById('page-subtitle'),
+      groupedSection: document.getElementById('grouped-section'),
+      groupedList: document.getElementById('grouped-list'),
+      statTrainersCard: document.getElementById('stat-trainers-card'),
+      staffLink: document.getElementById('staff-link'),
+      dateRange: document.getElementById('date-range'),
+      statHours: document.getElementById('stat-hours'),
+      statSessions: document.getElementById('stat-sessions'),
+      statTrainers: document.getElementById('stat-trainers'),
+      statUnconfirmed: document.getElementById('stat-unconfirmed'),
+      reportBody: document.getElementById('report-tbody'),
+      alert: document.getElementById('page-alert'),
+      logoutBtn: document.getElementById('logout-btn'),
+      rangeButtons: Array.from(document.querySelectorAll('[data-range]')),
+    };
+
+    let currentUser = null;
+    let trainerRecord = null;
+    let isTrainer = false;
+    let activeRange = 'week';
+
+    const toIsoDate = date => date.toISOString().split('T')[0];
+    const toHours = value => Number(value || 0);
+
+    async function init() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        window.location.replace('login.html');
+        return;
+      }
+
+      currentUser = session.user;
+      await loadHeader();
+      await detectRole();
+      bindRangeButtons();
+      await refreshReport();
+    }
+
+    async function detectRole() {
+      const { data: trainer } = await db
+        .from('trainers')
+        .select('id, name')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      if (!trainer) return;
+
+      isTrainer = true;
+      trainerRecord = trainer;
+      ui.pageSubtitle.textContent = 'Your personal hours summary.';
+      ui.groupedSection.classList.add('hidden');
+      ui.statTrainersCard.classList.add('hidden');
+      ui.staffLink.classList.add('hidden');
+    }
+
+    async function loadHeader() {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('name, avatar_url')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      if (!profile) return;
+
+      const name = profile.name || currentUser.email;
+      ui.headerName.textContent = name;
+      ui.headerAvatarInitial.textContent = name.charAt(0).toUpperCase();
+
+      if (profile.avatar_url) {
+        ui.headerAvatarImg.src = profile.avatar_url;
+        ui.headerAvatarImg.classList.remove('hidden');
+        ui.headerAvatarInitial.classList.add('hidden');
+      }
+    }
+
+    function getDateRange(rangeKey) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      if (rangeKey === 'today') {
+        const date = toIsoDate(today);
+        return { start: date, end: date };
+      }
+
+      if (rangeKey === 'week') {
+        const dayOfWeek = today.getDay();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+
+        return { start: toIsoDate(monday), end: toIsoDate(sunday) };
+      }
+
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      return { start: toIsoDate(firstDay), end: toIsoDate(lastDay) };
+    }
+
+    function formatDate(dateStr) {
+      return new Date(`${dateStr}T00:00:00`).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    }
+
+    function setActiveRangeButton(activeButton) {
+      ui.rangeButtons.forEach(button => {
+        button.classList.toggle('bg-primary', button === activeButton);
+        button.classList.toggle('text-on-primary', button === activeButton);
+        button.classList.toggle('text-on-surface-variant', button !== activeButton);
+      });
+    }
+
+    function bindRangeButtons() {
+      ui.rangeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          activeRange = button.dataset.range;
+          setActiveRangeButton(button);
+          refreshReport();
+        });
+      });
+    }
+
+    function renderLoadingState() {
+      ui.reportBody.innerHTML =
+        '<tr><td colspan="5" class="text-center py-12 text-on-surface-variant text-sm">Loading...</td></tr>';
+    }
+
+    function renderEmptyState(message) {
+      ui.reportBody.innerHTML = `<tr>
+        <td colspan="5" class="text-center py-16 text-on-surface-variant">
+          <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">schedule</span>
+          ${message}
+        </td>
+      </tr>`;
+    }
+
+    async function refreshReport() {
+      const { start, end } = getDateRange(activeRange);
+      ui.dateRange.textContent = `${formatDate(start)} – ${formatDate(end)}`;
+      renderLoadingState();
+
+      let query = db
+        .from('trainer_hours')
+        .select(`id, date, hours_logged, confirmed,
+          trainers ( id, name, specialisation ),
+          classes ( id, name )`)
+        .gte('date', start)
+        .lte('date', end)
+        .order('date', { ascending: false });
+
+      if (isTrainer && trainerRecord) {
+        query = query.eq('trainer_id', trainerRecord.id);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        showAlert(`Failed to load report: ${error.message}`, 'error');
+        renderEmptyState('Error loading data.');
+        return;
+      }
+
+      const rows = data || [];
+      updateStats(rows);
+
+      if (!isTrainer) {
+        renderTrainerTotals(rows);
+      }
+
+      renderTable(rows);
+    }
+
+    function updateStats(rows) {
+      const totalHours = rows.reduce((sum, row) => sum + toHours(row.hours_logged), 0);
+      const unconfirmedCount = rows.filter(row => !row.confirmed).length;
+      const trainerIds = rows.map(row => row.trainers?.id).filter(Boolean);
+
+      ui.statHours.textContent = totalHours.toFixed(1);
+      ui.statSessions.textContent = rows.length;
+      ui.statTrainers.textContent = new Set(trainerIds).size;
+      ui.statUnconfirmed.textContent = unconfirmedCount;
+    }
+
+    function renderTrainerTotals(rows) {
+      ui.groupedList.innerHTML = '';
+
+      const totalsByTrainer = {};
+      for (const row of rows) {
+        const trainer = row.trainers;
+        if (!trainer?.id) continue;
+
+        if (!totalsByTrainer[trainer.id]) {
+          totalsByTrainer[trainer.id] = {
+            name: trainer.name,
+            specialisation: trainer.specialisation,
+            hours: 0,
+            sessions: 0,
+          };
+        }
+
+        totalsByTrainer[trainer.id].hours += toHours(row.hours_logged);
+        totalsByTrainer[trainer.id].sessions += 1;
+      }
+
+      const trainers = Object.values(totalsByTrainer).sort((a, b) => b.hours - a.hours);
+
+      if (!trainers.length) {
+        ui.groupedList.innerHTML = '<p class="text-on-surface-variant text-sm col-span-full">No data for this period.</p>';
+        return;
+      }
+
+      trainers.forEach(trainer => {
+        const card = document.createElement('div');
+        card.className = 'bg-surface border border-outline/40 p-4 flex items-center gap-4';
+        card.innerHTML = `
+          <div class="size-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <span class="font-headline font-black text-on-primary">${trainer.name.charAt(0).toUpperCase()}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-headline font-bold text-white text-sm truncate">${trainer.name}</p>
+            ${trainer.specialisation ? `<p class="text-[10px] text-on-surface-variant">${trainer.specialisation}</p>` : ''}
+            <p class="text-[10px] text-on-surface-variant mt-0.5">${trainer.sessions} session${trainer.sessions !== 1 ? 's' : ''}</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="font-headline font-black text-primary text-xl">${trainer.hours.toFixed(1)}</p>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">hrs</p>
+          </div>`;
+        ui.groupedList.appendChild(card);
+      });
+    }
+
+    function renderTable(rows) {
+      ui.reportBody.innerHTML = '';
+
+      if (!rows.length) {
+        renderEmptyState('No hours logged for this period.');
+        return;
+      }
+
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-white/5 hover:bg-surface-variant/30 transition-colors';
+        tr.innerHTML = `
+          <td class="px-4 py-3 text-sm text-on-surface-variant whitespace-nowrap">${formatDate(row.date)}</td>
+          <td class="px-4 py-3">
+            <p class="text-sm font-semibold text-white">${row.trainers?.name || '—'}</p>
+            ${row.trainers?.specialisation ? `<p class="text-[10px] text-on-surface-variant">${row.trainers.specialisation}</p>` : ''}
+          </td>
+          <td class="px-4 py-3 text-sm text-on-surface-variant">${row.classes?.name || '—'}</td>
+          <td class="px-4 py-3 whitespace-nowrap">
+            <span class="font-headline font-bold text-primary">${toHours(row.hours_logged).toFixed(2)}</span>
+            <span class="text-on-surface-variant text-xs"> hrs</span>
+          </td>
+          <td class="px-4 py-3">
+            ${row.confirmed
+              ? '<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">Confirmed</span>'
+              : `<span class="px-2 py-0.5 bg-white/10 text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Pending</span>
+                 ${!isTrainer ? `<button onclick="confirmHours('${row.id}')"
+                   class="ml-2 px-2 py-0.5 border border-primary/40 text-primary hover:bg-primary hover:text-on-primary text-[10px] font-bold uppercase tracking-wider transition-colors">
+                   Confirm
+                 </button>` : ''}`}
+          </td>`;
+        ui.reportBody.appendChild(tr);
+      });
+    }
+
+    async function confirmHours(rowId) {
+      const { error } = await db.from('trainer_hours').update({ confirmed: true }).eq('id', rowId);
+      if (error) {
+        showAlert(`Failed: ${error.message}`, 'error');
+        return;
+      }
+
+      await refreshReport();
+      showAlert('Hours confirmed.', 'success');
+    }
+
+    function showAlert(message, type) {
+      ui.alert.textContent = message;
+      ui.alert.className = type === 'success'
+        ? 'px-4 py-3 text-sm font-medium border border-primary/30 bg-primary/10 text-primary'
+        : 'px-4 py-3 text-sm font-medium border border-red-500/30 bg-red-500/10 text-red-400';
+      ui.alert.classList.remove('hidden');
+      setTimeout(() => ui.alert.classList.add('hidden'), 4000);
+    }
+
+    async function handleLogout() {
+      await db.auth.signOut();
+      window.location.replace('login.html');
+    }
+
+    ui.logoutBtn.addEventListener('click', handleLogout);
+    window.confirmHours = confirmHours;
+    init();
+  </script>
+</body>
+</html>
