@@ -281,7 +281,17 @@
 
     //Fetch the Data
     async function loadSubscriptionData() {
-      const testUserId = "00000000-0000-0000-0000-000000000000";
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      // 2. If no session exists, stop the script and kick them to the login page
+      if (!session) {
+        console.error("No active session found.");
+        window.location.href = 'login.html'; // Make sure this matches your friend's login file name!
+        return;
+      }
+
+      // 3. Save the real, secure user ID from the session
+      const realUserId = session.user.id;
 
       
       const urlParams = new URLSearchParams(window.location.search);
@@ -294,7 +304,7 @@
           const { error: updateError } = await supabaseClient
             .from('user_subscriptions')
             .update({ plan_name: upgradedPlan.toUpperCase() })
-            .eq('user_id', testUserId);
+            .eq('user_id', realUserId);
 
           if (updateError) {
             console.error("Failed to update plan:", updateError);
@@ -310,7 +320,7 @@
       const { data, error } = await supabaseClient
         .from("user_subscriptions")
         .select("*")
-        .eq("user_id", testUserId)
+        .eq("user_id", realUserId)
         .single();
 
       if (error) {
@@ -321,7 +331,7 @@
       const { data: prData, error: prError } = await supabaseClient
         .from('personal_records')
         .select('*')
-        .eq('user_id', testUserId)
+        .eq('user_id', realUserId)
         .order('weight', { ascending: false }); // Sorts highest weight first!
 
       if (prError) {
@@ -508,7 +518,7 @@
     document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
       event.preventDefault(); 
       
-      const testUserId = "00000000-0000-0000-0000-000000000000";
+      const realUserId = (await supabaseClient.auth.getSession()).data.session.user.id;
       // Added .trim() so accidental spaces don't create duplicates!
       const exerciseName = document.getElementById('pr-name').value.trim().toUpperCase();
       const exerciseWeight = document.getElementById('pr-weight').value;
@@ -523,7 +533,7 @@
       const { data: existingRecord, error: checkError } = await supabaseClient
         .from('personal_records')
         .select('*')
-        .eq('user_id', testUserId)
+        .eq('user_id', realUserId)
         .eq('exercise_name', exerciseName);
 
       if (checkError) {
@@ -550,7 +560,7 @@
         const { error: insertError } = await supabaseClient
           .from('personal_records')
           .insert([
-            { user_id: testUserId, exercise_name: exerciseName, weight: exerciseWeight }
+            { user_id: realUserId, exercise_name: exerciseName, weight: exerciseWeight }
           ]);
 
         if (insertError) {
