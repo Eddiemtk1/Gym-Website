@@ -275,27 +275,43 @@
             </div>
 
             <!-- Personal Records -->
-             <div class="lg:col-span-2 space-y-6">
-            <div class="bg-surface p-8 space-y-6 border-t-2 border-primary">
-              <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
-              <div class="space-y-4">
-                <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                  <span class="text-on-surface-variant font-medium">Deadlift</span>
-                  <span id="pr-deadlift" class="font-headline font-bold text-white">...</span>
+            <div class="lg:col-span-2 space-y-6">
+              <div class="bg-surface p-8 space-y-6 border-t-2 border-primary flex flex-col h-full">
+                <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
+                
+                <!-- Dynamic List Container -->
+                <div id="pr-list" class="space-y-4 flex-1 overflow-y-auto max-h-[200px] pr-2">
+                  <!-- Records will be injected here by JavaScript -->
+                  <p class="text-on-surface-variant text-sm italic">No records found. Log your first PR below.</p>
                 </div>
-                <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                  <span class="text-on-surface-variant font-medium">Bench Press</span>
-                  <span id="pr-bench" class="font-headline font-bold text-white">...</span>
+
+                <!-- ADD NEW PR FORM (Styled like your screenshot) -->
+                <div class="mt-8 pt-8 border-t border-white/10">
+                  <h4 class="font-headline text-2xl font-black uppercase italic tracking-tighter mb-6">
+                    LOG NEW <br/><span class="text-primary">RECORD</span>
+                  </h4>
+                  
+                  <form id="add-pr-form" class="space-y-5">
+                    <div>
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Exercise Name</label>
+                      <input type="text" id="pr-name" placeholder="E.G. OVERHEAD PRESS" required 
+                        class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary uppercase placeholder:text-white/20">
+                    </div>
+                    
+                    <div>
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Weight (KG)</label>
+                      <input type="number" id="pr-weight" placeholder="100" required 
+                        class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary placeholder:text-white/20">
+                    </div>
+                    
+                    <button type="submit" id="pr-submit-btn" 
+                      class="w-full py-4 mt-2 kinetic-gradient text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all flex justify-center items-center gap-2">
+                      <span>Publish Record</span>
+                    </button>
+                  </form>
                 </div>
-                <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                  <span class="text-on-surface-variant font-medium">Squat</span>
-                  <span id="pr-squat" class="font-headline font-bold text-white">...</span>
-                </div>
+
               </div>
-              <button
-                class="w-full py-4 kinetic-gradient text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all">
-                Update Records
-              </button>
             </div>
             <div class="relative aspect-video bg-surface overflow-hidden group cursor-pointer border border-white/5">
               <img alt="Workout"
@@ -361,14 +377,49 @@
         console.error("Error fetching subscription:", error.message);
       }
 
+      // --- FETCH DYNAMIC PERSONAL RECORDS DATA ---
       const { data: prData, error: prError } = await supabaseClient
         .from('personal_records')
         .select('*')
         .eq('user_id', testUserId)
-        .single();
+        .order('weight', { ascending: false }); // Sorts highest weight first!
 
       if (prError) {
         console.error('Error fetching personal records:', prError.message);
+      }
+
+      // Inject the Dynamic Records
+      if (prData && prData.length > 0) {
+        const prContainer = document.getElementById('pr-list');
+        prContainer.innerHTML = ''; // Clear the "No records found" message
+        
+        prData.forEach(record => {
+
+          let trendHTML = '';
+          if (record.previous_weight !== null) {
+            const difference = record.weight - record.previous_weight;
+            
+            if (difference > 0) {
+              // They got stronger! Show neon green
+              trendHTML = `<span class="text-[10px] font-bold text-primary ml-2 tracking-widest">+${difference}KG</span>`;
+            } else if (difference < 0) {
+              // They lifted less. Show subtle gray or red
+              trendHTML = `<span class="text-[10px] font-bold text-red-500 ml-2 tracking-widest">${difference}KG</span>`;
+            } else {
+              // Same exact weight
+              trendHTML = `<span class="text-[10px] font-bold text-on-surface-variant ml-2 tracking-widest opacity-50">NO CHANGE</span>`;
+            }
+          }
+
+          prContainer.innerHTML += `
+            <div class="flex justify-between items-center pb-3 border-b border-white/5">
+              <span class="text-on-surface-variant font-medium uppercase">${record.exercise_name}</span>
+              <div class="flex items-baseline">
+                <span class="font-headline font-bold text-white">${record.weight} kg</span>
+                ${trendHTML} </div>
+            </div>
+          `;
+        });
       }
 
       //Injects the Data into the HTML
@@ -394,18 +445,79 @@
 
         document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
       }
-      
-      // Injects the Personal Records Data
-      if (prData) {
-        document.getElementById('pr-deadlift').innerText = `${prData.deadlift} kg`;
-        document.getElementById('pr-bench').innerText = `${prData.bench_press} kg`;
-        document.getElementById('pr-squat').innerText = `${prData.squat} kg`;
-      }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       loadSubscriptionData();
     });
+
+    // --- ADD NEW PERSONAL RECORD LOGIC ---
+    document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
+      event.preventDefault(); 
+      
+      const testUserId = "00000000-0000-0000-0000-000000000000";
+      // Added .trim() so accidental spaces don't create duplicates!
+      const exerciseName = document.getElementById('pr-name').value.trim().toUpperCase();
+      const exerciseWeight = document.getElementById('pr-weight').value;
+      const btn = document.getElementById('pr-submit-btn');
+
+      // Change button state to loading
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>PUBLISHING...</span><span class="material-symbols-outlined animate-spin" style="font-size: 20px;">sync</span>';
+      btn.disabled = true;
+
+      // 1. Check if this exact exercise already exists for this user
+      const { data: existingRecord, error: checkError } = await supabaseClient
+        .from('personal_records')
+        .select('*')
+        .eq('user_id', testUserId)
+        .eq('exercise_name', exerciseName);
+
+      if (checkError) {
+        console.error("Error checking record:", checkError);
+        alert("System error verifying record.");
+      } else if (existingRecord && existingRecord.length > 0) {
+        const oldWeight = existingRecord[0].weight;
+
+        // 2. IT EXISTS! Update the existing row instead of making a duplicate
+        const { error: updateError } = await supabaseClient
+          .from('personal_records')
+          .update({ 
+            weight: exerciseWeight,
+            previous_weight: oldWeight
+           })
+          .eq('id', existingRecord[0].id);
+
+        if (updateError) {
+          console.error("Error updating:", updateError);
+          alert("Failed to update record.");
+        }
+      } else {
+        // 3. IT DOES NOT EXIST! Insert a brand new row
+        const { error: insertError } = await supabaseClient
+          .from('personal_records')
+          .insert([
+            { user_id: testUserId, exercise_name: exerciseName, weight: exerciseWeight }
+          ]);
+
+        if (insertError) {
+          console.error("Error inserting:", insertError);
+          alert("Failed to save new record.");
+        }
+      }
+
+      // Clear the form inputs
+      document.getElementById('pr-name').value = '';
+      document.getElementById('pr-weight').value = '';
+      
+      // Reload the data so the UI updates instantly!
+      await loadSubscriptionData(); 
+
+      // Reset button
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    });
+
 </script>
 </body>
 
