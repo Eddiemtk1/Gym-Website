@@ -336,18 +336,25 @@
 
               console.log("Triggering EmailJS Edge Function for:", userEmail);
 
-              // Fire the webhook!
-              await supabaseClient.functions.invoke('send-welcome-email', {
+              // Fire the webhook ONE time and wait for the response!
+              const { data: funcData, error: funcError } = await supabaseClient.functions.invoke('send-welcome-email', {
                 body: { 
                   email: userEmail, 
                   name: userName, 
                   planName: upgradedPlan.toUpperCase() 
                 }
               });
+
+              if (funcError) {
+                console.error("Function Error:", funcError);
+              } else {
+                console.log("Function Success:", funcData);
+              }
+
             } catch (err) {
               console.error("Failed to trigger email function:", err);
             }
-            
+
             window.location.href = window.location.origin + '/dashboard.html';
             return;
           }

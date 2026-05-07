@@ -6,27 +6,28 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // 1. Receive the basic data from your dashboard
-    const { email, name, planName } = await req.json()
+    console.log("1. EDGE FUNCTION HIT! Waking up...");
+    
+    // Receive the dynamic data from your dashboard
+    const payload = await req.json();
+    console.log("2. Payload received from website:", payload);
+    const { email, name, planName } = payload;
 
-    // 2. The Billing Logic (Match the plan to the price)
+    // The Billing Logic
     let planPrice = "0.00";
     if (planName === "GOLD") planPrice = "25.00";
     if (planName === "PLATINUM") planPrice = "50.00";
     if (planName === "DIAMOND") planPrice = "99.00";
 
-    // 3. Generate the Effective Date (Today)
     const today = new Date();
-    const formattedDate = today.toLocaleDateString('en-GB', { 
-      day: 'numeric', month: 'short', year: 'numeric' 
-    }); // e.g., "14 Oct 2026"
+    const formattedDate = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    // 4. Build the payload matching your exact HTML {{variables}}
     const emailJsPayload = {
       service_id: Deno.env.get('EMAILJS_SERVICE_ID'),
       template_id: Deno.env.get('EMAILJS_TEMPLATE_ID'),
@@ -39,29 +40,27 @@ serve(async (req) => {
         billing_cycle: "Monthly",
         effective_date: formattedDate,
         plan_price: planPrice,
-        cost: {
-          subtotal: planPrice,
-          tax: "0.00", 
-          total: planPrice
-        }
+        cost: { subtotal: planPrice, tax: "0.00", total: planPrice }
       }
     };
 
-    // 5. Trigger the EmailJS API
+    console.log("3. Sending to EmailJS API...");
+
+    // Trigger EmailJS
     const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(emailJsPayload)
-    })
+    });
 
     const responseText = await res.text();
-    return new Response(JSON.stringify({ success: true, message: responseText }), { 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-    })
+    console.log("4. EmailJS Response:", responseText);
+
+    return new Response(JSON.stringify({ success: true, message: responseText }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { 
-      status: 400, headers: corsHeaders 
-    })
+    // THIS IS THE BLOCK YOU WERE MISSING!
+    console.error("5. CATCH ERROR:", error);
+    return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders })
   }
 })
