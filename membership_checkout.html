@@ -177,9 +177,24 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      
+      if (!session) {
+        window.location.href = 'login.html';
+        return; 
+      }
+
+      const { data: profileData } = await supabaseClient
+        .from('profiles')
+        .select('email')
+        .eq('user_id', session.user.id)
+        .single();
+
+      const userEmail = profileData ? profileData.email : null;
+          
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.has('plan')) {
-        window.location.href = 'membership.html'; // Kick them back if lost
+        window.location.href = 'membership.html'; 
         return; 
       }
       const selectedPlanId = urlParams.get('plan');
@@ -259,6 +274,7 @@
             elements,
             confirmParams: {
               return_url: window.location.origin + '/dashboard.html?success=true&new_plan=' + selectedPlanId,
+              receipt_email: userEmail
             }
           });
 
