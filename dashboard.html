@@ -323,6 +323,31 @@
           if (updateError) {
             console.error("Failed to update plan:", updateError);
           } else {
+            try {
+              // Securely grab the user's name and email from the DB
+              const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('name, email')
+                .eq('user_id', realUserId)
+                .single();
+
+              const userName = profile && profile.name ? profile.name.split(' ')[0] : 'Athlete';
+              const userEmail = profile && profile.email ? profile.email : session.user.email;
+
+              console.log("Triggering EmailJS Edge Function for:", userEmail);
+
+              // Fire the webhook!
+              await supabaseClient.functions.invoke('send-welcome-email', {
+                body: { 
+                  email: userEmail, 
+                  name: userName, 
+                  planName: upgradedPlan.toUpperCase() 
+                }
+              });
+            } catch (err) {
+              console.error("Failed to trigger email function:", err);
+            }
+            
             window.location.href = window.location.origin + '/dashboard.html';
             return;
           }
