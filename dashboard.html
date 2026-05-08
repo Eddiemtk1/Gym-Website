@@ -143,8 +143,8 @@
             <div class="flex flex-col items-end gap-2">
               <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Calories burnt this
                 month:</span>
-              <div class="text-5xl font-headline font-black text-primary">
-                6749 Kcal
+              <div id="calories-display" class="text-5xl font-headline font-black text-primary">
+                0 Kcal
               </div>
             </div>
           </div>
@@ -440,6 +440,7 @@
         let sign = roundedChange >= 0 ? '+' : '';
 
         document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
+        document.getElementById('calories-display').innerText = `${data.calories_burnt || 0} Kcal`;
       }
     }
 
@@ -560,72 +561,71 @@
       loadUpcomingClasses();
     });
 
-    // --- ADD NEW PERSONAL RECORD LOGIC ---
+   // --- ADD NEW PERSONAL RECORD LOGIC ---
     document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
       event.preventDefault(); 
       
-      const realUserId = (await supabaseClient.auth.getSession()).data.session.user.id;
-      // Added .trim() so accidental spaces don't create duplicates!
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const realUserId = session.user.id;
       const exerciseName = document.getElementById('pr-name').value.trim().toUpperCase();
-      const exerciseWeight = document.getElementById('pr-weight').value;
+      const exerciseWeight = parseInt(document.getElementById('pr-weight').value); // Added parseInt!
       const btn = document.getElementById('pr-submit-btn');
 
-      // Change button state to loading
       const originalText = btn.innerHTML;
       btn.innerHTML = '<span>PUBLISHING...</span><span class="material-symbols-outlined animate-spin" style="font-size: 20px;">sync</span>';
       btn.disabled = true;
 
-      // 1. Check if this exact exercise already exists for this user
-      const { data: existingRecord, error: checkError } = await supabaseClient
-        .from('personal_records')
-        .select('*')
-        .eq('user_id', realUserId)
-        .eq('exercise_name', exerciseName);
+      try {
+        // 1. Fetch current calories
+        const { data: currentStats } = await supabaseClient
+          .from('user_subscriptions')
+          .select('calories_burnt')
+          .eq('user_id', realUserId)
+          .single();
 
-      if (checkError) {
-        console.error("Error checking record:", checkError);
-        alert("System error verifying record.");
-      } else if (existingRecord && existingRecord.length > 0) {
-        const oldWeight = existingRecord[0].weight;
+        const newCalorieTotal = (currentStats?.calories_burnt || 0) + 150;
 
-        // 2. IT EXISTS! Update the existing row instead of making a duplicate
-        const { error: updateError } = await supabaseClient
+        // 2. Fetch existing PR
+        const { data: existingRecord } = await supabaseClient
           .from('personal_records')
-          .update({ 
-            weight: exerciseWeight,
-            previous_weight: oldWeight
-           })
-          .eq('id', existingRecord[0].id);
+          .select('*')
+          .eq('user_id', realUserId)
+          .eq('exercise_name', exerciseName)
+          .single(); // returns ONE object!
 
-        if (updateError) {
-          console.error("Error updating:", updateError);
-          alert("Failed to update record.");
-        }
-      } else {
-        // 3. IT DOES NOT EXIST! Insert a brand new row
-        const { error: insertError } = await supabaseClient
-          .from('personal_records')
-          .insert([
+        // 3. Update or Insert PR
+        if (existingRecord) {
+          await supabaseClient.from('personal_records').update({ 
+            weight: exerciseWeight, 
+            previous_weight: existingRecord.weight // Removed the [0]
+          }).eq('id', existingRecord.id); // Removed the [0]
+        } else {
+          await supabaseClient.from('personal_records').insert([
             { user_id: realUserId, exercise_name: exerciseName, weight: exerciseWeight }
           ]);
-
-        if (insertError) {
-          console.error("Error inserting:", insertError);
-          alert("Failed to save new record.");
         }
+
+        // 4. Update the Calorie Count in the database
+        await supabaseClient
+          .from('user_subscriptions')
+          .update({ calories_burnt: newCalorieTotal })
+          .eq('user_id', realUserId);
+
+        // 5. Refresh UI
+        document.getElementById('pr-name').value = '';
+        document.getElementById('pr-weight').value = '';
+        await loadSubscriptionData(); 
+
+      } catch (err) {
+        console.error("PR Update Error:", err);
+        alert("Failed to log record. Check console for details.");
+      } finally {
+        // Reset Button State
+        btn.innerHTML = originalText;
+        btn.disabled = false;
       }
-
-      // Clear the form inputs
-      document.getElementById('pr-name').value = '';
-      document.getElementById('pr-weight').value = '';
-      
-      // Reload the data so the UI updates instantly!
-      await loadSubscriptionData(); 
-
-      // Reset button
-      btn.innerHTML = originalText;
-      btn.disabled = false;
     });
+
 
 </script>
 </body>
