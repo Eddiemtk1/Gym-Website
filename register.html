@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account – GymFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#D7FF00",
+            "on-primary": "#0e0e0e",
+            "background": "#0e0e0e",
+            "surface": "#131313",
+            "surface-variant": "#1a1a1a",
+            "outline": "#404040",
+            "on-surface": "#ffffff",
+            "on-surface-variant": "#a3a3a3",
+          },
+          fontFamily: { "headline": ["Lexend"], "body": ["Inter"] },
+          borderRadius: { "DEFAULT": "0px" },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-body antialiased selection:bg-primary selection:text-on-primary">
+  
+  <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+
+    <div class="hidden lg:flex flex-col justify-between bg-primary p-16 sticky top-0 h-screen border-r border-black/10">
+      <div class="flex items-center gap-3">
+        <div class="size-8">
+          <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="#0e0e0e" fill-rule="evenodd" />
+          </svg>
+        </div>
+        <span class="font-headline text-2xl font-black text-on-primary tracking-tight">GYMFLOW</span>
+      </div>
+      <div>
+        <h1 class="font-headline text-7xl font-black text-on-primary leading-[0.9] tracking-tighter uppercase italic mb-8">
+          YOUR<br>PROGRESS<br>STARTS<br>HERE.
+        </h1>
+        <p class="text-on-primary font-bold text-lg max-w-xs leading-tight">Join the community and start tracking your fitness journey today.</p>
+      </div>
+      <div class="flex justify-between items-end text-on-primary/60 font-bold text-xs uppercase tracking-widest">
+        <p>© 2026 GymFlow Digital</p>
+        <p>Built for results</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col min-h-screen bg-background">
+      <nav class="flex items-center justify-between border-b border-white/5 px-6 lg:px-10 py-6 sticky top-0 z-50 bg-background/80 backdrop-blur-md">
+        <a href="index.html" class="flex items-center gap-2 text-on-surface-variant hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Home
+        </a>
+        <div class="lg:hidden flex items-center gap-2 text-primary">
+          <span class="font-headline text-sm font-black text-white tracking-tight uppercase">GYMFLOW</span>
+        </div>
+      </nav>
+
+      <div class="flex-1 flex flex-col justify-center px-6 py-12 lg:px-20">
+        <div class="w-full max-w-sm mx-auto">
+          <header class="mb-10 text-center lg:text-left">
+            <h2 class="font-headline text-4xl font-black text-white uppercase italic tracking-tighter leading-none mb-3">Create Account</h2>
+            <p class="text-on-surface-variant text-sm font-medium">
+              Already have an account? <a href="login.html" class="text-primary hover:underline underline-offset-4 font-bold">Sign in</a>
+            </p>
+          </header>
+
+          <div id="alert" class="hidden mb-8 px-4 py-3 text-xs font-bold uppercase border"></div>
+
+          <form id="register-form" class="space-y-6" novalidate>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="name">Full Name</label>
+              <input id="name" type="text" autocomplete="name" placeholder="John Doe"
+                class="w-full bg-surface-variant border-none px-4 py-4 text-white text-sm focus:ring-2 focus:ring-primary transition-all placeholder:text-white/20">
+              <p id="name-error" class="hidden text-red-500 text-[10px] font-bold uppercase pt-1"></p>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="email">Email Address</label>
+              <input id="email" type="email" autocomplete="email" placeholder="name@example.com"
+                class="w-full bg-surface-variant border-none px-4 py-4 text-white text-sm focus:ring-2 focus:ring-primary transition-all placeholder:text-white/20">
+              <p id="email-error" class="hidden text-red-500 text-[10px] font-bold uppercase pt-1"></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="password">Password</label>
+                <input id="password" type="password" autocomplete="new-password" placeholder="Create password"
+                  class="w-full bg-surface-variant border-none px-4 py-4 text-white text-sm focus:ring-2 focus:ring-primary transition-all placeholder:text-white/20">
+                <p id="password-error" class="hidden text-red-500 text-[10px] font-bold uppercase pt-1"></p>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="confirm">Confirm</label>
+                <input id="confirm" type="password" autocomplete="new-password" placeholder="Repeat password"
+                  class="w-full bg-surface-variant border-none px-4 py-4 text-white text-sm focus:ring-2 focus:ring-primary transition-all placeholder:text-white/20">
+                <p id="confirm-error" class="hidden text-red-500 text-[10px] font-bold uppercase pt-1"></p>
+              </div>
+            </div>
+
+            <button id="submit-btn" type="submit"
+              class="w-full py-5 bg-primary text-on-primary font-headline font-black uppercase italic tracking-widest text-base hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              Get Started
+            </button>
+          </form>
+
+          <footer class="mt-12 pt-8 border-t border-white/5 text-center lg:text-left">
+            <p class="text-[10px] text-on-surface-variant leading-relaxed uppercase font-bold tracking-wider">
+              By signing up, you agree to our <span class="text-white">Terms of Service</span> and <span class="text-white">Privacy Policy</span>.
+            </p>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Logic updated for clarity
+    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const ui = {
+      form: document.getElementById('register-form'),
+      submitBtn: document.getElementById('submit-btn'),
+      alert: document.getElementById('alert'),
+      name: document.getElementById('name'),
+      email: document.getElementById('email'),
+      password: document.getElementById('password'),
+      confirm: document.getElementById('confirm'),
+    };
+
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.replace('dashboard.html');
+    });
+
+    function showAlert(message, type = 'error') {
+      ui.alert.textContent = message;
+      ui.alert.className = `mb-8 px-4 py-3 text-xs font-bold uppercase border ${
+        type === 'error' ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-primary bg-primary/10 text-primary'
+      }`;
+      ui.alert.classList.remove('hidden');
+    }
+
+    function setFieldError(fieldId, message) {
+      const input = document.getElementById(fieldId);
+      const errorEl = document.getElementById(`${fieldId}-error`);
+      input.classList.add('ring-1', 'ring-red-500');
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+    }
+
+    function clearErrors() {
+      ['name', 'email', 'password', 'confirm'].forEach(id => {
+        document.getElementById(id).classList.remove('ring-1', 'ring-red-500');
+        document.getElementById(`${id}-error`).classList.add('hidden');
+      });
+      ui.alert.classList.add('hidden');
+    }
+
+    ui.form.addEventListener('submit', async event => {
+      event.preventDefault();
+      clearErrors();
+
+      const name = ui.name.value.trim();
+      const email = ui.email.value.trim();
+      const password = ui.password.value;
+      const confirm = ui.confirm.value;
+
+      let valid = true;
+      if (!name) { setFieldError('name', 'Please enter your name'); valid = false; }
+      if (!email || !email.includes('@')) { setFieldError('email', 'Please enter a valid email'); valid = false; }
+      if (password.length < 8) { setFieldError('password', 'Minimum 8 characters'); valid = false; }
+      if (password !== confirm) { setFieldError('confirm', 'Passwords do not match'); valid = false; }
+
+      if (!valid) return;
+
+      ui.submitBtn.textContent = 'Processing...';
+      ui.submitBtn.disabled = true;
+
+      const { data, error } = await db.auth.signUp({
+        email,
+        password,
+        options: { data: { name } }
+      });
+
+      if (error) {
+        showAlert(error.message);
+        ui.submitBtn.textContent = 'Get Started';
+        ui.submitBtn.disabled = false;
+        return;
+      }
+
+      if (data.user) {
+        await db.from('profiles').upsert({
+          user_id: data.user.id,
+          name,
+          email
+        });
+
+        const nameParts = name.split(' ');
+        const first = nameParts[0];
+        const last = nameParts.slice(1).join(' ');
+
+        await db.from('user_subscriptions').insert([{
+          user_id: data.user.id,
+          first_name: first,
+          last_name: last,
+          plan_name: 'STANDARD PASS',
+          status: 'PENDING',
+          avatar_url: `https://ui-avatars.com/api/?name=${first}+${last}&background=D7FF00&color=0e0e0e&bold=true`
+        }]);
+      }
+
+      ui.form.classList.add('opacity-0', 'pointer-events-none');
+      showAlert('Account created! Please check your email to verify your account.', 'success');
+    });
+  </script>
+</body>
+</html>

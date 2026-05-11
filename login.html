@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In – GymFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#D7FF00",
+            "on-primary": "#0e0e0e",
+            "background": "#0e0e0e",
+            "surface": "#131313",
+            "surface-variant": "#1a1a1a",
+            "outline": "#404040",
+            "on-surface": "#ffffff",
+            "on-surface-variant": "#a3a3a3",
+            "trainer": "#00E0FF"
+          },
+          fontFamily: {
+            "headline": ["Lexend"],
+            "body": ["Inter"]
+          },
+          borderRadius: { "DEFAULT": "0px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    #brand-panel { transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    #nav-logo-icon { transition: color 0.5s ease; }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body antialiased overflow-x-hidden">
+  <nav class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 bg-background sticky top-0 z-50">
+    <a href="index.html" class="flex items-center gap-2 text-on-surface-variant hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Home
+    </a>
+    <div class="flex items-center gap-3">
+      <div id="nav-logo-icon" class="size-5 text-primary transition-colors duration-500">
+        <svg fill="currentColor" viewBox="0 0 48 48">
+          <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill-rule="evenodd" />
+        </svg>
+      </div>
+      <span class="font-headline text-lg font-black text-white tracking-[-0.03em]">GYMFLOW</span>
+    </div>
+  </nav>
+
+  <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+    <div id="brand-panel" class="hidden lg:flex flex-col justify-between bg-primary p-16 sticky top-0 h-screen">
+      <div class="flex items-center gap-3">
+        <div class="size-8">
+          <svg fill="none" viewBox="0 0 48 48">
+            <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="#0e0e0e" fill-rule="evenodd" />
+          </svg>
+        </div>
+        <span class="font-headline text-2xl font-black text-on-primary tracking-[-0.03em]">GYMFLOW</span>
+      </div>
+      <div>
+        <h1 class="font-headline text-7xl font-black text-on-primary leading-none tracking-tighter uppercase italic mb-6">
+          Welcome<br>Back.
+        </h1>
+        <p class="text-on-primary/60 text-base max-w-xs">Pick up where you left off and keep pushing toward your goals.</p>
+      </div>
+      <p class="text-on-primary/40 text-xs">© 2026 GymFlow. All rights reserved.</p>
+    </div>
+
+    <div class="flex flex-col justify-center px-6 py-16 lg:px-16">
+      <div class="w-full max-w-md mx-auto">
+        <div id="alert" class="hidden mb-6 px-4 py-3 text-sm font-medium border"></div>
+
+        <div id="login-view">
+          <h2 class="font-headline text-4xl font-black text-white uppercase italic tracking-tighter mb-1">Sign In</h2>
+          <p class="text-on-surface-variant text-sm mb-10">
+            No account yet? <a href="register.html" class="text-primary font-bold hover:underline transition-colors" id="register-link">Register</a>
+          </p>
+          
+          <form id="login-form" class="space-y-5">
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="email">Email Address</label>
+              <input id="email" type="email" autocomplete="email" placeholder="ATHLETE@GYMFLOW.COM" class="w-full bg-surface border border-outline px-4 py-4 text-white text-sm focus:outline-none focus:border-primary transition-colors uppercase font-bold">
+              <p id="email-error" class="hidden text-red-400 text-xs mt-2 font-bold uppercase tracking-tighter"></p>
+            </div>
+            
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant" for="password">Password</label>
+                <button type="button" id="forgot-link" class="text-[10px] font-bold uppercase text-primary hover:underline">Forgot?</button>
+              </div>
+              <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" class="w-full bg-surface border border-outline px-4 py-4 text-white text-sm focus:outline-none focus:border-primary transition-colors font-bold">
+              <p id="password-error" class="hidden text-red-400 text-xs mt-2 font-bold uppercase tracking-tighter"></p>
+            </div>
+
+            <button id="login-btn" type="submit" class="w-full py-5 bg-primary text-on-primary font-headline font-black uppercase italic tracking-widest text-sm hover:brightness-110 transition-all disabled:opacity-50">
+              Access Dashboard
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const STAFF_EMAILS = [
+      "alex@gymflow.com", "jordan@gymflow.com", "casey@gymflow.com",
+      "taylor@gymflow.com", "riley@gymflow.com", "morgan@gymflow.com",
+      "skyler@gymflow.com", "charlie@gymflow.com", "dakota@gymflow.com", "jamie@gymflow.com"
+    ];
+
+    const ui = {
+      brandPanel: document.getElementById('brand-panel'),
+      navLogo: document.getElementById('nav-logo-icon'),
+      emailInput: document.getElementById('email'),
+      loginBtn: document.getElementById('login-btn'),
+      registerLink: document.getElementById('register-link'),
+      loginForm: document.getElementById('login-form'),
+      alert: document.getElementById('alert')
+    };
+
+    ui.emailInput.addEventListener('input', (e) => {
+      const email = e.target.value.toLowerCase().trim();
+      const isStaff = STAFF_EMAILS.includes(email);
+      const themeColor = isStaff ? '#00E0FF' : '#D7FF00';
+      
+      ui.brandPanel.style.backgroundColor = themeColor;
+      ui.navLogo.style.color = themeColor;
+      ui.loginBtn.style.backgroundColor = themeColor;
+      ui.registerLink.style.color = themeColor;
+      ui.emailInput.style.borderColor = themeColor;
+    });
+
+    ui.loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = ui.emailInput.value.trim();
+      const password = document.getElementById('password').value;
+
+      if(!email || !password) return;
+
+      ui.loginBtn.innerText = "VERIFYING...";
+      ui.loginBtn.disabled = true;
+
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        ui.alert.textContent = "INVALID CREDENTIALS";
+        ui.alert.className = "mb-6 px-4 py-3 text-xs font-black uppercase tracking-widest border border-red-500 bg-red-500/10 text-red-500 block";
+        ui.loginBtn.innerText = "ACCESS DASHBOARD";
+        ui.loginBtn.disabled = false;
+      } else {
+        window.location.href = 'dashboard.html';
+      }
+    });
+
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.replace('dashboard.html');
+    });
+  </script>
+</body>
+</html>

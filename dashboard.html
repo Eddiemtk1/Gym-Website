@@ -4,12 +4,9 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap"
-    rel="stylesheet" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-    rel="stylesheet" />
+  <title>Dashboard – GymFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
@@ -18,7 +15,7 @@
       theme: {
         extend: {
           colors: {
-            primary: "#D7FF00",
+            primary: "#D7FF00", // Default Member Green
             "on-primary": "#0e0e0e",
             background: "#0e0e0e",
             surface: "#131313",
@@ -27,392 +24,216 @@
             "on-surface": "#ffffff",
             "on-surface-variant": "#a3a3a3",
           },
-          fontFamily: {
-            headline: ["Lexend"],
-            body: ["Inter"],
-            label: ["Inter"],
-          },
-          borderRadius: {
-            DEFAULT: "0px",
-            lg: "0px",
-            xl: "0px",
-            full: "9999px",
-          },
+          fontFamily: { headline: ["Lexend"], body: ["Inter"] },
+          borderRadius: { DEFAULT: "0px" },
         },
       },
     };
   </script>
   <style>
-    .material-symbols-outlined {
-      font-variation-settings:
-        "FILL" 0,
-        "wght" 400,
-        "GRAD" 0,
-        "opsz" 24;
-    }
-
-    .glass-nav {
-      background: rgba(14, 14, 14, 0.8);
-      backdrop-filter: blur(12px);
-    }
-
-    .kinetic-gradient {
-      background: #d7ff00;
-    }
+    .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    .hidden-nav { display: none !important; }
+    .kinetic-gradient { background: var(--theme-color, #d7ff00); }
   </style>
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
-      <!-- Header -->
-      <header
-        class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+      
+      <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
         <div class="flex items-center gap-12">
-          <div class="flex items-center gap-4 text-primary">
+          <div id="brand-logo" class="flex items-center gap-4 text-primary transition-colors">
             <div class="size-6">
-              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path clip-rule="evenodd"
-                  d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"
-                  fill="currentColor" fill-rule="evenodd"></path>
+              <svg fill="currentColor" viewBox="0 0 48 48">
+                <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
               </svg>
             </div>
-            <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">
-              GYMFLOW
-            </h2>
+            <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW</h2>
           </div>
 
           <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all"
-              href="dashboard.html">
-              <span class="material-symbols-outlined" style="
-                    font-variation-settings: &quot;FILL&quot; 1;
-                    font-size: 20px;
-                  ">dashboard</span>
+            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all theme-bg theme-text" href="dashboard.html">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">dashboard</span>
               <span class="text-xs uppercase tracking-widest">Dashboard</span>
             </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="membership.html">
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="membership.html">
               <span class="material-symbols-outlined" style="font-size: 20px">card_membership</span>
               <span class="text-xs uppercase tracking-widest">Memberships</span>
             </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="#">
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="Timetable.html">
               <span class="material-symbols-outlined" style="font-size: 20px">calendar_today</span>
               <span class="text-xs uppercase tracking-widest">Timetable</span>
             </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="#">
+            <a id="nav-trainers" class="hidden-nav flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="assign-trainer.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">manage_accounts</span>
+              <span class="text-xs uppercase tracking-widest">Trainers</span>
             </a>
           </nav>
         </div>
+
         <div class="flex items-center gap-6">
-          <!-- Profile Mini -->
           <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
             <div class="text-right">
-              <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
-                ...
-              </p>
-              <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">
-                ...
-              </p>
+              <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
+              <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold theme-color-text">Member</p>
             </div>
-            <div class="size-8 rounded-full border border-primary overflow-hidden">
-              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
+            <div class="size-8 rounded-full border border-primary overflow-hidden theme-border">
+              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover bg-surface-variant" src="" />
             </div>
           </div>
+          <button id="logout-btn" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Logout</button>
         </div>
       </header>
+
       <main class="flex-1 flex flex-col">
-        <!-- Dashboard Content -->
         <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto">
-          <!-- Hero Section -->
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
-              <h1
-                class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
-                Ready to <span class="text-primary">Crush</span> it?
+              <h1 class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
+                Ready to <span class="text-primary theme-color-text" id="hero-action">Crush</span> it?
               </h1>
             </div>
             <div class="flex flex-col items-end gap-2">
-              <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Calories burnt this
-                month:</span>
-              <div class="text-5xl font-headline font-black text-primary">
-                6749 Kcal
-              </div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Active Workout Stats</span>
+              <div class="text-5xl font-headline font-black text-primary theme-color-text" id="main-stat">...</div>
             </div>
           </div>
-          <!-- Grid Layout -->
+
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Membership Status Card -->
-            <div
-              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group">
-              <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
-                  Membership Status
-                </p>
-                <h3 id="mem-status" class="font-headline text-3xl font-black text-white">
-                  ...
-                </h3>
-              </div>
-              <div class="mt-8 relative z-10">
-                <div class="flex justify-between items-center mb-2">
-                  <span id="next-billing" class="text-sm text-on-surface-variant">Next billing: ...</span>
-                  <span id="profile-score-text" class="text-sm font-bold text-primary">...</span>
-                </div>
-                <div class="w-full h-1 bg-surface-variant">
-                  <div id="profile-score-bar" class="h-full bg-primary w-[0%] transition-all duration-1000"></div>
-                </div>
-              </div>
-              <span
-                class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none transition-transform group-hover:scale-110">verified</span>
+            <div class="bg-surface p-8 border border-white/5 relative overflow-hidden group">
+               <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Status</p>
+               <h3 id="mem-status" class="font-headline text-3xl font-black text-white uppercase italic">...</h3>
+               <span class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none">verified</span>
             </div>
 
-            <!-- Subscription Plan Card -->
-            <div class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group">
-              <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">
-                  Subscription Plan
-                </p>
-                <h3 id="sub-plan" class="font-headline text-3xl font-black text-on-primary">
-                  ...
-                </h3>
-              </div>
-              <div class="mt-8 relative z-10">
-                <button onclick="window.location.href='membership.html'"
-                  class="w-full py-3 bg-black text-white font-headline font-bold uppercase text-sm tracking-widest hover:bg-white hover:text-black transition-all">
-                  Manage Plan
-                </button>
-              </div>
-              <span
-                class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-on-primary/10 pointer-events-none transition-transform group-hover:scale-110">star_rate</span>
+            <div class="bg-primary theme-bg p-8 flex flex-col justify-between relative overflow-hidden group">
+               <div class="relative z-10">
+                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">Current Plan</p>
+                 <h3 id="sub-plan" class="font-headline text-3xl font-black text-on-primary">...</h3>
+               </div>
+               <button onclick="window.location.href='membership.html'" class="mt-8 relative z-10 w-full py-3 bg-black text-white font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">Manage</button>
             </div>
 
-            <!-- Monthly Stats Card -->
-            <div
-              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group">
-              <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Workouts this
-                  Month</p>
-                <div class="flex items-baseline gap-2">
-                  <h3 id="workouts-count" class="font-headline text-5xl font-black text-white">...</h3>
-                  <span id="workouts-trend" class="text-primary font-bold text-sm">...</span>
-                </div>
-              </div>
-              <div class="mt-8 flex gap-1 items-end h-12 relative z-10">
-                <div class="flex-1 bg-white/10 h-1/2"></div>
-                <div class="flex-1 bg-white/10 h-3/4"></div>
-                <div class="flex-1 bg-white/10 h-2/3"></div>
-                <div class="flex-1 bg-white/10 h-1/3"></div>
-                <div class="flex-1 bg-primary h-full"></div>
-                <div class="flex-1 bg-white/10 h-2/3"></div>
-                <div class="flex-1 bg-white/10 h-5/6"></div>
-              </div>
+            <div class="bg-surface p-8 border border-white/5 relative">
+               <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Workouts (Mo)</p>
+               <div class="flex items-baseline gap-2">
+                 <h3 id="workouts-count" class="font-headline text-5xl font-black text-white">0</h3>
+                 <span id="workouts-trend" class="text-primary theme-color-text font-bold text-xs">+0%</span>
+               </div>
             </div>
           </div>
 
-          <!-- Content Rows -->
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
-            <!-- Upcoming Classes -->
             <div class="lg:col-span-3 space-y-6">
-              <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter" style="">
-                  Upcoming Classes
-                </h2>
-                <a class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline" href="#"
-                  style="">View All</a>
-              </div>
-              <div class="space-y-4">
-                <!-- Class Item -->
-                <div
-                  class="flex items-center gap-6 p-4 bg-surface border-l-4 border-primary group hover:bg-surface-variant transition-colors">
-                  <div class="flex flex-col items-center justify-center bg-surface-variant min-w-[60px] h-[60px]">
-                    <span class="text-[10px] font-bold text-on-surface-variant">OCT</span>
-                    <span class="text-xl font-headline font-bold text-white leading-none" style="">14</span>
-                  </div>
-                  <div class="flex-1">
-                    <p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1" style="">
-                      08:00 AM — HIIT &amp; FLOW
-                    </p>
-                    <h4 class="font-headline text-lg font-bold text-white">
-                      High-Intensity Power Blast
-                    </h4>
-                    <p class="text-sm text-on-surface-variant" style="">
-                      Coach: Marcus Vane • Studio A
-                    </p>
-                  </div>
-                  <button
-                    class="px-6 py-2 bg-surface-variant text-white text-[10px] font-bold uppercase hover:bg-white hover:text-black transition-all">
-                    Cancel
-                  </button>
-                </div>
-
-                <!-- Class Item -->
-                <div
-                  class="flex items-center gap-6 p-4 bg-surface border-l-4 border-transparent group hover:bg-surface-variant transition-colors">
-                  <div class="flex flex-col items-center justify-center bg-surface-variant min-w-[60px] h-[60px]">
-                    <span class="text-[10px] font-bold text-on-surface-variant">OCT</span>
-                    <span class="text-xl font-headline font-bold text-white leading-none">16</span>
-                  </div>
-                  <div class="flex-1">
-                    <p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">
-                      06:30 PM — STRENGTH
-                    </p>
-                    <h4 class="font-headline text-lg font-bold text-white">
-                      Barbell Technique Elite
-                    </h4>
-                    <p class="text-sm text-on-surface-variant">
-                      Coach: Sarah J. • Lifting Zone
-                    </p>
-                  </div>
-                  <button
-                    class="px-6 py-2 bg-surface-variant text-white text-[10px] font-bold uppercase hover:bg-white hover:text-black transition-all">
-                    Cancel
-                  </button>
-                </div>
+              <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter border-b border-white/10 pb-4">Upcoming Classes</h2>
+              <div id="upcoming-classes-list" class="space-y-4">
+                <p class="text-on-surface-variant text-sm italic">Loading schedule...</p>
               </div>
             </div>
 
-            <!-- Personal Records -->
-             <div class="lg:col-span-2 space-y-6">
-            <div class="bg-surface p-8 space-y-6 border-t-2 border-primary">
-              <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
-              <div class="space-y-4">
-                <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                  <span class="text-on-surface-variant font-medium">Deadlift</span>
-                  <span id="pr-deadlift" class="font-headline font-bold text-white">...</span>
-                </div>
-                <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                  <span class="text-on-surface-variant font-medium">Bench Press</span>
-                  <span id="pr-bench" class="font-headline font-bold text-white">...</span>
-                </div>
-                <div class="flex justify-between items-center pb-3 border-b border-white/5">
-                  <span class="text-on-surface-variant font-medium">Squat</span>
-                  <span id="pr-squat" class="font-headline font-bold text-white">...</span>
-                </div>
-              </div>
-              <button
-                class="w-full py-4 kinetic-gradient text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all">
-                Update Records
-              </button>
-            </div>
-            <div class="relative aspect-video bg-surface overflow-hidden group cursor-pointer border border-white/5">
-              <img alt="Workout"
-                class="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDloYAlseV5AfiylN7plj6skKYh64FBW2ROPncrgMCMaL1uInTmPoORDr5qRyQRJgka4J5kUiHlGWc7B06j2dfpfNL7Za_b0fdEA2wA2_YaE4sKtf3wr8CIWz5kAsUzjD5lDA4U8m6LCjeSgOmHd7sZRgyryjQCxzBnG9sqPLDEHugan1v-vx6BNLAnuoKL9r9iDIkc09sgUORMQ7KMFziX-dintIJCSlfMZkn-iD-YXCBXEWV7l3rA35BWmeUzuykKro4CV5Cl974" />
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-6">
-                <h4 class="font-headline text-xl font-bold text-white">
-                  The Elite Protocol
-                </h4>
-                <p class="text-[10px] font-bold text-primary uppercase tracking-widest">
-                  New Program Available
-                </p>
+            <div class="lg:col-span-2">
+              <div class="bg-surface p-8 border-t-2 border-primary theme-border-top space-y-6">
+                <h3 class="font-headline text-xl font-bold uppercase italic">Personal Records</h3>
+                <div id="pr-list" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                  </div>
               </div>
             </div>
           </div>
+        </section>
+      </main>
     </div>
-    </section>
-    </main>
   </div>
-  </div>
+
   <script>
-    // 1. Initialize Supabase
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // 2. Fetch the Data
-    async function loadSubscriptionData() {
-      const testUserId = "00000000-0000-0000-0000-000000000000";
+    async function init() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
 
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      
-      // Did they just come from a successful checkout?
-      if (urlParams.get('success') === 'true') {
-        const upgradedPlan = urlParams.get('new_plan');
-        
-        if (upgradedPlan) {
-          // 1. Update the database immediately
-          const { error: updateError } = await supabaseClient
-            .from('user_subscriptions')
-            .update({ plan_name: upgradedPlan.toUpperCase() })
-            .eq('user_id', testUserId);
+      // 1. Get Profile & Role
+      const { data: profile } = await db.from('profiles').select('*').eq('user_id', session.user.id).single();
+      const { data: sub } = await db.from('user_subscriptions').select('*').eq('user_id', session.user.id).single();
 
-          if (updateError) {
-            console.error("Failed to update plan:", updateError);
-          } else {
-            window.location.href = window.location.origin + '/dashboard.html';
-            return;
-          }
+      if (profile) {
+        // Handle Trainer Theme
+        if (profile.role === 'trainer') {
+          const cyan = "#00E0FF";
+          document.documentElement.style.setProperty('--theme-color', cyan);
+          
+          // Apply Trainer Colors
+          document.querySelectorAll('.text-primary, .theme-color-text').forEach(el => el.style.setProperty('color', cyan, 'important'));
+          document.querySelectorAll('.bg-primary, .theme-bg').forEach(el => el.style.setProperty('background-color', cyan, 'important'));
+          document.querySelectorAll('.border-primary, .theme-border, .theme-border-top').forEach(el => el.style.setProperty('border-color', cyan, 'important'));
+          
+          // UI Updates
+          document.getElementById('nav-user-role').textContent = 'Staff / Trainer';
+          document.getElementById('nav-trainers').classList.remove('hidden-nav');
+          document.getElementById('hero-action').textContent = 'Manage';
+          document.getElementById('main-stat').textContent = 'Staff Portal';
+        } else {
+            // Member specific stat
+            document.getElementById('main-stat').textContent = '6,749 Kcal';
         }
-        
-        // 3. Clean the URL so if they hit refresh, it doesn't upgrade them again
-        window.history.replaceState({}, document.title, window.location.pathname);
+
+        document.getElementById('nav-user-name').textContent = profile.name;
+        document.getElementById('nav-user-avatar').src = profile.avatar_url || 'https://via.placeholder.com/150';
       }
 
-      // --- FETCH SUBSCRIPTION DATA ---
-      const { data, error } = await supabaseClient
-        .from("user_subscriptions")
-        .select("*")
-        .eq("user_id", testUserId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching subscription:", error.message);
+      if (sub) {
+        document.getElementById('mem-status').textContent = sub.status;
+        document.getElementById('sub-plan').textContent = sub.plan_name;
+        document.getElementById('workouts-count').textContent = sub.workouts_this_month || 0;
       }
 
-      // --- FETCH PERSONAL RECORDS DATA ---
-      // FIXED: Moved this completely outside of the error block above!
-      const { data: prData, error: prError } = await supabaseClient
-        .from('personal_records')
-        .select('*')
-        .eq('user_id', testUserId)
-        .single();
+      loadUpcomingClasses();
+      loadPRs(session.user.id);
+    }
 
-      if (prError) {
-        console.error('Error fetching personal records:', prError.message);
-      }
-
-      // 3. Inject the Data into the HTML
-      if (data) {
-        document.getElementById('nav-user-name').innerText = `${data.first_name} ${data.last_name}`;
-        document.getElementById('nav-user-plan').innerText = data.plan_name;
-        document.getElementById('nav-user-avatar').src = data.avatar_url;
-
-        document.getElementById("mem-status").innerText = data.status;
-        document.getElementById("sub-plan").innerText = data.plan_name;
-        document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date}`;
-
-        document.getElementById("profile-score-text").innerText = `${data.profile_score}% Profile Score`;
-        document.getElementById("profile-score-bar").style.width = `${data.profile_score}%`;
-
-        // --- DYNAMIC WORKOUT MATH ---
-        document.getElementById('workouts-count').innerText = data.workouts_this_month;
-
-        let diff = data.workouts_this_month - data.workouts_last_month;
-        let percentChange = (diff / data.workouts_last_month) * 100;
-
-        let roundedChange = Math.round(percentChange);
-        let sign = roundedChange >= 0 ? '+' : '';
-
-        document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
-      }
+    async function loadUpcomingClasses() {
+      const container = document.getElementById('upcoming-classes-list');
+      const { data: classes } = await db.from('gym_classes').select('*').limit(3).order('datetime', {ascending: true});
       
-      // 4. Inject the Personal Records Data
-      if (prData) {
-        document.getElementById('pr-deadlift').innerText = `${prData.deadlift} kg`;
-        document.getElementById('pr-bench').innerText = `${prData.bench_press} kg`;
-        document.getElementById('pr-squat').innerText = `${prData.squat} kg`;
+      if (!classes || classes.length === 0) {
+        container.innerHTML = '<p class="text-on-surface-variant text-xs uppercase">No classes today.</p>';
+        return;
       }
-    } // FIXED: Properly closed the loadSubscriptionData function here
 
-    // Run the function as soon as the page loads
-    document.addEventListener("DOMContentLoaded", () => {
-      loadSubscriptionData();
-    });
-</script>
+      container.innerHTML = classes.map(cls => `
+        <div class="flex items-center gap-6 p-4 bg-surface border-l-4 border-primary theme-border group">
+          <div class="flex-1">
+            <p class="text-[10px] font-bold text-primary theme-color-text uppercase tracking-widest">${new Date(cls.datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+            <h4 class="font-headline text-lg font-bold text-white uppercase italic">${cls.name}</h4>
+            <p class="text-sm text-on-surface-variant">Coach: ${cls.trainer_name || 'Staff'}</p>
+          </div>
+          <a href="timetable.html" class="px-6 py-2 bg-white/5 text-white text-[10px] font-bold uppercase hover:bg-white hover:text-black transition-all">Book</a>
+        </div>
+      `).join('');
+    }
+
+    async function loadPRs(userId) {
+      const { data } = await db.from('personal_records').select('*').eq('user_id', userId).order('weight', {ascending: false});
+      const container = document.getElementById('pr-list');
+      if (data && data.length > 0) {
+        container.innerHTML = data.map(r => `
+          <div class="flex justify-between items-center pb-3 border-b border-white/5">
+            <span class="text-on-surface-variant font-medium uppercase text-xs">${r.exercise_name}</span>
+            <span class="font-headline font-bold text-white">${r.weight} kg</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    document.getElementById('logout-btn').onclick = async () => {
+      await db.auth.signOut();
+      window.location.href = 'login.html';
+    };
+
+    init();
+  </script>
 </body>
-
 </html>

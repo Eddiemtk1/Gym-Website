@@ -67,7 +67,6 @@
 
 <body class="bg-background text-on-surface font-body antialiased">
   <div class="min-h-screen flex flex-col">
-    <!-- SYNCED NAVBAR START -->
     <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
       <div class="flex items-center gap-12">
         <div class="flex items-center gap-4 text-primary">
@@ -115,7 +114,6 @@
         </div>
       </div>
     </header>
-    <!-- SYNCED NAVBAR END -->
 
     <main class="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full">
       <div class="flex flex-col md:flex-row justify-between items-baseline mb-12 gap-4">
@@ -146,7 +144,13 @@
     const today = new Date();
     document.getElementById('current-week').innerText = `Week of ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
-    // NAVBAR DATA FETCH
+    _supabase
+      .channel('public:gym_classes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gym_classes' }, () => {
+        fetchAndRenderTimetable();
+      })
+      .subscribe();
+
     async function loadUserData() {
       const testUserId = "00000000-0000-0000-0000-000000000000";
       const { data: userData } = await _supabase
@@ -170,22 +174,23 @@
         return;
       }
 
+      if (isJoining) {
+        localStorage.setItem(`booked_${classId}`, 'true');
+      } else {
+        localStorage.removeItem(`booked_${classId}`);
+      }
+
       const { error } = await _supabase
         .from('gym_classes')
         .update({ capacity: newCapacity })
         .eq('id', classId);
 
       if (error) {
-        console.error("Supabase Error:", error);
+        isJoining ? localStorage.removeItem(`booked_${classId}`) : localStorage.setItem(`booked_${classId}`, 'true');
         alert("Action failed. Check RLS policies.");
-      } else {
-        if (isJoining) {
-          localStorage.setItem(`booked_${classId}`, 'true');
-        } else {
-          localStorage.removeItem(`booked_${classId}`);
-        }
-        fetchAndRenderTimetable();
       }
+      
+      fetchAndRenderTimetable();
     }
 
     async function fetchAndRenderTimetable() {
@@ -198,13 +203,12 @@
         .order('time', { ascending: true });
 
       if (error) {
-        console.error("Supabase Error:", error);
         container.innerHTML = `<p class="text-red-500 py-10 text-center font-bold uppercase text-xs tracking-widest">Error connecting to database: ${error.message}</p>`;
         return;
       }
 
       if (!classes || classes.length === 0) {
-        container.innerHTML = `<p class="text-on-surface-variant py-24 text-center uppercase font-black tracking-[0.3em] text-xs">No sessions scheduled for this period.</p>`;
+        container.innerHTML = `<p class="text-on-surface-variant py-24 text-center uppercase font-black tracking-[0.3em] text-xs">No sessions scheduled.</p>`;
         return;
       }
 
@@ -221,9 +225,9 @@
 
         let buttonHtml = '';
         if (hasBooked) {
-          buttonHtml = `<button onclick="toggleSpot('${cls.id}', ${cls.capacity}, false)" class="book-btn bg-red-600 text-white px-10 py-4 font-headline font-black uppercase text-xs tracking-widest hover:bg-red-700 transition-all">Cancel Spot</button>`;
+          buttonHtml = `<button onclick="toggleSpot('${cls.id}', ${cls.capacity}, false)" class="book-btn bg-red-600/10 border border-red-600 text-red-600 px-10 py-4 font-headline font-black uppercase text-xs tracking-widest hover:bg-red-600 hover:text-white transition-all">Cancel Spot</button>`;
         } else if (isFull) {
-          buttonHtml = `<button disabled class="bg-zinc-800 text-zinc-500 px-10 py-4 font-headline font-black uppercase text-xs tracking-widest cursor-not-allowed">Class Full</button>`;
+          buttonHtml = `<button disabled class="bg-zinc-800 text-zinc-500 px-10 py-4 font-headline font-black uppercase text-xs tracking-widest cursor-not-allowed border border-white/5">Class Full</button>`;
         } else {
           buttonHtml = `<button onclick="toggleSpot('${cls.id}', ${cls.capacity}, true)" class="book-btn bg-white text-black px-10 py-4 font-headline font-black uppercase text-xs tracking-widest hover:bg-primary transition-all">Book Spot</button>`;
         }
@@ -243,7 +247,7 @@
                       <h3 class="font-headline text-2xl md:text-3xl font-black text-white uppercase italic group-hover:translate-x-2 transition-transform duration-300">${cls.name}</h3>
                       <div class="flex gap-4">
                           <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Available: <span class="${isFull && !hasBooked ? 'text-red-500' : 'text-white'}">${cls.capacity}</span></p>
-                          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Coach: <span class="text-white">Lead Staff</span></p>
+                          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Coach: <span class="text-primary">${cls.coach || 'Lead Staff'}</span></p>
                       </div>
                   </div>
                   ${buttonHtml}
@@ -254,7 +258,6 @@
       });
     }
 
-    // Initial load
     loadUserData();
     fetchAndRenderTimetable();
   </script>
