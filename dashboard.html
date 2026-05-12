@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html class="dark" lang="en">
 
 <head>
@@ -15,7 +15,7 @@
       theme: {
         extend: {
           colors: {
-            primary: "#D7FF00", // Default Member Green
+            primary: "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             background: "#0e0e0e",
             surface: "#131313",
@@ -31,10 +31,10 @@
     };
   </script>
   <style>
+    :root { --primary-color: #D7FF00; }
     .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
     .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
-    .hidden-nav { display: none !important; }
-    .kinetic-gradient { background: var(--theme-color, #d7ff00); }
+    @media (min-width: 768px) { .md-flex { display: flex !important; } }
   </style>
 </head>
 
@@ -42,9 +42,10 @@
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
       
+      <!-- HEADER / NAVBAR -->
       <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
         <div class="flex items-center gap-12">
-          <div id="brand-logo" class="flex items-center gap-4 text-primary transition-colors">
+          <div id="brand-logo" class="flex items-center gap-4 text-primary">
             <div class="size-6">
               <svg fill="currentColor" viewBox="0 0 48 48">
                 <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
@@ -53,34 +54,19 @@
             <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW</h2>
           </div>
 
-          <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all theme-bg theme-text" href="dashboard.html">
-              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">dashboard</span>
-              <span class="text-xs uppercase tracking-widest">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="membership.html">
-              <span class="material-symbols-outlined" style="font-size: 20px">card_membership</span>
-              <span class="text-xs uppercase tracking-widest">Memberships</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="Timetable.html">
-              <span class="material-symbols-outlined" style="font-size: 20px">calendar_today</span>
-              <span class="text-xs uppercase tracking-widest">Timetable</span>
-            </a>
-            <a id="nav-trainers" class="hidden-nav flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="assign-trainer.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">manage_accounts</span>
-              <span class="text-xs uppercase tracking-widest">Trainers</span>
-            </a>
-          </nav>
+          <!-- DYNAMIC NAV BAR -->
+          <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
         </div>
 
         <div class="flex items-center gap-6">
           <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
             <div class="text-right">
               <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
-              <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold theme-color-text">Member</p>
+              <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
             </div>
-            <div class="size-8 rounded-full border border-primary overflow-hidden theme-border">
-              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover bg-surface-variant" src="" />
+            <div id="nav-avatar-container" class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
+              <span id="nav-avatar-initial" class="text-primary font-bold text-xs uppercase">?</span>
             </div>
           </div>
           <button id="logout-btn" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Logout</button>
@@ -92,35 +78,34 @@
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
               <h1 class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
-                Ready to <span class="text-primary theme-color-text" id="hero-action">Crush</span> it?
+                Ready to <span id="hero-action" class="text-primary">Crush</span> it?
               </h1>
             </div>
             <div class="flex flex-col items-end gap-2">
               <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Active Workout Stats</span>
-              <div class="text-5xl font-headline font-black text-primary theme-color-text" id="main-stat">...</div>
+              <div class="text-5xl font-headline font-black text-primary" id="main-stat">...</div>
             </div>
           </div>
 
+          <!-- Stats Grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-surface p-8 border border-white/5 relative overflow-hidden group">
+            <div class="bg-surface p-8 border border-white/5 relative overflow-hidden">
                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Status</p>
                <h3 id="mem-status" class="font-headline text-3xl font-black text-white uppercase italic">...</h3>
                <span class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none">verified</span>
             </div>
-
-            <div class="bg-primary theme-bg p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div id="plan-card" class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden">
                <div class="relative z-10">
                  <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">Current Plan</p>
                  <h3 id="sub-plan" class="font-headline text-3xl font-black text-on-primary">...</h3>
                </div>
                <button onclick="window.location.href='membership.html'" class="mt-8 relative z-10 w-full py-3 bg-black text-white font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">Manage</button>
             </div>
-
             <div class="bg-surface p-8 border border-white/5 relative">
                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Workouts (Mo)</p>
                <div class="flex items-baseline gap-2">
                  <h3 id="workouts-count" class="font-headline text-5xl font-black text-white">0</h3>
-                 <span id="workouts-trend" class="text-primary theme-color-text font-bold text-xs">+0%</span>
+                 <span class="text-primary font-bold text-xs">+0%</span>
                </div>
             </div>
           </div>
@@ -128,16 +113,14 @@
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
             <div class="lg:col-span-3 space-y-6">
               <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter border-b border-white/10 pb-4">Upcoming Classes</h2>
-              <div id="upcoming-classes-list" class="space-y-4">
-                <p class="text-on-surface-variant text-sm italic">Loading schedule...</p>
-              </div>
+              <div id="upcoming-classes-list" class="space-y-4"><p class="text-on-surface-variant text-sm italic">Loading schedule...</p></div>
             </div>
-
             <div class="lg:col-span-2">
-              <div class="bg-surface p-8 border-t-2 border-primary theme-border-top space-y-6">
+              <div id="pr-card" class="bg-surface p-8 border-t-2 border-primary space-y-6">
                 <h3 class="font-headline text-xl font-bold uppercase italic">Personal Records</h3>
                 <div id="pr-list" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                  </div>
+                  <p class="text-on-surface-variant text-xs italic">Loading PRs...</p>
+                </div>
               </div>
             </div>
           </div>
@@ -155,46 +138,81 @@
       const { data: { session } } = await db.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
 
-      // 1. Get Profile & Role
-      const { data: profile } = await db.from('profiles').select('*').eq('user_id', session.user.id).single();
-      const { data: sub } = await db.from('user_subscriptions').select('*').eq('user_id', session.user.id).single();
+      const userId = session.user.id;
+      const { data: profile } = await db.from('profiles').select('*').eq('user_id', userId).maybeSingle();
+      const { data: sub } = await db.from('user_subscriptions').select('*').eq('user_id', userId).maybeSingle();
 
       if (profile) {
-        // Handle Trainer Theme
-        if (profile.role === 'trainer') {
-          const cyan = "#00E0FF";
-          document.documentElement.style.setProperty('--theme-color', cyan);
-          
-          // Apply Trainer Colors
-          document.querySelectorAll('.text-primary, .theme-color-text').forEach(el => el.style.setProperty('color', cyan, 'important'));
-          document.querySelectorAll('.bg-primary, .theme-bg').forEach(el => el.style.setProperty('background-color', cyan, 'important'));
-          document.querySelectorAll('.border-primary, .theme-border, .theme-border-top').forEach(el => el.style.setProperty('border-color', cyan, 'important'));
-          
-          // UI Updates
-          document.getElementById('nav-user-role').textContent = 'Staff / Trainer';
-          document.getElementById('nav-trainers').classList.remove('hidden-nav');
-          document.getElementById('hero-action').textContent = 'Manage';
-          document.getElementById('main-stat').textContent = 'Staff Portal';
-        } else {
-            // Member specific stat
-            document.getElementById('main-stat').textContent = '6,749 Kcal';
-        }
-
-        document.getElementById('nav-user-name').textContent = profile.name;
-        document.getElementById('nav-user-avatar').src = profile.avatar_url || 'https://via.placeholder.com/150';
+        renderNavbar(profile.role);
+        setupBranding(profile);
       }
 
       if (sub) {
-        document.getElementById('mem-status').textContent = sub.status;
-        document.getElementById('sub-plan').textContent = sub.plan_name;
+        document.getElementById('mem-status').textContent = sub.status || "Inactive";
+        document.getElementById('sub-plan').textContent = sub.plan_name || "Free Tier";
         document.getElementById('workouts-count').textContent = sub.workouts_this_month || 0;
       }
-
-      loadUpcomingClasses();
-      loadPRs(session.user.id);
+      loadPRs(userId);
     }
 
-    async function loadUpcomingClasses() {
+    function renderNavbar(role) {
+      const nav = document.getElementById('main-nav');
+      const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
+      
+      const memberLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Membership', url: 'membership.html', icon: 'card_membership' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const trainerLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Trainer Report', url: 'trainer-report.html', icon: 'analytics' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const links = (role === 'trainer') ? trainerLinks : memberLinks;
+
+      nav.innerHTML = links.map(link => {
+        const isActive = currentPage === link.url;
+        return `
+          <a class="flex items-center gap-2 px-6 h-full transition-all ${isActive ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white'}" href="${link.url}">
+            <span class="material-symbols-outlined" style="font-size: 20px; ${isActive ? "font-variation-settings: 'FILL' 1;" : ''}">${link.icon}</span>
+            <span class="text-xs uppercase tracking-widest">${link.name}</span>
+          </a>
+        `;
+      }).join('');
+    }
+
+    function setupBranding(profile) {
+      const isTrainer = profile.role === 'trainer';
+      const themeColor = isTrainer ? "#00E0FF" : "#D7FF00";
+      
+      if (isTrainer) document.documentElement.style.setProperty('--primary-color', themeColor);
+
+      document.getElementById('nav-user-name').textContent = profile.name || "User";
+      document.getElementById('nav-avatar-initial').textContent = (profile.name || "U").charAt(0);
+      document.getElementById('nav-user-role').textContent = isTrainer ? 'Staff / Trainer' : 'Member';
+      if (isTrainer) document.getElementById('nav-user-role').style.color = themeColor;
+
+      if (profile.avatar_url) {
+        const img = document.getElementById('nav-user-avatar');
+        img.src = profile.avatar_url;
+        img.classList.remove('hidden');
+        document.getElementById('nav-avatar-initial').classList.add('hidden');
+      }
+
+      document.getElementById('hero-action').textContent = isTrainer ? 'Manage' : 'Crush';
+      document.getElementById('main-stat').textContent = isTrainer ? 'Staff Portal' : '6,749 Kcal';
+      document.getElementById('plan-card').style.backgroundColor = themeColor;
+      document.getElementById('pr-card').style.borderColor = themeColor;
+      
+      loadUpcomingClasses(themeColor);
+    }
+
+    async function loadUpcomingClasses(themeColor) {
       const container = document.getElementById('upcoming-classes-list');
       const { data: classes } = await db.from('gym_classes').select('*').limit(3).order('datetime', {ascending: true});
       
@@ -204,13 +222,15 @@
       }
 
       container.innerHTML = classes.map(cls => `
-        <div class="flex items-center gap-6 p-4 bg-surface border-l-4 border-primary theme-border group">
+        <div class="flex items-center gap-6 p-4 bg-surface border-l-4 group" style="border-color: ${themeColor}">
           <div class="flex-1">
-            <p class="text-[10px] font-bold text-primary theme-color-text uppercase tracking-widest">${new Date(cls.datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest" style="color: ${themeColor}">
+                ${new Date(cls.datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+            </p>
             <h4 class="font-headline text-lg font-bold text-white uppercase italic">${cls.name}</h4>
             <p class="text-sm text-on-surface-variant">Coach: ${cls.trainer_name || 'Staff'}</p>
           </div>
-          <a href="timetable.html" class="px-6 py-2 bg-white/5 text-white text-[10px] font-bold uppercase hover:bg-white hover:text-black transition-all">Book</a>
+          <a href="Timetable.html" class="px-6 py-2 bg-white/5 text-white text-[10px] font-bold uppercase hover:bg-white hover:text-black transition-all">View</a>
         </div>
       `).join('');
     }
@@ -218,14 +238,9 @@
     async function loadPRs(userId) {
       const { data } = await db.from('personal_records').select('*').eq('user_id', userId).order('weight', {ascending: false});
       const container = document.getElementById('pr-list');
-      if (data && data.length > 0) {
-        container.innerHTML = data.map(r => `
-          <div class="flex justify-between items-center pb-3 border-b border-white/5">
-            <span class="text-on-surface-variant font-medium uppercase text-xs">${r.exercise_name}</span>
-            <span class="font-headline font-bold text-white">${r.weight} kg</span>
-          </div>
-        `).join('');
-      }
+      container.innerHTML = (data && data.length > 0) 
+        ? data.map(r => `<div class="flex justify-between items-center pb-3 border-b border-white/5"><span class="text-on-surface-variant font-medium uppercase text-xs">${r.exercise_name}</span><span class="font-headline font-bold text-white">${r.weight} kg</span></div>`).join('')
+        : '<p class="text-on-surface-variant text-xs italic">No records recorded yet.</p>';
     }
 
     document.getElementById('logout-btn').onclick = async () => {

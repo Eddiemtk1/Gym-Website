@@ -15,7 +15,7 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#D7FF00",
+            "primary": "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             "background": "#0e0e0e",
             "surface": "#131313",
@@ -24,44 +24,21 @@
             "on-surface": "#ffffff",
             "on-surface-variant": "#a3a3a3",
           },
-          fontFamily: {
-            "headline": ["Lexend"],
-            "body": ["Inter"],
-            "label": ["Inter"]
-          },
-          borderRadius: {
-            "DEFAULT": "0px",
-            "lg": "0px",
-            "xl": "0px",
-            "full": "9999px"
-          },
+          fontFamily: { "headline": ["Lexend"], "body": ["Inter"], "label": ["Inter"] },
+          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
         },
       },
     }
   </script>
   <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-
-    .glass-nav {
-      background: rgba(14, 14, 14, 0.8);
-      backdrop-filter: blur(12px);
-    }
-
-    .timetable-grid {
-      display: grid;
-      grid-template-columns: 80px 1fr;
-    }
-
-    .book-btn {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .book-btn:not(:disabled):hover {
-      letter-spacing: 0.2em;
-      transform: scale(1.05);
-    }
+    :root { --primary-color: #D7FF00; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    .timetable-grid { display: grid; grid-template-columns: 80px 1fr; }
+    .book-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .book-btn:not(:disabled):hover { letter-spacing: 0.2em; transform: scale(1.05); }
+    .hidden { display: none !important; }
+    @media (min-width: 768px) { .md-nav-flex { display: flex !important; } }
   </style>
 </head>
 
@@ -77,50 +54,40 @@
           </div>
           <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
         </div>
-
-        <nav class="hidden md:flex items-center h-10">
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-            <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-            <span class="text-xs uppercase tracking-widest font-bold">Dashboard</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="membership.html">
-            <span class="material-symbols-outlined" style="font-size: 20px;">card_membership</span>
-            <span class="text-xs uppercase tracking-widest font-bold">Memberships</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="timetable.html">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">calendar_today</span>
-            <span class="text-xs uppercase tracking-widest font-bold">Timetable</span>
-          </a>
-        </nav>
+        <nav id="main-nav" class="hidden md-nav-flex items-center h-10"></nav>
       </div>
 
       <div class="flex items-center gap-6">
         <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
           <div class="text-right">
             <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
-            <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">...</p>
+            <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
           </div>
-          <div class="size-8 rounded-full border border-primary overflow-hidden">
-            <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="https://ui-avatars.com/api/?background=D7FF00&color=0e0e0e" />
+          <div id="avatar-container" class="size-8 rounded-full border border-primary overflow-hidden flex items-center justify-center bg-surface-variant">
+            <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
+            <span id="nav-avatar-initial" class="text-primary font-bold text-xs">?</span>
           </div>
         </div>
-        <div class="flex gap-4">
-          <button class="flex items-center justify-center h-10 w-10 bg-surface-variant hover:bg-white hover:text-black transition-colors">
-            <span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
-          </button>
-          <button class="flex items-center justify-center h-10 w-10 bg-surface-variant hover:bg-white hover:text-black transition-colors">
-            <span class="material-symbols-outlined" style="font-size: 20px;">account_circle</span>
-          </button>
-        </div>
+        <button id="logout-btn" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Logout</button>
       </div>
     </header>
 
     <main class="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full">
-      <div class="flex flex-col md:flex-row justify-between items-baseline mb-12 gap-4">
-        <h1 class="font-headline text-5xl lg:text-8xl font-black text-white uppercase italic leading-none tracking-tighter">
-          Class <span class="text-primary">Schedule</span>
-        </h1>
-        <div class="flex flex-col items-end">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+        <div class="space-y-4">
+          <h1 class="font-headline text-5xl lg:text-8xl font-black text-white uppercase italic leading-none tracking-tighter">
+            Class <span class="text-primary" id="hero-span">Schedule</span>
+          </h1>
+          <div id="trainer-actions" class="hidden flex flex-wrap gap-3">
+            <a href="StaffClass.html" class="inline-flex items-center gap-3 bg-primary text-on-primary px-6 py-3 font-headline font-black uppercase text-xs tracking-[0.2em] hover:scale-105 active:scale-95 transition-all">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">add</span>Add New Class
+            </a>
+            <a href="StaffEdit.html" class="inline-flex items-center gap-3 border border-primary/40 text-primary px-6 py-3 font-headline font-black uppercase text-xs tracking-[0.2em] hover:bg-primary hover:text-on-primary transition-all">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">edit</span>Edit Classes
+            </a>
+          </div>
+        </div>
+        <div class="flex flex-col items-start md:items-end">
           <p class="text-primary font-black uppercase text-[10px] tracking-[0.4em]">Live Database Connection</p>
           <p id="current-week" class="text-on-surface-variant font-bold uppercase text-[10px] tracking-[0.2em] mt-1"></p>
         </div>
@@ -138,129 +105,127 @@
   <script>
     const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
-
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const today = new Date();
     document.getElementById('current-week').innerText = `Week of ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
-    _supabase
-      .channel('public:gym_classes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'gym_classes' }, () => {
-        fetchAndRenderTimetable();
-      })
-      .subscribe();
+    let currentUser = null;
 
-    async function loadUserData() {
-      const testUserId = "00000000-0000-0000-0000-000000000000";
-      const { data: userData } = await _supabase
-        .from("user_subscriptions")
-        .select("first_name, last_name, plan_name, avatar_url")
-        .eq("user_id", testUserId)
-        .single();
+    async function init() {
+      const { data: { session }, error: sessionError } = await db.auth.getSession();
+      if (sessionError || !session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = session.user;
+      await loadProfile();
+      await fetchAndRenderTimetable();
+    }
 
-      if (userData) {
-        document.getElementById('nav-user-name').innerText = `${userData.first_name} ${userData.last_name}`;
-        document.getElementById('nav-user-plan').innerText = userData.plan_name;
-        document.getElementById('nav-user-avatar').src = userData.avatar_url;
+    async function loadProfile() {
+      const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
+      if (error) console.error("Profile Load Error:", error);
+      
+      document.getElementById('nav-user-name').innerText = profile?.name || 'User';
+      document.getElementById('nav-avatar-initial').innerText = (profile?.name || 'U').charAt(0).toUpperCase();
+
+      if (profile?.avatar_url) {
+        const img = document.getElementById('nav-user-avatar');
+        img.src = profile.avatar_url;
+        img.classList.remove('hidden');
+        document.getElementById('nav-avatar-initial').classList.add('hidden');
+      }
+
+      const role = profile?.role || 'member';
+      renderNavbar(role);
+      
+      if (role === 'trainer') {
+        document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+        document.getElementById('nav-user-role').innerText = 'Staff / Trainer';
+        document.getElementById('trainer-actions').classList.remove('hidden');
       }
     }
 
-    async function toggleSpot(classId, currentCapacity, isJoining) {
-      const newCapacity = isJoining ? currentCapacity - 1 : currentCapacity + 1;
-
-      if (isJoining && currentCapacity <= 0) {
-        alert("This class is already full!");
-        return;
-      }
-
-      if (isJoining) {
-        localStorage.setItem(`booked_${classId}`, 'true');
-      } else {
-        localStorage.removeItem(`booked_${classId}`);
-      }
-
-      const { error } = await _supabase
-        .from('gym_classes')
-        .update({ capacity: newCapacity })
-        .eq('id', classId);
-
-      if (error) {
-        isJoining ? localStorage.removeItem(`booked_${classId}`) : localStorage.setItem(`booked_${classId}`, 'true');
-        alert("Action failed. Check RLS policies.");
-      }
+    function renderNavbar(role) {
+      const nav = document.getElementById('main-nav');
+      const links = role === 'trainer' ? 
+        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Trainer Report', url: 'trainer-report.html', icon: 'manage_accounts' }, { name: 'Profile', url: 'profile.html', icon: 'person' }] : 
+        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Memberships', url: 'membership.html', icon: 'card_membership' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Profile', url: 'profile.html', icon: 'person' }];
       
-      fetchAndRenderTimetable();
+      nav.innerHTML = links.map(link => `
+        <a href="${link.url}" class="flex items-center gap-2 px-6 h-full transition-all ${link.active ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}">
+          <span class="material-symbols-outlined" style="font-size:20px; ${link.active ? "font-variation-settings:'FILL' 1;" : ''}">${link.icon}</span>
+          <span class="text-xs uppercase tracking-widest font-bold">${link.name}</span>
+        </a>`).join('');
     }
 
     async function fetchAndRenderTimetable() {
       const container = document.getElementById('timetable-container');
-
-      const { data: classes, error } = await _supabase
+      
+      const { data: classes, error } = await db
         .from('gym_classes')
         .select('*')
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
+        .order('date', { ascending: true });
 
       if (error) {
-        container.innerHTML = `<p class="text-red-500 py-10 text-center font-bold uppercase text-xs tracking-widest">Error connecting to database: ${error.message}</p>`;
+        console.error("Database Error:", error);
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-red-500 font-bold">RLS Error: ${error.message}</p></div>`;
         return;
       }
 
       if (!classes || classes.length === 0) {
-        container.innerHTML = `<p class="text-on-surface-variant py-24 text-center uppercase font-black tracking-[0.3em] text-xs">No sessions scheduled.</p>`;
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-on-surface-variant uppercase text-xs tracking-widest font-bold">No classes found in gym_classes table</p></div>`;
         return;
       }
 
       container.innerHTML = '';
-
       classes.forEach(cls => {
         const [year, month, day] = cls.date.split('-');
         const dateObj = new Date(year, month - 1, day);
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
         const dayNum = dateObj.getDate();
+        const isFull = (cls.capacity || 0) <= 0;
 
-        const hasBooked = localStorage.getItem(`booked_${cls.id}`) === 'true';
-        const isFull = cls.capacity <= 0;
-
-        let buttonHtml = '';
-        if (hasBooked) {
-          buttonHtml = `<button onclick="toggleSpot('${cls.id}', ${cls.capacity}, false)" class="book-btn bg-red-600/10 border border-red-600 text-red-600 px-10 py-4 font-headline font-black uppercase text-xs tracking-widest hover:bg-red-600 hover:text-white transition-all">Cancel Spot</button>`;
-        } else if (isFull) {
-          buttonHtml = `<button disabled class="bg-zinc-800 text-zinc-500 px-10 py-4 font-headline font-black uppercase text-xs tracking-widest cursor-not-allowed border border-white/5">Class Full</button>`;
-        } else {
-          buttonHtml = `<button onclick="toggleSpot('${cls.id}', ${cls.capacity}, true)" class="book-btn bg-white text-black px-10 py-4 font-headline font-black uppercase text-xs tracking-widest hover:bg-primary transition-all">Book Spot</button>`;
-        }
-
-        const classRow = `
+        container.insertAdjacentHTML('beforeend', `
           <div class="timetable-grid border-b border-white/10 group hover:bg-surface-variant/30 transition-all duration-300">
-              <div class="py-8 flex flex-col items-center justify-center border-r border-white/10 bg-surface/10 group-hover:bg-primary transition-all duration-300">
-                  <span class="text-[10px] font-black text-on-surface-variant group-hover:text-on-primary tracking-tighter transition-colors">${dayName}</span>
-                  <span class="text-3xl font-headline font-black text-white group-hover:text-on-primary transition-colors">${dayNum}</span>
+            <div class="py-8 flex flex-col items-center justify-center border-r border-white/10 bg-surface/10 group-hover:bg-primary transition-all duration-300">
+              <span class="text-[10px] font-black text-on-surface-variant group-hover:text-on-primary tracking-tighter">${dayName}</span>
+              <span class="text-3xl font-headline font-black text-white group-hover:text-on-primary">${dayNum}</span>
+            </div>
+            <div class="p-6 md:px-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div class="space-y-2">
+                <div class="flex items-center gap-4 mb-1">
+                  <span class="text-[10px] font-black text-primary bg-primary/10 border border-primary/20 px-3 py-1 uppercase tracking-widest">${cls.time ? cls.time.slice(0,5) : '--:--'}</span>
+                  <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] italic">${cls.location || 'Main Gym'}</span>
+                </div>
+                <h3 class="font-headline text-2xl md:text-3xl font-black text-white uppercase italic">${cls.name}</h3>
+                <div class="flex gap-4">
+                  <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Spots: <span class="text-white">${cls.capacity || '0'}</span></p>
+                  <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Coach: <span class="text-primary">${cls.coach || 'Lead Staff'}</span></p>
+                </div>
               </div>
-              <div class="p-6 md:px-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div class="space-y-2">
-                      <div class="flex items-center gap-4 mb-1">
-                          <span class="text-[10px] font-black text-primary bg-primary/10 border border-primary/20 px-3 py-1 uppercase tracking-widest group-hover:bg-primary group-hover:text-on-primary transition-all">${cls.time.slice(0,5)}</span>
-                          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] italic">${cls.location}</span>
-                      </div>
-                      <h3 class="font-headline text-2xl md:text-3xl font-black text-white uppercase italic group-hover:translate-x-2 transition-transform duration-300">${cls.name}</h3>
-                      <div class="flex gap-4">
-                          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Available: <span class="${isFull && !hasBooked ? 'text-red-500' : 'text-white'}">${cls.capacity}</span></p>
-                          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Coach: <span class="text-primary">${cls.coach || 'Lead Staff'}</span></p>
-                      </div>
-                  </div>
-                  ${buttonHtml}
-              </div>
-          </div>
-        `;
-        container.insertAdjacentHTML('beforeend', classRow);
+              <button onclick="bookClass('${cls.id}', ${cls.capacity})" ${isFull ? 'disabled' : ''} class="${isFull ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'book-btn bg-white text-black hover:bg-primary'} px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all">
+                ${isFull ? 'Class Full' : 'Book Spot'}
+              </button>
+            </div>
+          </div>`);
       });
     }
 
-    loadUserData();
-    fetchAndRenderTimetable();
+    async function bookClass(classId, capacity) {
+      const { error } = await db.from('gym_classes').update({ capacity: Math.max(0, capacity - 1) }).eq('id', classId);
+      if (error) return alert('Booking failed: ' + error.message);
+      alert('Class booked successfully');
+      fetchAndRenderTimetable();
+    }
+
+    document.getElementById('logout-btn').onclick = async () => {
+      await db.auth.signOut();
+      window.location.href = 'login.html';
+    };
+
+    init();
   </script>
 </body>
-
 </html>

@@ -15,7 +15,7 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#D7FF00",
+            "primary": "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             "background": "#0e0e0e",
             "surface": "#131313",
@@ -31,47 +31,35 @@
     }
   </script>
   <style>
+    :root { --primary-color: #D7FF00; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    @media (min-width: 768px) { .md-flex { display: flex !important; } }
   </style>
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
+    
     <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
       <div class="flex items-center gap-12">
         <div class="flex items-center gap-4 text-primary">
           <div class="size-6">
-            <svg fill="none" viewBox="0 0 48 48">
-              <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+            <svg fill="currentColor" viewBox="0 0 48 48">
+              <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
             </svg>
           </div>
           <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW</h2>
         </div>
-        <nav class="hidden md:flex items-center h-10">
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-            <span class="material-symbols-outlined text-[20px]">dashboard</span>
-            <span class="text-xs uppercase tracking-widest">Dashboard</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="membership.html">
-            <span class="material-symbols-outlined text-[20px]">card_membership</span>
-            <span class="text-xs uppercase tracking-widest">Memberships</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="Timetable.html">
-            <span class="material-symbols-outlined text-[20px]">calendar_today</span>
-            <span class="text-xs uppercase tracking-widest">Timetable</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="profile.html">
-            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">settings</span>
-            <span class="text-xs uppercase tracking-widest">Settings</span>
-          </a>
-        </nav>
+        
+        <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
       </div>
+      
       <div class="flex items-center gap-6">
         <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
           <div class="text-right">
             <p id="header-name" class="font-headline font-bold text-white text-xs">...</p>
-            <p id="header-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
+            <p id="header-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">...</p>
           </div>
           <div class="size-8 border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
             <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
@@ -106,9 +94,9 @@
               <p id="card-name" class="font-headline text-xl font-black text-white uppercase italic tracking-tighter">...</p>
               <p id="card-email" class="text-on-surface-variant text-xs mt-1 break-all font-bold"></p>
             </div>
-            <div class="w-full bg-surface-variant p-4 text-center border-t-2 border-primary">
+            <div class="w-full bg-surface-variant p-4 text-center border-t-2 border-primary" id="status-card-border">
               <p class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1">Status</p>
-              <p id="card-plan" class="font-headline font-black text-white text-sm uppercase italic">No Active Plan</p>
+              <p id="card-plan" class="font-headline font-black text-white text-sm uppercase italic">Loading...</p>
             </div>
             <button id="upload-btn" type="button" class="hidden w-full py-3 border border-outline text-on-surface-variant text-[10px] font-black uppercase tracking-widest hover:border-primary hover:text-primary transition-colors">
               Update Visual ID
@@ -148,7 +136,6 @@
               <div>
                 <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2" for="edit-name">Full Name</label>
                 <input id="edit-name" type="text" class="w-full bg-surface-variant border border-outline px-4 py-3 text-white text-sm focus:outline-none focus:border-primary uppercase font-bold">
-                <p id="edit-name-error" class="hidden text-red-400 text-[10px] mt-2 font-bold uppercase"></p>
               </div>
               <div>
                 <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2" for="edit-phone">Contact Number</label>
@@ -157,7 +144,7 @@
               <div class="flex items-center justify-between border border-outline px-4 py-4 bg-surface-variant/30">
                 <div>
                   <p class="text-xs font-black uppercase text-white tracking-widest">Stealth Mode</p>
-                  <p class="text-on-surface-variant text-[10px] uppercase font-bold mt-1">Hide profile from trainer searches</p>
+                  <p class="text-on-surface-variant text-[10px] uppercase font-bold mt-1">Hide profile from searches</p>
                 </div>
                 <input id="edit-privacy" type="checkbox" class="size-5 accent-primary cursor-pointer">
               </div>
@@ -180,12 +167,60 @@
     let currentUser = null;
     let currentProfile = {};
 
-    function showPageAlert(message, type = 'error') {
-      const el = document.getElementById('page-alert');
-      el.textContent = message;
-      el.className = `px-4 py-3 text-[10px] font-black uppercase tracking-widest border ${type === 'error' ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-primary bg-primary/10 text-primary'}`;
-      el.classList.remove('hidden');
-      setTimeout(() => el.classList.add('hidden'), 4000);
+    async function init() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) return window.location.replace('login.html');
+      currentUser = session.user;
+
+      const { data: profile } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
+      currentProfile = profile || {};
+
+      const role = currentProfile.role || 'member';
+      renderNavbar(role);
+
+      if (role === 'trainer') {
+        const cyan = "#00E0FF";
+        document.documentElement.style.setProperty('--primary-color', cyan);
+      }
+
+      const { data: subData } = await db.from('user_subscriptions').select('plan_name').eq('user_id', currentUser.id).maybeSingle();
+      const planLabel = role === 'trainer' ? 'Staff / Trainer' : (subData?.plan_name || 'Member');
+      
+      document.getElementById('header-plan').textContent = planLabel.toUpperCase();
+      document.getElementById('card-plan').textContent = planLabel.toUpperCase();
+
+      renderProfile(currentProfile, currentUser);
+    }
+
+    function renderNavbar(role) {
+      const nav = document.getElementById('main-nav');
+      const currentPath = window.location.pathname.split("/").pop() || "profile.html";
+      
+      const memberLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Membership', url: 'membership.html', icon: 'card_membership' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const trainerLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Trainer Report', url: 'trainer-report.html', icon: 'analytics' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const links = (role === 'trainer') ? trainerLinks : memberLinks;
+
+      nav.innerHTML = links.map(link => {
+        const isActive = currentPath === link.url;
+        return `
+          <a class="flex items-center gap-2 px-6 h-full transition-all ${isActive ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}" href="${link.url}">
+            <span class="material-symbols-outlined" style="font-size: 20px; ${isActive ? "font-variation-settings: 'FILL' 1;" : ''}">${link.icon}</span>
+            <span class="text-xs uppercase tracking-widest">${link.name}</span>
+          </a>
+        `;
+      }).join('');
     }
 
     function renderProfile(profile, user) {
@@ -194,7 +229,11 @@
       const avatarUrl = profile.avatar_url || '';
       const initial = name.charAt(0).toUpperCase();
 
-      ['header-name', 'card-name', 'vw-name'].forEach(id => document.getElementById(id).textContent = name);
+      ['header-name', 'card-name', 'vw-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = name;
+      });
+
       document.getElementById('card-email').textContent = email;
       document.getElementById('vw-email').textContent = email;
       document.getElementById('vw-phone').textContent = profile.phone || 'NONE REGISTERED';
@@ -204,11 +243,11 @@
       const avatarInits = [document.getElementById('header-avatar-initial'), document.getElementById('avatar-initial')];
       
       if (avatarUrl) {
-        avatarImgs.forEach(img => { img.src = avatarUrl; img.classList.remove('hidden'); });
-        avatarInits.forEach(init => init.classList.add('hidden'));
+        avatarImgs.forEach(img => { if(img) { img.src = avatarUrl; img.classList.remove('hidden'); } });
+        avatarInits.forEach(init => { if(init) init.classList.add('hidden'); });
       } else {
-        avatarImgs.forEach(img => img.classList.add('hidden'));
-        avatarInits.forEach(init => { init.textContent = initial; init.classList.remove('hidden'); });
+        avatarImgs.forEach(img => { if(img) img.classList.add('hidden'); });
+        avatarInits.forEach(init => { if(init) { init.textContent = initial; init.classList.remove('hidden'); } });
       }
 
       document.getElementById('edit-name').value = name;
@@ -216,21 +255,12 @@
       document.getElementById('edit-privacy').checked = !!profile.privacy_hide_profile;
     }
 
-    async function init() {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) return window.location.replace('login.html');
-      currentUser = session.user;
-
-      const { data: subData } = await db.from('user_subscriptions').select('plan_name').eq('user_id', currentUser.id).single();
-      if (subData) {
-        const plan = subData.plan_name.toUpperCase();
-        document.getElementById('header-plan').textContent = plan;
-        document.getElementById('card-plan').textContent = plan;
-      }
-
-      const { data: profile } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
-      currentProfile = profile || {};
-      renderProfile(currentProfile, currentUser);
+    function showPageAlert(message, type = 'error') {
+      const el = document.getElementById('page-alert');
+      el.textContent = message;
+      el.className = `px-4 py-3 text-[10px] font-black uppercase tracking-widest border ${type === 'error' ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-primary bg-primary/10 text-primary'}`;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 4000);
     }
 
     const toggleMode = (isEdit) => {

@@ -33,8 +33,8 @@
   <style>
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
-    .hidden-nav { display: none !important; }
     .hidden-load { visibility: hidden; }
+    @media (min-width: 768px) { .md-flex { display: flex !important; } }
   </style>
 </head>
 
@@ -52,27 +52,16 @@
             </div>
             <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
           </div>
-          <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-              <span class="text-xs uppercase tracking-widest">Dashboard</span>
-            </a>
-            <a id="nav-trainers" class="hidden-nav flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="assign-trainer.html">
-              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">manage_accounts</span>
-              <span class="text-xs uppercase tracking-widest">Trainers</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
-              <span class="text-xs uppercase tracking-widest">Settings</span>
-            </a>
-          </nav>
+          
+          <!-- DYNAMIC NAV BAR -->
+          <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
         </div>
         
         <div class="flex items-center gap-6">
           <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
             <div class="text-right">
               <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
-              <p id="role-badge" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Trainer / Staff</p>
+              <p id="role-badge" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Staff / Trainer</p>
             </div>
             <div class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
               <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">?</span>
@@ -147,23 +136,52 @@
       if (!session) { window.location.replace('login.html'); return; }
       currentUser = session.user;
 
-      // ROLE GATEKEEPER
       const { data: profile } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
       
-      // If not a trainer, kick them out of this page
       if (!profile || profile.role !== 'trainer') {
         window.location.replace('dashboard.html');
         return;
       }
 
-      // If they ARE a trainer, show the page and the nav links
+      // Render the specific trainer navbar order
+      renderNavbar(profile.role);
+
       document.getElementById('main-body').classList.remove('hidden-load');
-      document.getElementById('nav-trainers').classList.remove('hidden-nav');
       document.getElementById('header-name').textContent = profile.name;
       document.getElementById('header-avatar-initial').textContent = profile.name.charAt(0).toUpperCase();
 
       await Promise.all([loadClasses(), loadTrainers()]);
       renderAll();
+    }
+
+    function renderNavbar(role) {
+      const nav = document.getElementById('main-nav');
+      // Force "assign-trainer.html" to be active for Trainer Report and Assignment sub-pages if desired, 
+      // or match exact URL
+      const currentPath = window.location.pathname.split("/").pop() || "dashboard.html";
+      
+      const trainerLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Trainer Report', url: 'trainer-report.html', icon: 'analytics' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      // Since this is a Staff page, we know they are a trainer, but we use the role logic for safety
+      const links = trainerLinks;
+
+      nav.innerHTML = links.map(link => {
+        const isActive = currentPath === link.url;
+        // Note: Added specific logic so Trainer Report stays active when on this assignment sub-page
+        const isAssignmentActive = (link.url === 'trainer-report.html' && currentPath === 'assign-trainer.html');
+        
+        return `
+          <a class="flex items-center gap-2 px-6 h-full transition-all ${isActive || isAssignmentActive ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}" href="${link.url}">
+            <span class="material-symbols-outlined" style="font-size: 20px; ${(isActive || isAssignmentActive) ? "font-variation-settings: 'FILL' 1;" : ''}">${link.icon}</span>
+            <span class="text-xs uppercase tracking-widest">${link.name}</span>
+          </a>
+        `;
+      }).join('');
     }
 
     async function loadClasses() {
@@ -172,7 +190,6 @@
     }
 
     async function loadTrainers() {
-      // Pull trainers from the PROFILES table where role is trainer
       const { data } = await db.from('profiles').select('name').eq('role', 'trainer');
       const sel = document.getElementById('trainer-select');
       sel.innerHTML = '<option value="">Choose a trainer...</option>';

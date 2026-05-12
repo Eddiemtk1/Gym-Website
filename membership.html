@@ -15,7 +15,7 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#D7FF00",
+            "primary": "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             "background": "#0e0e0e",
             "surface": "#131313",
@@ -34,62 +34,58 @@
     }
   </script>
   <style>
+    :root { --primary-color: #D7FF00; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
     .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    @media (min-width: 768px) { .md-flex { display: flex !important; } }
   </style>
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
+    
+    <!-- HEADER / NAVBAR -->
     <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
       <div class="flex items-center gap-12">
         <div class="flex items-center gap-4 text-primary">
           <div class="size-6">
-            <svg fill="none" viewBox="0 0 48 48">
-              <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+            <svg fill="currentColor" viewBox="0 0 48 48">
+              <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
             </svg>
           </div>
           <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW</h2>
         </div>
-        <nav class="hidden md:flex items-center h-10">
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-            <span class="material-symbols-outlined text-[20px]">dashboard</span>
-            <span class="text-xs uppercase tracking-widest">Dashboard</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="membership.html">
-            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">card_membership</span>
-            <span class="text-xs uppercase tracking-widest">Memberships</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="Timetable.html">
-            <span class="material-symbols-outlined text-[20px]">calendar_today</span>
-            <span class="text-xs uppercase tracking-widest">Timetable</span>
-          </a>
-        </nav>
+        
+        <!-- DYNAMIC NAV BAR -->
+        <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
       </div>
+
       <div class="flex items-center gap-6">
         <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
           <div class="text-right">
             <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
-            <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">...</p>
+            <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">...</p>
           </div>
-          <div class="size-8 rounded-full border border-primary overflow-hidden">
-            <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
+          <div id="nav-avatar-container" class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+            <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
+            <span id="nav-avatar-initial" class="text-primary font-bold text-xs uppercase">?</span>
           </div>
         </div>
+        <button id="logout-btn" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Logout</button>
       </div>
     </header>
 
     <main class="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full">
       <div class="mb-16">
         <h1 class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
-          choose your <br /> <span class="text-primary">Future.</span>
+          choose your <br /> <span class="text-primary" id="hero-span">Future.</span>
         </h1>
       </div>
 
       <div id="plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24"></div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div class="bg-surface p-12 border-l-4 border-primary">
+        <div class="bg-surface p-12 border-l-4 border-primary" id="promise-card">
           <h4 class="font-headline text-2xl font-black text-white uppercase italic tracking-tighter mb-4">The GymFlow Promise</h4>
           <p class="text-on-surface-variant leading-relaxed mb-8">
             Our memberships aren't just entries to a gym—they are commitments to a higher standard of physical excellence. Every tier includes access to our proprietary tracking app and baseline performance testing.
@@ -109,7 +105,7 @@
           <img alt="Atmosphere" class="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-all duration-700" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80">
           <div class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-6">
             <h4 class="font-headline text-xl font-bold text-white">Live Atmosphere</h4>
-            <p class="text-[10px] font-bold text-primary uppercase tracking-widest">Industrial Protocol</p>
+            <p class="text-[10px] font-bold text-primary uppercase tracking-widest" id="atmosphere-label">Industrial Protocol</p>
           </div>
         </div>
       </div>
@@ -131,22 +127,24 @@
       const { data: { session } } = await db.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
 
-      const { data: userData } = await db.from("user_subscriptions").select("*").eq("user_id", session.user.id).single();
+      const userId = session.user.id;
+      const { data: profile } = await db.from('profiles').select('*').eq('user_id', userId).maybeSingle();
+      const { data: userData } = await db.from("user_subscriptions").select("*").eq("user_id", userId).maybeSingle();
 
-      if (userData) {
-        document.getElementById('nav-user-name').innerText = `${userData.first_name} ${userData.last_name}`;
-        document.getElementById('nav-user-plan').innerText = userData.plan_name;
-        document.getElementById('nav-user-avatar').src = userData.avatar_url;
+      if (profile) {
+        renderNavbar(profile.role);
+        setupBranding(profile, userData);
       }
 
-      const currentPlan = userData?.plan_name?.toUpperCase();
+      // Load Plans
+      const currentPlanName = userData?.plan_name?.toUpperCase();
       const { data: plans } = await db.from('membership_plans').select('*').order('price', { ascending: true });
 
       const container = document.getElementById('plans-container');
       container.innerHTML = '';
 
       plans?.forEach((plan, index) => {
-        const isActive = plan.name.toUpperCase() === currentPlan;
+        const isActive = plan.name.toUpperCase() === currentPlanName;
         const cardClass = isActive ? 'bg-primary text-black border-primary' : 'bg-surface text-white border-white/5 hover:bg-surface-variant';
         const iconClass = isActive ? 'text-black' : 'text-primary';
         
@@ -180,6 +178,67 @@
           </div>`;
       });
     }
+
+    function renderNavbar(role) {
+      const nav = document.getElementById('main-nav');
+      const currentPath = window.location.pathname.split("/").pop() || "dashboard.html";
+      
+      const memberLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Membership', url: 'membership.html', icon: 'card_membership' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const trainerLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Trainer Report', url: 'trainer-report.html', icon: 'analytics' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const links = (role === 'trainer') ? trainerLinks : memberLinks;
+
+      nav.innerHTML = links.map(link => {
+        const isActive = currentPath === link.url;
+        return `
+          <a class="flex items-center gap-2 px-6 h-full transition-all ${isActive ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}" href="${link.url}">
+            <span class="material-symbols-outlined" style="font-size: 20px; ${isActive ? "font-variation-settings: 'FILL' 1;" : ''}">${link.icon}</span>
+            <span class="text-xs uppercase tracking-widest">${link.name}</span>
+          </a>
+        `;
+      }).join('');
+    }
+
+    function setupBranding(profile, sub) {
+      const isTrainer = profile.role === 'trainer';
+      const themeColor = isTrainer ? "#00E0FF" : "#D7FF00";
+      
+      if (isTrainer) document.documentElement.style.setProperty('--primary-color', themeColor);
+
+      document.getElementById('nav-user-name').textContent = profile.name || "User";
+      document.getElementById('nav-avatar-initial').textContent = (profile.name || "U").charAt(0).toUpperCase();
+      document.getElementById('nav-user-role').textContent = isTrainer ? 'Staff / Trainer' : (sub?.plan_name || 'Member');
+      if (isTrainer) document.getElementById('nav-user-role').style.color = themeColor;
+
+      if (profile.avatar_url) {
+        const img = document.getElementById('nav-user-avatar');
+        img.src = profile.avatar_url;
+        img.classList.remove('hidden');
+        document.getElementById('nav-avatar-initial').classList.add('hidden');
+      }
+
+      // Branding updates
+      document.getElementById('hero-span').style.color = themeColor;
+      document.getElementById('promise-card').style.borderColor = themeColor;
+      document.getElementById('atmosphere-label').style.color = themeColor;
+    }
+
+    document.getElementById('logout-btn').onclick = async () => {
+      await db.auth.signOut();
+      window.location.href = 'login.html';
+    };
+
     document.addEventListener("DOMContentLoaded", loadPageData);
   </script>
 </body>
