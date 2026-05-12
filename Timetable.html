@@ -37,14 +37,13 @@
     .timetable-grid { display: grid; grid-template-columns: 80px 1fr; }
     .book-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .book-btn:not(:disabled):hover { letter-spacing: 0.2em; transform: scale(1.05); }
-    .hidden { display: none !important; }
-    @media (min-width: 768px) { .md-nav-flex { display: flex !important; } }
   </style>
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
   <div class="min-h-screen flex flex-col">
     <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+      
       <div class="flex items-center gap-12">
         <div class="flex items-center gap-4 text-primary">
           <div class="size-6">
@@ -54,24 +53,43 @@
           </div>
           <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
         </div>
-        <nav id="main-nav" class="hidden md-nav-flex items-center h-10"></nav>
+
+        <nav id="main-nav" class="hidden md:flex items-center h-10">
+          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+            <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+            <span class="text-xs uppercase tracking-widest">Dashboard</span>
+          </a>
+          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="membership.html">
+            <span class="material-symbols-outlined" style="font-size: 20px;">card_membership</span>
+            <span class="text-xs uppercase tracking-widest">Memberships</span>
+          </a>
+          <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="Timetable.html">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">event_note</span>
+            <span class="text-xs uppercase tracking-widest">Schedule</span>
+          </a>
+          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
+            <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+            <span class="text-xs uppercase tracking-widest">Profile</span>
+          </a>
+        </nav>
       </div>
 
       <div class="flex items-center gap-6">
         <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
           <div class="text-right">
             <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
-            <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
+            <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
           </div>
-          <div id="avatar-container" class="size-8 rounded-full border border-primary overflow-hidden flex items-center justify-center bg-surface-variant">
+          <div class="size-8 rounded-full border border-primary overflow-hidden flex items-center justify-center bg-surface-variant">
             <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
             <span id="nav-avatar-initial" class="text-primary font-bold text-xs">?</span>
           </div>
         </div>
+
         <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
-            <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
-            <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
-          </button>
+          <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+          <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
+        </button>
       </div>
     </header>
 
@@ -127,45 +145,55 @@
     }
 
     async function loadProfile() {
-      const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
+      const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
       if (error) console.error("Profile Load Error:", error);
-      
-      document.getElementById('nav-user-name').innerText = profile?.name || 'User';
-      document.getElementById('nav-avatar-initial').innerText = (profile?.name || 'U').charAt(0).toUpperCase();
 
-      if (profile?.avatar_url) {
-        const img = document.getElementById('nav-user-avatar');
-        img.src = profile.avatar_url;
-        img.classList.remove('hidden');
-        document.getElementById('nav-avatar-initial').classList.add('hidden');
+      if (profile) {
+        document.getElementById('nav-user-name').innerText = profile.name || 'Member';
+        document.getElementById('nav-user-plan').innerText = profile.plan_name || 'GUEST PASS';
+        document.getElementById('nav-avatar-initial').innerText = (profile.name || 'M').charAt(0).toUpperCase();
+
+        if (profile.avatar_url) {
+          const img = document.getElementById('nav-user-avatar');
+          img.src = profile.avatar_url;
+          img.classList.remove('hidden');
+          document.getElementById('nav-avatar-initial').classList.add('hidden');
+        }
+
+        // --- TRAINER LOGIC ---
+        if (profile.role === 'trainer') {
+          document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+          document.getElementById('nav-user-plan').innerText = 'STAFF';
+          document.getElementById('trainer-actions').classList.remove('hidden');
+
+          const navMenu = document.getElementById('main-nav');
+          if (navMenu) {
+            navMenu.innerHTML = `
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+                <span class="text-xs uppercase tracking-widest">Dashboard</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="Timetable.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">event_note</span>
+                <span class="text-xs uppercase tracking-widest">Timetable</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="trainer-report.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">assessment</span>
+                <span class="text-xs uppercase tracking-widest">Trainer Report</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+                <span class="text-xs uppercase tracking-widest">Profile</span>
+              </a>
+            `;
+          }
+        }
       }
-
-      const role = profile?.role || 'member';
-      renderNavbar(role);
-      
-      if (role === 'trainer') {
-        document.documentElement.style.setProperty('--primary-color', '#00E0FF');
-        document.getElementById('nav-user-role').innerText = 'Staff / Trainer';
-        document.getElementById('trainer-actions').classList.remove('hidden');
-      }
-    }
-
-    function renderNavbar(role) {
-      const nav = document.getElementById('main-nav');
-      const links = role === 'trainer' ? 
-        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Trainer Report', url: 'trainer-report.html', icon: 'manage_accounts' }, { name: 'Profile', url: 'profile.html', icon: 'person' }] : 
-        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Memberships', url: 'membership.html', icon: 'card_membership' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Profile', url: 'profile.html', icon: 'person' }];
-      
-      nav.innerHTML = links.map(link => `
-        <a href="${link.url}" class="flex items-center gap-2 px-6 h-full transition-all ${link.active ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}">
-          <span class="material-symbols-outlined" style="font-size:20px; ${link.active ? "font-variation-settings:'FILL' 1;" : ''}">${link.icon}</span>
-          <span class="text-xs uppercase tracking-widest font-bold">${link.name}</span>
-        </a>`).join('');
     }
 
     async function fetchAndRenderTimetable() {
       const container = document.getElementById('timetable-container');
-      
+
       const { data: classes, error } = await db
         .from('gym_classes')
         .select('*')
@@ -173,12 +201,12 @@
 
       if (error) {
         console.error("Database Error:", error);
-        container.innerHTML = `<div class="py-20 text-center"><p class="text-red-500 font-bold">RLS Error: ${error.message}</p></div>`;
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-red-500 font-bold">Error: ${error.message}</p></div>`;
         return;
       }
 
       if (!classes || classes.length === 0) {
-        container.innerHTML = `<div class="py-20 text-center"><p class="text-on-surface-variant uppercase text-xs tracking-widest font-bold">No classes found in gym_classes table</p></div>`;
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-on-surface-variant uppercase text-xs tracking-widest font-bold">No classes scheduled.</p></div>`;
         return;
       }
 
@@ -224,8 +252,8 @@
     }
 
     document.getElementById('logout-btn').addEventListener('click', async () => {
-      await supabaseClient.auth.signOut();
-      window.location.href = 'login.html'; 
+      await db.auth.signOut();
+      window.location.href = 'login.html';
     });
 
     init();
