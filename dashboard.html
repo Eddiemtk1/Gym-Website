@@ -18,7 +18,7 @@
       theme: {
         extend: {
           colors: {
-            primary: "#D7FF00",
+            primary: "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             background: "#0e0e0e",
             surface: "#131313",
@@ -110,6 +110,18 @@
             <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
               href="#">
             </a>
+            <div id="staff-menu" class="hidden items-center h-10 border-l border-white/10 pl-6 ml-2">
+              <a class="flex items-center gap-2 px-4 h-full text-primary hover:text-white transition-all"
+                href="StaffClass.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">edit_calendar</span>
+                <span class="text-xs uppercase tracking-widest">Manage Timetable</span>
+              </a>
+              <a class="flex items-center gap-2 px-4 h-full text-primary hover:text-white transition-all"
+                href="StaffEdit.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">update</span>
+                <span class="text-xs uppercase tracking-widest">Edit Classes</span>
+              </a>
+            </div>
           </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -220,14 +232,15 @@
           <!-- Content Rows -->
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
             <!-- Upcoming Classes -->
-           <div class="lg:col-span-3 space-y-6">
+            <div class="lg:col-span-3 space-y-6">
               <div class="flex justify-between items-center border-b border-white/10 pb-4">
                 <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter">
                   Upcoming Classes
                 </h2>
-                <a class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline" href="timetable.html">View All</a>
+                <a class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline"
+                  href="timetable.html">View All</a>
               </div>
-              
+
               <div id="upcoming-classes-list" class="space-y-4">
                 <p class="text-on-surface-variant text-sm italic py-4">Syncing schedule...</p>
               </div>
@@ -237,7 +250,7 @@
             <div class="lg:col-span-2 space-y-6">
               <div class="bg-surface p-8 space-y-6 border-t-2 border-primary flex flex-col h-full">
                 <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
-                
+
                 <!-- Dynamic List Container -->
                 <div id="pr-list" class="space-y-4 flex-1 overflow-y-auto max-h-[200px] pr-2">
                   <!-- Records will be injected here by JavaScript -->
@@ -247,23 +260,25 @@
                 <!-- ADD NEW PR FORM (Styled like your screenshot) -->
                 <div class="mt-8 pt-8 border-t border-white/10">
                   <h4 class="font-headline text-2xl font-black uppercase italic tracking-tighter mb-6">
-                    LOG NEW <br/><span class="text-primary">RECORD</span>
+                    LOG NEW <br /><span class="text-primary">RECORD</span>
                   </h4>
-                  
+
                   <form id="add-pr-form" class="space-y-5">
                     <div>
-                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Exercise Name</label>
-                      <input type="text" id="pr-name" placeholder="E.G. OVERHEAD PRESS" required 
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Exercise
+                        Name</label>
+                      <input type="text" id="pr-name" placeholder="E.G. OVERHEAD PRESS" required
                         class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary uppercase placeholder:text-white/20">
                     </div>
-                    
+
                     <div>
-                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Weight (KG)</label>
-                      <input type="number" id="pr-weight" placeholder="100" required 
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Weight
+                        (KG)</label>
+                      <input type="number" id="pr-weight" placeholder="100" required
                         class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary placeholder:text-white/20">
                     </div>
-                    
-                    <button type="submit" id="pr-submit-btn" 
+
+                    <button type="submit" id="pr-submit-btn"
                       class="w-full py-4 mt-2 kinetic-gradient text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all flex justify-center items-center gap-2">
                       <span>Publish Record</span>
                     </button>
@@ -298,12 +313,12 @@
       // 3. Save the real, secure user ID from the session
       const realUserId = session.user.id;
 
-      
+
       const urlParams = new URLSearchParams(window.location.search);
-      
+
       if (urlParams.get('success') === 'true') {
         const upgradedPlan = urlParams.get('new_plan');
-        
+
         if (upgradedPlan) {
           const nextBilling = new Date();
           nextBilling.setMonth(nextBilling.getMonth() + 1);
@@ -312,12 +327,12 @@
 
           //Update the database
           const { error: updateError } = await supabaseClient
-            .from('user_subscriptions')
-            .update({ 
+            .from('profiles')
+            .update({
               plan_name: upgradedPlan.toUpperCase(),
               status: 'ACTIVE',
               next_billing_date: formattedBillingDate
-             })
+            })
             .eq('user_id', realUserId);
 
           if (updateError) {
@@ -338,10 +353,10 @@
 
               // Fire the webhook ONE time and wait for the response!
               const { data: funcData, error: funcError } = await supabaseClient.functions.invoke('send-welcome-email', {
-                body: { 
-                  email: userEmail, 
-                  name: userName, 
-                  planName: upgradedPlan.toUpperCase() 
+                body: {
+                  email: userEmail,
+                  name: userName,
+                  planName: upgradedPlan.toUpperCase()
                 }
               });
 
@@ -359,12 +374,12 @@
             return;
           }
         }
-        
+
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       const { data, error } = await supabaseClient
-        .from("user_subscriptions")
+        .from("profiles")
         .select("*")
         .eq("user_id", realUserId)
         .single();
@@ -388,13 +403,13 @@
       if (prData && prData.length > 0) {
         const prContainer = document.getElementById('pr-list');
         prContainer.innerHTML = ''; // Clear the "No records found" message
-        
+
         prData.forEach(record => {
 
           let trendHTML = '';
           if (record.previous_weight !== null) {
             const difference = record.weight - record.previous_weight;
-            
+
             if (difference > 0) {
               // They got stronger! Show neon green
               trendHTML = `<span class="text-[10px] font-bold text-primary ml-2 tracking-widest">+${difference}KG</span>`;
@@ -418,30 +433,49 @@
         });
       }
 
-      //Injects the Data into the HTML
-      if (data) {
-        document.getElementById('nav-user-name').innerText = `${data.first_name} ${data.last_name}`;
-        document.getElementById('nav-user-plan').innerText = data.plan_name;
-        document.getElementById('nav-user-avatar').src = data.avatar_url;
+      // Inject the Data into the HTML
+if (data) {
+  // Update name mapping to match the new profiles table
+  document.getElementById('nav-user-name').innerText = data.name;
+  document.getElementById('nav-user-plan').innerText = data.plan_name || 'MEMBER';
+  if (data.avatar_url) document.getElementById('nav-user-avatar').src = data.avatar_url;
 
-        document.getElementById("mem-status").innerText = data.status;
-        document.getElementById("sub-plan").innerText = data.plan_name;
-        document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date}`;
+  document.getElementById("mem-status").innerText = data.status || 'PENDING';
+  document.getElementById("sub-plan").innerText = data.plan_name || 'GUEST PASS';
+  
+  // Use a fallback if next_billing_date doesn't exist yet
+  document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date || 'N/A'}`;
 
-        document.getElementById("profile-score-text").innerText = `${data.profile_score}% Profile Score`;
-        document.getElementById("profile-score-bar").style.width = `${data.profile_score}%`;
+  document.getElementById("profile-score-text").innerText = `${data.profile_score || 0}% Profile Score`;
+  document.getElementById("profile-score-bar").style.width = `${data.profile_score || 0}%`;
 
-        document.getElementById('workouts-count').innerText = data.workouts_this_month;
+  document.getElementById('workouts-count').innerText = data.workouts_this_month || 0;
 
-        let diff = data.workouts_this_month - data.workouts_last_month;
-        let percentChange = (diff / data.workouts_last_month) * 100;
+  // Protect against math errors if last month was 0
+  let lastMonth = data.workouts_last_month || 1; 
+  let diff = (data.workouts_this_month || 0) - (data.workouts_last_month || 0);
+  let percentChange = (diff / lastMonth) * 100;
 
-        let roundedChange = Math.round(percentChange);
-        let sign = roundedChange >= 0 ? '+' : '';
+  let roundedChange = Math.round(percentChange);
+  let sign = roundedChange >= 0 ? '+' : '';
 
-        document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
-        document.getElementById('calories-display').innerText = `${data.calories_burnt || 0} Kcal`;
-      }
+  document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
+  document.getElementById('calories-display').innerText = `${data.calories_burnt || 0} Kcal`;
+
+  // --- TRAINER/STAFF LOGIC ---
+  if (data.role === 'trainer') {
+    // 1. Change the global theme to Cyan
+    document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+    // 2. Change the role text
+    document.getElementById('nav-user-plan').innerText = 'STAFF';
+    // 3. Reveal the hidden staff menu
+    const staffMenu = document.getElementById('staff-menu');
+    if(staffMenu) {
+        staffMenu.classList.remove('hidden');
+        staffMenu.classList.add('flex');
+    }
+  }
+}
     }
 
     // --- FETCH UPCOMING CLASSES FOR DASHBOARD ---
@@ -481,7 +515,7 @@
         let hour = parseInt(hourStr);
         const ampm = hour >= 12 ? 'PM' : 'AM';
         hour = hour % 12;
-        hour = hour ? hour : 12; 
+        hour = hour ? hour : 12;
         const timeFormatted = `${hour.toString().padStart(2, '0')}:${minStr} ${ampm}`;
 
         // Check if the user already booked this (reads the timetable's local storage)
@@ -561,10 +595,10 @@
       loadUpcomingClasses();
     });
 
-   // --- ADD NEW PERSONAL RECORD LOGIC ---
+    // --- ADD NEW PERSONAL RECORD LOGIC ---
     document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
-      event.preventDefault(); 
-      
+      event.preventDefault();
+
       const { data: { session } } = await supabaseClient.auth.getSession();
       const realUserId = session.user.id;
       const exerciseName = document.getElementById('pr-name').value.trim().toUpperCase();
@@ -578,7 +612,7 @@
       try {
         // 1. Fetch current calories
         const { data: currentStats } = await supabaseClient
-          .from('user_subscriptions')
+          .from('profiles')
           .select('calories_burnt')
           .eq('user_id', realUserId)
           .single();
@@ -595,8 +629,8 @@
 
         // 3. Update or Insert PR
         if (existingRecord) {
-          await supabaseClient.from('personal_records').update({ 
-            weight: exerciseWeight, 
+          await supabaseClient.from('personal_records').update({
+            weight: exerciseWeight,
             previous_weight: existingRecord.weight // Removed the [0]
           }).eq('id', existingRecord.id); // Removed the [0]
         } else {
@@ -607,14 +641,14 @@
 
         // 4. Update the Calorie Count in the database
         await supabaseClient
-          .from('user_subscriptions')
+          .from('profiles')
           .update({ calories_burnt: newCalorieTotal })
           .eq('user_id', realUserId);
 
         // 5. Refresh UI
         document.getElementById('pr-name').value = '';
         document.getElementById('pr-weight').value = '';
-        await loadSubscriptionData(); 
+        await loadSubscriptionData();
 
       } catch (err) {
         console.error("PR Update Error:", err);
@@ -627,7 +661,7 @@
     });
 
 
-</script>
+  </script>
 </body>
 
 </html>

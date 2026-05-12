@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>GymFlow | Class Schedule</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "var(--primary-color, #D7FF00)",
+            "on-primary": "#0e0e0e",
+            "background": "#0e0e0e",
+            "surface": "#131313",
+            "surface-variant": "#1a1a1a",
+            "outline": "#404040",
+            "on-surface": "#ffffff",
+            "on-surface-variant": "#a3a3a3",
+          },
+          fontFamily: { "headline": ["Lexend"], "body": ["Inter"], "label": ["Inter"] },
+          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    :root { --primary-color: #D7FF00; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    .timetable-grid { display: grid; grid-template-columns: 80px 1fr; }
+    .book-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .book-btn:not(:disabled):hover { letter-spacing: 0.2em; transform: scale(1.05); }
+    .hidden { display: none !important; }
+    @media (min-width: 768px) { .md-nav-flex { display: flex !important; } }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body antialiased">
+  <div class="min-h-screen flex flex-col">
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+      <div class="flex items-center gap-12">
+        <div class="flex items-center gap-4 text-primary">
+          <div class="size-6">
+            <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+            </svg>
+          </div>
+          <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
+        </div>
+        <nav id="main-nav" class="hidden md-nav-flex items-center h-10"></nav>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
+          <div class="text-right">
+            <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
+            <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
+          </div>
+          <div id="avatar-container" class="size-8 rounded-full border border-primary overflow-hidden flex items-center justify-center bg-surface-variant">
+            <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
+            <span id="nav-avatar-initial" class="text-primary font-bold text-xs">?</span>
+          </div>
+        </div>
+        <button id="logout-btn" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Logout</button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+        <div class="space-y-4">
+          <h1 class="font-headline text-5xl lg:text-8xl font-black text-white uppercase italic leading-none tracking-tighter">
+            Class <span class="text-primary" id="hero-span">Schedule</span>
+          </h1>
+          <div id="trainer-actions" class="hidden flex flex-wrap gap-3">
+            <a href="StaffClass.html" class="inline-flex items-center gap-3 bg-primary text-on-primary px-6 py-3 font-headline font-black uppercase text-xs tracking-[0.2em] hover:scale-105 active:scale-95 transition-all">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">add</span>Add New Class
+            </a>
+            <a href="StaffEdit.html" class="inline-flex items-center gap-3 border border-primary/40 text-primary px-6 py-3 font-headline font-black uppercase text-xs tracking-[0.2em] hover:bg-primary hover:text-on-primary transition-all">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">edit</span>Edit Classes
+            </a>
+          </div>
+        </div>
+        <div class="flex flex-col items-start md:items-end">
+          <p class="text-primary font-black uppercase text-[10px] tracking-[0.4em]">Live Database Connection</p>
+          <p id="current-week" class="text-on-surface-variant font-bold uppercase text-[10px] tracking-[0.2em] mt-1"></p>
+        </div>
+      </div>
+
+      <div id="timetable-container" class="space-y-1 border-t border-white/10">
+        <div id="loading-state" class="py-24 text-center">
+          <div class="inline-block animate-spin size-10 border-[3px] border-primary border-t-transparent mb-6"></div>
+          <p class="text-white uppercase text-[10px] font-black tracking-[0.4em] animate-pulse">Syncing Weekly Schedule...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const today = new Date();
+    document.getElementById('current-week').innerText = `Week of ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+    let currentUser = null;
+
+    async function init() {
+      const { data: { session }, error: sessionError } = await db.auth.getSession();
+      if (sessionError || !session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = session.user;
+      await loadProfile();
+      await fetchAndRenderTimetable();
+    }
+
+    async function loadProfile() {
+      const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
+      if (error) console.error("Profile Load Error:", error);
+      
+      document.getElementById('nav-user-name').innerText = profile?.name || 'User';
+      document.getElementById('nav-avatar-initial').innerText = (profile?.name || 'U').charAt(0).toUpperCase();
+
+      if (profile?.avatar_url) {
+        const img = document.getElementById('nav-user-avatar');
+        img.src = profile.avatar_url;
+        img.classList.remove('hidden');
+        document.getElementById('nav-avatar-initial').classList.add('hidden');
+      }
+
+      const role = profile?.role || 'member';
+      renderNavbar(role);
+      
+      if (role === 'trainer') {
+        document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+        document.getElementById('nav-user-role').innerText = 'Staff / Trainer';
+        document.getElementById('trainer-actions').classList.remove('hidden');
+      }
+    }
+
+    function renderNavbar(role) {
+      const nav = document.getElementById('main-nav');
+      const links = role === 'trainer' ? 
+        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Trainer Report', url: 'trainer-report.html', icon: 'manage_accounts' }, { name: 'Profile', url: 'profile.html', icon: 'person' }] : 
+        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Memberships', url: 'membership.html', icon: 'card_membership' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Profile', url: 'profile.html', icon: 'person' }];
+      
+      nav.innerHTML = links.map(link => `
+        <a href="${link.url}" class="flex items-center gap-2 px-6 h-full transition-all ${link.active ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}">
+          <span class="material-symbols-outlined" style="font-size:20px; ${link.active ? "font-variation-settings:'FILL' 1;" : ''}">${link.icon}</span>
+          <span class="text-xs uppercase tracking-widest font-bold">${link.name}</span>
+        </a>`).join('');
+    }
+
+    async function fetchAndRenderTimetable() {
+      const container = document.getElementById('timetable-container');
+      
+      const { data: classes, error } = await db
+        .from('gym_classes')
+        .select('*')
+        .order('date', { ascending: true });
+
+      if (error) {
+        console.error("Database Error:", error);
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-red-500 font-bold">RLS Error: ${error.message}</p></div>`;
+        return;
+      }
+
+      if (!classes || classes.length === 0) {
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-on-surface-variant uppercase text-xs tracking-widest font-bold">No classes found in gym_classes table</p></div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      classes.forEach(cls => {
+        const [year, month, day] = cls.date.split('-');
+        const dateObj = new Date(year, month - 1, day);
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+        const dayNum = dateObj.getDate();
+        const isFull = (cls.capacity || 0) <= 0;
+
+        container.insertAdjacentHTML('beforeend', `
+          <div class="timetable-grid border-b border-white/10 group hover:bg-surface-variant/30 transition-all duration-300">
+            <div class="py-8 flex flex-col items-center justify-center border-r border-white/10 bg-surface/10 group-hover:bg-primary transition-all duration-300">
+              <span class="text-[10px] font-black text-on-surface-variant group-hover:text-on-primary tracking-tighter">${dayName}</span>
+              <span class="text-3xl font-headline font-black text-white group-hover:text-on-primary">${dayNum}</span>
+            </div>
+            <div class="p-6 md:px-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div class="space-y-2">
+                <div class="flex items-center gap-4 mb-1">
+                  <span class="text-[10px] font-black text-primary bg-primary/10 border border-primary/20 px-3 py-1 uppercase tracking-widest">${cls.time ? cls.time.slice(0,5) : '--:--'}</span>
+                  <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] italic">${cls.location || 'Main Gym'}</span>
+                </div>
+                <h3 class="font-headline text-2xl md:text-3xl font-black text-white uppercase italic">${cls.name}</h3>
+                <div class="flex gap-4">
+                  <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Spots: <span class="text-white">${cls.capacity || '0'}</span></p>
+                  <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Coach: <span class="text-primary">${cls.coach || 'Lead Staff'}</span></p>
+                </div>
+              </div>
+              <button onclick="bookClass('${cls.id}', ${cls.capacity})" ${isFull ? 'disabled' : ''} class="${isFull ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'book-btn bg-white text-black hover:bg-primary'} px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all">
+                ${isFull ? 'Class Full' : 'Book Spot'}
+              </button>
+            </div>
+          </div>`);
+      });
+    }
+
+    async function bookClass(classId, capacity) {
+      const { error } = await db.from('gym_classes').update({ capacity: Math.max(0, capacity - 1) }).eq('id', classId);
+      if (error) return alert('Booking failed: ' + error.message);
+      alert('Class booked successfully');
+      fetchAndRenderTimetable();
+    }
+
+    document.getElementById('logout-btn').onclick = async () => {
+      await db.auth.signOut();
+      window.location.href = 'login.html';
+    };
+
+    init();
+  </script>
+</body>
+</html>

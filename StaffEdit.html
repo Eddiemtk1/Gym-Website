@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Staff | Class Management – GymFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#00E0FF", // Trainer Cyan
+            "on-primary": "#0e0e0e",
+            "background": "#0e0e0e",
+            "surface": "#131313",
+            "surface-variant": "#1a1a1a",
+            "on-surface": "#ffffff",
+            "on-surface-variant": "#a3a3a3",
+          },
+          fontFamily: { "headline": ["Lexend"], "body": ["Inter"] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+    
+    select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300E0FF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+      background-position: right 0.5rem center !important;
+      background-repeat: no-repeat !important;
+      background-size: 1.5em 1.5em !important;
+      appearance: none;
+    }
+    .specialty-card { backdrop-filter: blur(16px); background: rgba(26, 26, 26, 0.98); }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #404040; border-radius: 10px; }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body antialiased">
+
+  <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+    <div class="flex items-center gap-12">
+      <div class="flex items-center gap-4 text-primary">
+        <div class="size-6">
+          <svg fill="currentColor" viewBox="0 0 48 48">
+            <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
+          </svg>
+        </div>
+        <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW <span class="text-primary/50 text-[10px] italic ml-1 tracking-widest uppercase">Staff</span></h2>
+      </div>
+      <nav class="hidden md:flex items-center h-10">
+        <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="dashboard.html">
+          <span class="material-symbols-outlined text-[20px]">dashboard</span>
+          <span class="text-xs uppercase tracking-widest font-bold">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary transition-all font-bold" href="timetable.html">
+          <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+          <span class="text-xs uppercase tracking-widest">Manage Schedule</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-6 lg:p-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+      <!-- FORM SECTION -->
+      <div class="lg:col-span-4">
+        <form id="class-form" class="bg-surface p-8 border border-white/10 space-y-6 sticky top-24 shadow-2xl">
+          <input type="hidden" id="edit-id">
+          <div class="space-y-1">
+            <h2 id="form-title" class="font-headline text-2xl font-black uppercase italic text-white leading-none">Add New Class</h2>
+            <p class="text-[9px] text-primary uppercase font-bold tracking-[0.2em]">Publish to Live Timetable</p>
+          </div>
+
+          <div class="space-y-5">
+            <div>
+              <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Class Name</label>
+              <input type="text" id="name" required placeholder="E.G. ADVANCED HIIT" class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary uppercase font-bold text-sm">
+            </div>
+
+            <div class="relative">
+              <div class="flex justify-between items-end mb-2">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary">Class Leader</label>
+                <button type="button" onclick="toggleSpecialties()" class="flex items-center gap-1 text-[9px] font-bold text-on-surface-variant hover:text-primary uppercase">
+                  <span class="material-symbols-outlined text-[14px]">info</span> Expertise
+                </button>
+              </div>
+              <select id="coach" required class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold uppercase text-xs">
+                <option value="" disabled selected>Select Leader</option>
+                <option value="Alex Rivers">Alex Rivers</option>
+                <option value="Jordan Vance">Jordan Vance</option>
+                <option value="Casey Morgan">Casey Morgan</option>
+                <option value="Taylor Brooks">Taylor Brooks</option>
+                <option value="Riley Quinn">Riley Quinn</option>
+                <option value="Skyler Reed">Skyler Reed</option>
+              </select>
+
+              <div id="specialtyPanel" class="hidden absolute left-0 right-0 top-full mt-2 z-20 specialty-card border border-primary/30 p-6 shadow-2xl">
+                <h4 class="text-primary font-headline font-bold text-[10px] uppercase tracking-widest mb-4 border-b border-white/10 pb-2">Coach Directory</h4>
+                <div class="grid grid-cols-1 gap-y-2 text-[9px] uppercase tracking-wider font-bold max-h-48 overflow-y-auto custom-scrollbar">
+                  <p><span class="text-white">Alex Rivers:</span> <span class="text-on-surface-variant">Swimming, HIIT</span></p>
+                  <p><span class="text-white">Jordan Vance:</span> <span class="text-on-surface-variant">Yoga, Pilates</span></p>
+                  <p><span class="text-white">Casey Morgan:</span> <span class="text-on-surface-variant">Powerlifting</span></p>
+                  <p><span class="text-white">Skyler Reed:</span> <span class="text-on-surface-variant">CrossFit, Kettlebell</span></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Date</label>
+                <input type="date" id="date" required class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary text-xs font-bold">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Time</label>
+                <input type="time" id="time" required class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary text-xs font-bold">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Studio</label>
+                <input type="text" id="location" required placeholder="STUDIO A" class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold uppercase text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Max Cap</label>
+                <input type="number" id="capacity" required placeholder="20" class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold text-xs">
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 space-y-3">
+            <button type="submit" id="submit-btn" class="w-full bg-primary text-on-primary py-5 font-black uppercase text-xs tracking-[0.2em] hover:bg-white transition-all shadow-lg shadow-primary/10">
+              Publish Class
+            </button>
+            <button type="button" id="cancel-edit" class="hidden w-full border border-white/10 py-5 font-black uppercase text-xs tracking-[0.2em] text-white hover:bg-red-600 transition-all">
+              Cancel Edit
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- LIST SECTION -->
+      <div class="lg:col-span-8">
+        <div class="mb-6 flex items-center justify-between">
+          <h2 class="text-xs font-black uppercase tracking-[0.4em] text-on-surface-variant italic">Live Schedule Feed</h2>
+          <span id="class-count" class="bg-primary/10 text-primary border border-primary/20 text-[10px] font-black px-3 py-1 uppercase tracking-widest">0 TOTAL</span>
+        </div>
+        <div id="staff-list" class="space-y-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-surface border-t border-white/10 p-10 mt-20">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+      <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.3em]">© 2026 GymFlow Staff Portal • Admin Mode</p>
+    </div>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const form = document.getElementById('class-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const editIdInput = document.getElementById('edit-id');
+    const cancelEditBtn = document.getElementById('cancel-edit');
+
+    function toggleSpecialties() {
+      document.getElementById('specialtyPanel').classList.toggle('hidden');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = editIdInput.value;
+      const classData = {
+        name: document.getElementById('name').value.toUpperCase(),
+        coach: document.getElementById('coach').value,
+        date: document.getElementById('date').value,
+        time: document.getElementById('time').value,
+        location: document.getElementById('location').value.toUpperCase(),
+        capacity: parseInt(document.getElementById('capacity').value)
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = "SYNCING...";
+
+      let result;
+      if (id) {
+        result = await _supabase.from('gym_classes').update(classData).eq('id', id);
+      } else {
+        result = await _supabase.from('gym_classes').insert([classData]);
+      }
+
+      if (result.error) {
+        alert("Error: " + result.error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = id ? "Confirm Update" : "Publish Class";
+      } else {
+        resetForm();
+        fetchStaffSchedule();
+      }
+    });
+
+    async function fetchStaffSchedule() {
+      const container = document.getElementById('staff-list');
+      const { data: classes, error } = await _supabase.from('gym_classes').select('*').order('date', { ascending: true });
+
+      if (error) return;
+
+      document.getElementById('class-count').innerText = `${classes.length} TOTAL CLASSES`;
+      container.innerHTML = '';
+
+      classes.forEach(cls => {
+        const row = document.createElement('div');
+        row.className = "bg-surface border border-white/5 p-6 flex justify-between items-center group hover:border-primary/50 transition-all";
+        
+        // Escape strings for the onclick function to prevent syntax errors
+        const safeName = cls.name.replace(/'/g, "\\'");
+        const safeCoach = (cls.coach || '').replace(/'/g, "\\'");
+        const safeLoc = (cls.location || '').replace(/'/g, "\\'");
+
+        row.innerHTML = `
+            <div class="flex gap-6 items-center">
+                <div class="text-center border-r border-white/10 pr-6">
+                    <p class="text-primary font-black text-xl leading-none italic">${cls.time.slice(0, 5)}</p>
+                    <p class="text-[9px] font-bold text-on-surface-variant uppercase mt-1">${cls.date.split('-').slice(1).join('/')}</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black uppercase italic text-white mb-1 group-hover:text-primary transition-colors">${cls.name}</h3>
+                    <div class="flex gap-3 text-[9px] font-bold uppercase text-on-surface-variant tracking-wider">
+                        <span>Coach: <span class="text-white">${cls.coach || 'Unassigned'}</span></span>
+                        <span class="text-white/20">|</span>
+                        <span>${cls.location}</span>
+                        <span class="text-white/20">|</span>
+                        <span>Cap: ${cls.capacity}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="loadEdit('${cls.id}', '${safeName}', '${safeCoach}', '${cls.date}', '${cls.time}', '${safeLoc}', ${cls.capacity})" class="size-12 bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
+                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                </button>
+                <button onclick="handleDelete('${cls.id}')" class="size-12 bg-white/5 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                </button>
+            </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    window.loadEdit = (id, name, coach, date, time, location, capacity) => {
+      editIdInput.value = id;
+      document.getElementById('name').value = name;
+      document.getElementById('coach').value = coach;
+      document.getElementById('date').value = date;
+      // Handle time formats (some browsers might send HH:MM:SS)
+      document.getElementById('time').value = time.slice(0, 5);
+      document.getElementById('location').value = location;
+      document.getElementById('capacity').value = capacity;
+
+      document.getElementById('form-title').innerText = "Modify Session";
+      submitBtn.innerText = "Confirm Update";
+      submitBtn.disabled = false;
+      cancelEditBtn.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.handleDelete = async (id) => {
+      if (confirm("Terminate this session record?")) {
+        const { error } = await _supabase.from('gym_classes').delete().eq('id', id);
+        if (!error) fetchStaffSchedule();
+      }
+    };
+
+    function resetForm() {
+      form.reset();
+      editIdInput.value = '';
+      document.getElementById('form-title').innerText = "Add New Class";
+      submitBtn.innerText = "Publish Class";
+      submitBtn.disabled = false;
+      cancelEditBtn.classList.add('hidden');
+    }
+
+    cancelEditBtn.onclick = resetForm;
+    fetchStaffSchedule();
+  </script>
+</body>
+
+</html>
