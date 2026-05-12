@@ -83,7 +83,7 @@
           </div>
 
           <!-- Horizontal Navigation -->
-          <nav class="hidden md:flex items-center h-10">
+          <nav id="main-nav" class="hidden md:flex items-center h-10">
             <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all"
               href="dashboard.html">
               <span class="material-symbols-outlined" style="
@@ -139,6 +139,12 @@
               <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
             </div>
           </div>
+          
+          <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
+            <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+            <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
+          </button>
+
         </div>
       </header>
       <main class="flex-1 flex flex-col">
@@ -468,11 +474,28 @@ if (data) {
     document.documentElement.style.setProperty('--primary-color', '#00E0FF');
     // 2. Change the role text
     document.getElementById('nav-user-plan').innerText = 'STAFF';
-    // 3. Reveal the hidden staff menu
-    const staffMenu = document.getElementById('staff-menu');
-    if(staffMenu) {
-        staffMenu.classList.remove('hidden');
-        staffMenu.classList.add('flex');
+    
+    // 3. Completely Rewrite the Navigation Bar for Trainers
+    const navMenu = document.getElementById('main-nav');
+    if(navMenu) {
+      navMenu.innerHTML = `
+        <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="dashboard.html">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">dashboard</span>
+          <span class="text-xs uppercase tracking-widest">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="Timetable.html">
+          <span class="material-symbols-outlined" style="font-size: 20px;">event_note</span>
+          <span class="text-xs uppercase tracking-widest">Timetable</span>
+        </a>
+        <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="trainer-report.html">
+          <span class="material-symbols-outlined" style="font-size: 20px;">assessment</span>
+          <span class="text-xs uppercase tracking-widest">Trainer Report</span>
+        </a>
+        <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
+          <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+          <span class="text-xs uppercase tracking-widest">Profile</span>
+        </a>
+      `;
     }
   }
 }
@@ -660,6 +683,11 @@ if (data) {
       }
     });
 
+    // --- SIGN OUT LOGIC ---
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html'; 
+  });
 
   </script>
 </body>
