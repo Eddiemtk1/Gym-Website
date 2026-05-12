@@ -15,7 +15,7 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#D7FF00",
+            "primary": "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             "background": "#0e0e0e",
             "surface": "#131313",
@@ -24,455 +24,309 @@
             "on-surface": "#ffffff",
             "on-surface-variant": "#a3a3a3",
           },
-          fontFamily: { "headline": ["Lexend"], "body": ["Inter"], "label": ["Inter"] },
-          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+          fontFamily: { "headline": ["Lexend"], "body": ["Inter"] },
+          borderRadius: { "DEFAULT": "0px" },
         },
       },
     }
   </script>
   <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    .glass-nav {
-      background: rgba(14, 14, 14, 0.8);
-      backdrop-filter: blur(12px);
-    }
+    :root { --primary-color: #D7FF00; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    @media (min-width: 768px) { .md-flex { display: flex !important; } }
   </style>
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
-    <div class="flex h-full grow flex-col">
-
-      <!-- Header -->
-      <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-        <div class="flex items-center gap-12">
-          <div class="flex items-center gap-4 text-primary">
-            <div class="size-6">
-              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
-              </svg>
-            </div>
-            <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
+    
+    <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+      <div class="flex items-center gap-12">
+        <div class="flex items-center gap-4 text-primary">
+          <div class="size-6">
+            <svg fill="currentColor" viewBox="0 0 48 48">
+              <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
+            </svg>
           </div>
-          <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-              <span class="text-xs uppercase tracking-widest">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
-              <span class="material-symbols-outlined" style="font-size: 20px;">fitness_center</span>
-              <span class="text-xs uppercase tracking-widest">Workouts</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
-              <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
-              <span class="text-xs uppercase tracking-widest">Classes</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="assign-trainer.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">manage_accounts</span>
-              <span class="text-xs uppercase tracking-widest">Trainers</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="profile.html">
-              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">settings</span>
-              <span class="text-xs uppercase tracking-widest">Settings</span>
-            </a>
-          </nav>
+          <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW</h2>
         </div>
-        <div class="flex items-center gap-6">
-          <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
-            <div class="text-right">
-              <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
-              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
-            </div>
-            <div id="header-avatar-wrap" class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
-              <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
-              <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">?</span>
-            </div>
+        
+        <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
+      </div>
+      
+      <div class="flex items-center gap-6">
+        <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
+          <div class="text-right">
+            <p id="header-name" class="font-headline font-bold text-white text-xs">...</p>
+            <p id="header-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">...</p>
           </div>
-          <button id="logout-btn" title="Sign out"
-            class="flex items-center gap-2 px-4 h-10 bg-surface-variant text-on-surface-variant hover:bg-white hover:text-black transition-colors text-xs font-bold uppercase tracking-widest">
-            <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
-            <span class="hidden sm:inline">Sign out</span>
-          </button>
-        </div>
-      </header>
-
-      <!-- Main content -->
-      <main class="flex-1 p-6 lg:p-10 space-y-10">
-
-        <!-- Page title -->
-        <div class="border-b border-white/10 pb-6">
-          <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
-            My Profile
-          </h1>
-          <p class="text-on-surface-variant mt-3">Manage your personal information, photo, and preferences.</p>
-        </div>
-
-        <!-- Alert banner -->
-        <div id="page-alert" class="hidden px-4 py-3 text-sm font-medium border"></div>
-
-        <!-- Profile grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          <!-- Left: Avatar card -->
-          <div class="lg:col-span-1">
-            <div class="bg-surface border border-white/5 p-8 flex flex-col items-center gap-6">
-
-              <!-- Avatar -->
-              <div class="relative">
-                <div id="avatar-ring" class="size-28 rounded-full border-2 border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
-                  <img id="avatar-img" src="" alt="Profile photo" class="w-full h-full object-cover hidden">
-                  <span id="avatar-initial" class="font-headline text-4xl font-bold text-primary">?</span>
-                </div>
-              </div>
-
-              <!-- Name + email -->
-              <div class="text-center w-full">
-                <p id="card-name" class="font-headline text-xl font-bold text-white">Loading...</p>
-                <p id="card-email" class="text-on-surface-variant text-sm mt-1 break-all"></p>
-              </div>
-
-              <!-- Membership badge -->
-              <div class="w-full bg-surface-variant p-4 text-center border-t-2 border-primary">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Membership</p>
-                <p class="font-headline font-bold text-white text-sm">No Active Plan</p>
-                <p class="text-on-surface-variant text-xs mt-1">Available in Sprint 2</p>
-              </div>
-
-              <!-- Upload photo button (only shown in edit mode) -->
-              <button id="upload-btn" type="button"
-                class="hidden w-full py-3 border border-outline text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors">
-                <span class="material-symbols-outlined align-middle mr-1" style="font-size: 14px;">upload</span>
-                Upload Photo
-              </button>
-              <input id="avatar-input" type="file" accept="image/png, image/jpeg, image/webp" class="hidden">
-              <p id="upload-status" class="hidden text-xs text-center"></p>
-
-            </div>
+          <div class="size-8 border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+            <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
+            <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">?</span>
           </div>
-
-          <!-- Right: Profile details -->
-          <div class="lg:col-span-2">
-            <div class="bg-surface border border-white/5 p-8">
-
-              <!-- Section header -->
-              <div class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
-                <h2 class="font-headline text-xl font-black uppercase italic tracking-tighter">Personal Information</h2>
-                <button id="edit-btn" type="button"
-                  class="px-6 py-2 bg-surface-variant text-white text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">
-                  Edit
-                </button>
-              </div>
-
-              <!-- View mode -->
-              <div id="view-mode" class="space-y-1">
-                <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-center">Full Name</span>
-                  <span id="vw-name" class="text-white text-sm">-</span>
-                </div>
-                <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-center">Email</span>
-                  <span id="vw-email" class="text-white text-sm break-all">-</span>
-                </div>
-                <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-center">Phone</span>
-                  <span id="vw-phone" class="text-white text-sm">-</span>
-                </div>
-                <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-center">Contact Preferences</span>
-                  <span id="vw-contact-prefs" class="text-white text-sm">-</span>
-                </div>
-                <div class="grid grid-cols-2 gap-4 py-4">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-center">Privacy</span>
-                  <span id="vw-privacy" class="text-white text-sm">-</span>
-                </div>
-              </div>
-
-              <!-- Edit mode -->
-              <form id="edit-form" class="hidden space-y-5" novalidate>
-
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="edit-name">Full Name</label>
-                  <input id="edit-name" type="text" autocomplete="name"
-                    class="w-full bg-surface-variant border border-outline px-4 py-3 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
-                  <p id="edit-name-error" class="hidden text-red-400 text-xs mt-1.5"></p>
-                </div>
-
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="edit-email">Email Address</label>
-                  <input id="edit-email" type="email" readonly
-                    class="w-full bg-surface border border-outline px-4 py-3 text-on-surface-variant text-sm cursor-not-allowed opacity-60">
-                  <p class="text-on-surface-variant/60 text-xs mt-1.5">Email cannot be changed here.</p>
-                </div>
-
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="edit-phone">Phone Number</label>
-                  <input id="edit-phone" type="tel" autocomplete="tel" placeholder="Optional"
-                    class="w-full bg-surface-variant border border-outline px-4 py-3 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
-                </div>
-
-                <div>
-                  <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="edit-contact-prefs">Contact Preferences</label>
-                  <select id="edit-contact-prefs"
-                    class="w-full bg-surface-variant border border-outline px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors">
-                    <option value="email">Email only</option>
-                    <option value="phone">Phone only</option>
-                    <option value="both">Email and phone</option>
-                    <option value="none">Do not contact</option>
-                  </select>
-                </div>
-
-                <div class="flex items-center justify-between border border-outline px-4 py-4">
-                  <div>
-                    <p class="text-sm font-medium text-white">Hide profile from trainer directory</p>
-                    <p class="text-on-surface-variant text-xs mt-0.5">Trainers won't see your profile when searching members</p>
-                  </div>
-                  <input id="edit-privacy" type="checkbox" class="w-5 h-5 accent-primary cursor-pointer ml-4 shrink-0">
-                </div>
-
-                <div class="flex gap-4 pt-2">
-                  <button type="submit" id="save-btn"
-                    class="flex-1 py-4 bg-primary text-on-primary font-headline font-black uppercase tracking-widest text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                    Save Changes
-                  </button>
-                  <button type="button" id="cancel-btn"
-                    class="flex-1 py-4 bg-surface-variant text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all">
-                    Cancel
-                  </button>
-                </div>
-
-              </form>
-
-            </div>
-          </div>
-
         </div>
-      </main>
+        <button id="logout-btn" class="flex items-center gap-2 px-4 h-10 bg-surface-variant text-on-surface-variant hover:bg-white hover:text-black transition-colors text-xs font-bold uppercase tracking-widest">
+          <span class="material-symbols-outlined text-[18px]">logout</span>
+          <span class="hidden sm:inline">Sign out</span>
+        </button>
+      </div>
+    </header>
 
-    </div>
+    <main class="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-10">
+      <div class="border-b border-white/10 pb-6">
+        <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">My Profile</h1>
+        <p class="text-on-surface-variant mt-3 italic uppercase tracking-widest text-[10px] font-bold">System Identity Management</p>
+      </div>
+
+      <div id="page-alert" class="hidden px-4 py-3 text-xs font-black uppercase tracking-widest border"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1">
+          <div class="bg-surface border border-white/5 p-8 flex flex-col items-center gap-6">
+            <div class="relative">
+              <div id="avatar-ring" class="size-32 border-2 border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+                <img id="avatar-img" src="" alt="Profile photo" class="w-full h-full object-cover hidden">
+                <span id="avatar-initial" class="font-headline text-5xl font-black text-primary">?</span>
+              </div>
+            </div>
+            <div class="text-center w-full">
+              <p id="card-name" class="font-headline text-xl font-black text-white uppercase italic tracking-tighter">...</p>
+              <p id="card-email" class="text-on-surface-variant text-xs mt-1 break-all font-bold"></p>
+            </div>
+            <div class="w-full bg-surface-variant p-4 text-center border-t-2 border-primary" id="status-card-border">
+              <p class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1">Status</p>
+              <p id="card-plan" class="font-headline font-black text-white text-sm uppercase italic">Loading...</p>
+            </div>
+            <button id="upload-btn" type="button" class="hidden w-full py-3 border border-outline text-on-surface-variant text-[10px] font-black uppercase tracking-widest hover:border-primary hover:text-primary transition-colors">
+              Update Visual ID
+            </button>
+            <input id="avatar-input" type="file" accept="image/*" class="hidden">
+            <p id="upload-status" class="hidden text-[10px] font-bold uppercase tracking-widest"></p>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2">
+          <div class="bg-surface border border-white/5 p-8">
+            <div class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+              <h2 class="font-headline text-xl font-black uppercase italic tracking-tighter">Personnel Data</h2>
+              <button id="edit-btn" class="px-6 py-2 bg-surface-variant text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">Edit</button>
+            </div>
+
+            <div id="view-mode" class="space-y-1">
+              <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
+                <span class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Full Name</span>
+                <span id="vw-name" class="text-white text-sm font-bold uppercase">-</span>
+              </div>
+              <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
+                <span class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Email</span>
+                <span id="vw-email" class="text-white text-sm font-bold uppercase">-</span>
+              </div>
+              <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
+                <span class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Contact</span>
+                <span id="vw-phone" class="text-white text-sm font-bold">-</span>
+              </div>
+              <div class="grid grid-cols-2 gap-4 py-4">
+                <span class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Privacy Setting</span>
+                <span id="vw-privacy" class="text-white text-sm font-bold uppercase tracking-tighter">-</span>
+              </div>
+            </div>
+
+            <form id="edit-form" class="hidden space-y-5">
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2" for="edit-name">Full Name</label>
+                <input id="edit-name" type="text" class="w-full bg-surface-variant border border-outline px-4 py-3 text-white text-sm focus:outline-none focus:border-primary uppercase font-bold">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2" for="edit-phone">Contact Number</label>
+                <input id="edit-phone" type="tel" placeholder="07XXX XXXXXX" class="w-full bg-surface-variant border border-outline px-4 py-3 text-white text-sm focus:outline-none focus:border-primary font-bold">
+              </div>
+              <div class="flex items-center justify-between border border-outline px-4 py-4 bg-surface-variant/30">
+                <div>
+                  <p class="text-xs font-black uppercase text-white tracking-widest">Stealth Mode</p>
+                  <p class="text-on-surface-variant text-[10px] uppercase font-bold mt-1">Hide profile from searches</p>
+                </div>
+                <input id="edit-privacy" type="checkbox" class="size-5 accent-primary cursor-pointer">
+              </div>
+              <div class="flex gap-4 pt-4">
+                <button type="submit" id="save-btn" class="flex-1 py-4 bg-primary text-on-primary font-headline font-black uppercase italic tracking-widest text-sm hover:brightness-110 transition-all disabled:opacity-50">Save Data</button>
+                <button type="button" id="cancel-btn" class="flex-1 py-4 bg-surface-variant text-white font-black uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all">Abort</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
-
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let currentProfile = {};
 
-    const CONTACT_LABELS = {
-      email: 'Email only',
-      phone: 'Phone only',
-      both: 'Email and phone',
-      none: 'Do not contact'
-    };
+    async function init() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) return window.location.replace('login.html');
+      currentUser = session.user;
 
-    // Top alert banner
+      const { data: profile } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
+      currentProfile = profile || {};
+
+      const role = currentProfile.role || 'member';
+      renderNavbar(role);
+
+      if (role === 'trainer') {
+        const cyan = "#00E0FF";
+        document.documentElement.style.setProperty('--primary-color', cyan);
+      }
+
+      const { data: subData } = await db.from('user_subscriptions').select('plan_name').eq('user_id', currentUser.id).maybeSingle();
+      const planLabel = role === 'trainer' ? 'Staff / Trainer' : (subData?.plan_name || 'Member');
+      
+      document.getElementById('header-plan').textContent = planLabel.toUpperCase();
+      document.getElementById('card-plan').textContent = planLabel.toUpperCase();
+
+      renderProfile(currentProfile, currentUser);
+    }
+
+    function renderNavbar(role) {
+      const nav = document.getElementById('main-nav');
+      const currentPath = window.location.pathname.split("/").pop() || "profile.html";
+      
+      const memberLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Membership', url: 'membership.html', icon: 'card_membership' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const trainerLinks = [
+        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
+        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
+        { name: 'Trainer Report', url: 'trainer-report.html', icon: 'analytics' },
+        { name: 'Profile', url: 'profile.html', icon: 'person' }
+      ];
+
+      const links = (role === 'trainer') ? trainerLinks : memberLinks;
+
+      nav.innerHTML = links.map(link => {
+        const isActive = currentPath === link.url;
+        return `
+          <a class="flex items-center gap-2 px-6 h-full transition-all ${isActive ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}" href="${link.url}">
+            <span class="material-symbols-outlined" style="font-size: 20px; ${isActive ? "font-variation-settings: 'FILL' 1;" : ''}">${link.icon}</span>
+            <span class="text-xs uppercase tracking-widest">${link.name}</span>
+          </a>
+        `;
+      }).join('');
+    }
+
+    function renderProfile(profile, user) {
+      const name = profile.name || user.user_metadata?.name || 'ATHLETE';
+      const email = profile.email || user.email || '';
+      const avatarUrl = profile.avatar_url || '';
+      const initial = name.charAt(0).toUpperCase();
+
+      ['header-name', 'card-name', 'vw-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = name;
+      });
+
+      document.getElementById('card-email').textContent = email;
+      document.getElementById('vw-email').textContent = email;
+      document.getElementById('vw-phone').textContent = profile.phone || 'NONE REGISTERED';
+      document.getElementById('vw-privacy').textContent = profile.privacy_hide_profile ? 'STEALTH ACTIVE' : 'VISIBLE';
+      
+      const avatarImgs = [document.getElementById('header-avatar-img'), document.getElementById('avatar-img')];
+      const avatarInits = [document.getElementById('header-avatar-initial'), document.getElementById('avatar-initial')];
+      
+      if (avatarUrl) {
+        avatarImgs.forEach(img => { if(img) { img.src = avatarUrl; img.classList.remove('hidden'); } });
+        avatarInits.forEach(init => { if(init) init.classList.add('hidden'); });
+      } else {
+        avatarImgs.forEach(img => { if(img) img.classList.add('hidden'); });
+        avatarInits.forEach(init => { if(init) { init.textContent = initial; init.classList.remove('hidden'); } });
+      }
+
+      document.getElementById('edit-name').value = name;
+      document.getElementById('edit-phone').value = profile.phone || '';
+      document.getElementById('edit-privacy').checked = !!profile.privacy_hide_profile;
+    }
+
     function showPageAlert(message, type = 'error') {
       const el = document.getElementById('page-alert');
       el.textContent = message;
-      el.className = type === 'error'
-        ? 'px-4 py-3 text-sm font-medium border border-red-500/40 bg-red-500/10 text-red-400'
-        : 'px-4 py-3 text-sm font-medium border border-primary/40 bg-primary/10 text-primary';
+      el.className = `px-4 py-3 text-[10px] font-black uppercase tracking-widest border ${type === 'error' ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-primary bg-primary/10 text-primary'}`;
       el.classList.remove('hidden');
-      setTimeout(() => el.classList.add('hidden'), 5000);
+      setTimeout(() => el.classList.add('hidden'), 4000);
     }
 
-    // Sync profile data into the page
-    function renderProfile(profile, user) {
-      const name = profile.name || user.user_metadata?.name || 'Member';
-      const email = profile.email || user.email || '';
-      const phone = profile.phone || '';
-      const contactPrefs = profile.contact_preferences  || 'email';
-      const privacyHide  = profile.privacy_hide_profile || false;
-      const avatarUrl = profile.avatar_url || '';
+    const toggleMode = (isEdit) => {
+      document.getElementById('view-mode').classList.toggle('hidden', isEdit);
+      document.getElementById('edit-form').classList.toggle('hidden', !isEdit);
+      document.getElementById('edit-btn').classList.toggle('hidden', isEdit);
+      document.getElementById('upload-btn').classList.toggle('hidden', !isEdit);
+    };
 
-      // Header
-      document.getElementById('header-name').textContent = name;
-      const initial = name.charAt(0).toUpperCase();
-      document.getElementById('header-avatar-initial').textContent = initial;
-      if (avatarUrl) {
-        const hImg = document.getElementById('header-avatar-img');
-        hImg.src = avatarUrl;
-        hImg.classList.remove('hidden');
-        document.getElementById('header-avatar-initial').classList.add('hidden');
-      }
+    document.getElementById('edit-btn').onclick = () => toggleMode(true);
+    document.getElementById('cancel-btn').onclick = () => { renderProfile(currentProfile, currentUser); toggleMode(false); };
 
-      // Avatar card
-      document.getElementById('card-name').textContent = name;
-      document.getElementById('card-email').textContent = email;
-      document.getElementById('avatar-initial').textContent = initial;
-      const avatarImg = document.getElementById('avatar-img');
-      if (avatarUrl) {
-        avatarImg.src = avatarUrl;
-        avatarImg.classList.remove('hidden');
-        document.getElementById('avatar-initial').classList.add('hidden');
-      } else {
-        avatarImg.classList.add('hidden');
-        document.getElementById('avatar-initial').classList.remove('hidden');
-      }
-
-      // View mode rows
-      document.getElementById('vw-name').textContent = name || 'Not set';
-      document.getElementById('vw-email').textContent = email || 'Not set';
-      document.getElementById('vw-phone').textContent = phone || 'Not set';
-      document.getElementById('vw-contact-prefs').textContent = CONTACT_LABELS[contactPrefs] || contactPrefs;
-      document.getElementById('vw-privacy').textContent = privacyHide
-        ? 'Hidden from trainer directory'
-        : 'Visible to trainers';
-
-      // Pre-fill edit form
-      document.getElementById('edit-name').value = name;
-      document.getElementById('edit-email').value = email;
-      document.getElementById('edit-phone').value = phone;
-      document.getElementById('edit-contact-prefs').value = contactPrefs;
-      document.getElementById('edit-privacy').checked = privacyHide;
-    }
-
-    // Load profile row for current user
-    async function loadProfile() {
-      const { data } = await db
-        .from('profiles')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single();
-
-      currentProfile = data || {};
-      renderProfile(currentProfile, currentUser);
-    }
-
-    // Guard page and bootstrap profile
-    async function init() {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) {
-        window.location.replace('login.html');
-        return;
-      }
-      currentUser = session.user;
-      await loadProfile();
-    }
-
-    // Edit mode controls
-    function enterEditMode() {
-      document.getElementById('view-mode').classList.add('hidden');
-      document.getElementById('edit-form').classList.remove('hidden');
-      document.getElementById('edit-btn').classList.add('hidden');
-      document.getElementById('upload-btn').classList.remove('hidden');
-    }
-
-    function exitEditMode() {
-      document.getElementById('view-mode').classList.remove('hidden');
-      document.getElementById('edit-form').classList.add('hidden');
-      document.getElementById('edit-btn').classList.remove('hidden');
-      document.getElementById('upload-btn').classList.add('hidden');
-      document.getElementById('edit-name-error').classList.add('hidden');
-      document.getElementById('edit-name').classList.remove('border-red-500');
-    }
-
-    document.getElementById('edit-btn').addEventListener('click', enterEditMode);
-
-    document.getElementById('cancel-btn').addEventListener('click', () => {
-      renderProfile(currentProfile, currentUser);
-      exitEditMode();
-    });
-
-    // Save profile changes
-    document.getElementById('edit-form').addEventListener('submit', async e => {
+    document.getElementById('edit-form').onsubmit = async (e) => {
       e.preventDefault();
-
-      const nameErr = document.getElementById('edit-name-error');
-      nameErr.classList.add('hidden');
-      document.getElementById('edit-name').classList.remove('border-red-500');
-
       const name = document.getElementById('edit-name').value.trim();
-      const phone = document.getElementById('edit-phone').value.trim();
-      const contactPrefs = document.getElementById('edit-contact-prefs').value;
-      const privacyHide = document.getElementById('edit-privacy').checked;
+      if (!name) return showPageAlert('Identity requires a name');
+
       const saveBtn = document.getElementById('save-btn');
-
-      if (!name) {
-        nameErr.textContent = 'Full name is required.';
-        nameErr.classList.remove('hidden');
-        document.getElementById('edit-name').classList.add('border-red-500');
-        return;
-      }
-
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
+      saveBtn.textContent = 'SYNCING...';
 
-      const { error } = await db.from('profiles').update({
+      const updates = {
         name,
-        phone: phone || null,
-        contact_preferences: contactPrefs,
-        privacy_hide_profile: privacyHide
-      }).eq('user_id', currentUser.id);
+        phone: document.getElementById('edit-phone').value.trim() || null,
+        privacy_hide_profile: document.getElementById('edit-privacy').checked
+      };
 
+      const { error } = await db.from('profiles').update(updates).eq('user_id', currentUser.id);
       saveBtn.disabled = false;
-      saveBtn.textContent = 'Save Changes';
+      saveBtn.textContent = 'SAVE DATA';
 
-      if (error) {
-        showPageAlert('Failed to save changes: ' + error.message);
-        return;
-      }
-
-      currentProfile = { ...currentProfile, name, phone, contact_preferences: contactPrefs, privacy_hide_profile: privacyHide };
+      if (error) return showPageAlert(error.message);
+      currentProfile = { ...currentProfile, ...updates };
       renderProfile(currentProfile, currentUser);
-      exitEditMode();
-      showPageAlert('Profile updated successfully.', 'success');
-    });
+      toggleMode(false);
+      showPageAlert('Personnel file updated', 'success');
+    };
 
-    // Avatar upload
-    document.getElementById('upload-btn').addEventListener('click', () => {
-      document.getElementById('avatar-input').click();
-    });
-
-    document.getElementById('avatar-input').addEventListener('change', async e => {
+    document.getElementById('upload-btn').onclick = () => document.getElementById('avatar-input').click();
+    document.getElementById('avatar-input').onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+      const status = document.getElementById('upload-status');
+      status.textContent = 'UPLOADING...';
+      status.classList.remove('hidden', 'text-red-500', 'text-primary');
 
-      const statusEl = document.getElementById('upload-status');
-      statusEl.textContent = 'Uploading...';
-      statusEl.className = 'text-xs text-center text-on-surface-variant';
-      statusEl.classList.remove('hidden');
+      const path = `${currentUser.id}/avatar.${file.name.split('.').pop()}`;
+      const { error: upErr } = await db.storage.from('avatars').upload(path, file, { upsert: true });
 
-      const ext = file.name.split('.').pop();
-      const path = `${currentUser.id}/avatar.${ext}`;
-
-      const { error: uploadError } = await db.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true });
-
-      if (uploadError) {
-        statusEl.textContent = `Upload failed: ${uploadError.message}`;
-        statusEl.className = 'text-xs text-center text-red-400';
-        console.error('Avatar upload error:', uploadError);
+      if (upErr) {
+        status.textContent = 'SYNC FAILED';
+        status.classList.add('text-red-500');
         return;
       }
 
       const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(path);
-
-      await db.from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('user_id', currentUser.id);
-
+      await db.from('profiles').update({ avatar_url: publicUrl }).eq('user_id', currentUser.id);
+      
       currentProfile.avatar_url = publicUrl;
       renderProfile(currentProfile, currentUser);
-      statusEl.textContent = 'Photo updated.';
-      statusEl.className = 'text-xs text-center text-primary';
-      setTimeout(() => statusEl.classList.add('hidden'), 3000);
-    });
+      status.textContent = 'VISUAL ID UPDATED';
+      status.classList.add('text-primary');
+    };
 
-    // Logout
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await db.auth.signOut();
-      window.location.replace('login.html');
-    });
-
+    document.getElementById('logout-btn').onclick = async () => { await db.auth.signOut(); window.location.replace('login.html'); };
     init();
   </script>
 </body>
-
 </html>
