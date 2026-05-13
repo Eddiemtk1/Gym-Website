@@ -329,9 +329,10 @@
           const nextBilling = new Date();
           nextBilling.setMonth(nextBilling.getMonth() + 1);
 
-          const formattedBillingDate = nextBilling.toLocaleDateString('en-UK', { day: 'numeric', month: 'short', year: 'numeric' });
+          // FIX 1: Format date perfectly for Supabase (YYYY-MM-DD)
+          const formattedBillingDate = nextBilling.toISOString().split('T')[0];
 
-          //Update the database
+          // 2. Update the database
           const { error: updateError } = await supabaseClient
             .from('profiles')
             .update({
@@ -342,46 +343,30 @@
             .eq('user_id', realUserId);
 
           if (updateError) {
+            // FIX 2: Stop failing silently! Alert the exact error.
+            alert("Failed to update database: " + updateError.message);
             console.error("Failed to update plan:", updateError);
           } else {
             try {
-              // Securely grab the user's name and email from the DB
-              const { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('name, email')
-                .eq('user_id', realUserId)
-                .single();
-
+              const { data: profile } = await supabaseClient.from('profiles').select('name, email').eq('user_id', realUserId).single();
               const userName = profile && profile.name ? profile.name.split(' ')[0] : 'Athlete';
               const userEmail = profile && profile.email ? profile.email : session.user.email;
 
-              console.log("Triggering EmailJS Edge Function for:", userEmail);
-
-              // Fire the webhook ONE time and wait for the response!
+              // Fire the webhook
               const { data: funcData, error: funcError } = await supabaseClient.functions.invoke('send-welcome-email', {
-                body: {
-                  email: userEmail,
-                  name: userName,
-                  planName: upgradedPlan.toUpperCase()
-                }
+                body: { email: userEmail, name: userName, planName: upgradedPlan.toUpperCase() }
               });
 
-              if (funcError) {
-                console.error("Function Error:", funcError);
-              } else {
-                console.log("Function Success:", funcData);
-              }
-
+              if (funcError) console.error("Email Function Error:", funcError);
             } catch (err) {
               console.error("Failed to trigger email function:", err);
             }
 
-            window.location.href = window.location.origin + '/dashboard.html';
+            // FIX 3: Safely clear the URL parameters without breaking folder paths
+            window.location.href = window.location.pathname;
             return;
           }
         }
-
-        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       const { data, error } = await supabaseClient

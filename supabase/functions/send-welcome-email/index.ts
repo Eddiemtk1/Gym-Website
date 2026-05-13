@@ -40,7 +40,9 @@ serve(async (req) => {
         billing_cycle: "Monthly",
         effective_date: formattedDate,
         plan_price: planPrice,
-        cost: { subtotal: planPrice, tax: "0.00", total: planPrice }
+        "cost_subtotal": planPrice,
+        "cost_tax": "0.00",
+        "cost_total": planPrice
       }
     };
 
@@ -56,10 +58,13 @@ serve(async (req) => {
     const responseText = await res.text();
     console.log("4. EmailJS Response:", responseText);
 
+    if (!res.ok) {
+        throw new Error(`EmailJS Rejected: ${responseText}`);
+    }
+
     return new Response(JSON.stringify({ success: true, message: responseText }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     
   } catch (error) {
-    // THIS IS THE BLOCK YOU WERE MISSING!
     console.error("5. CATCH ERROR:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders })
   }
