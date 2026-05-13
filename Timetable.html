@@ -41,6 +41,22 @@
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
+    <div id="participant-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm">
+    <div class="bg-surface border border-white/10 w-full max-w-md p-8 relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-on-surface-variant hover:text-white transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <div class="mb-8">
+        <p class="text-primary font-black uppercase text-[10px] tracking-[0.4em] mb-2">Class Roster</p>
+        <h2 id="modal-class-name" class="font-headline text-3xl font-black text-white uppercase italic leading-none">Class Name</h2>
+      </div>
+      <div id="participants-list" class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+        </div>
+      <button onclick="closeModal()" class="w-full mt-8 bg-white text-black py-4 font-headline font-black uppercase text-xs tracking-widest hover:bg-primary transition-all">
+        Close Roster
+      </button>
+    </div>
+  </div>
   <div class="min-h-screen flex flex-col">
     <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
       
@@ -194,13 +210,14 @@
     async function fetchAndRenderTimetable() {
       const container = document.getElementById('timetable-container');
 
-      const { data: classes, error } = await db
-        .from('gym_classes')
-        .select('*')
-        .order('date', { ascending: true });
+      // 1. Fetch classes and current user's bookings
+      const { data: classes, error } = await db.from('gym_classes').select('*').order('date', { ascending: true });
+      const { data: myBookings } = await db.from('class_bookings').select('class_id').eq('user_id', currentUser.id);
+      
+      // Create a simple list of IDs the user has booked
+      const bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
 
       if (error) {
-        console.error("Database Error:", error);
         container.innerHTML = `<div class="py-20 text-center"><p class="text-red-500 font-bold">Error: ${error.message}</p></div>`;
         return;
       }
@@ -210,13 +227,34 @@
         return;
       }
 
+      // Check if the user is a trainer by looking at the navigation role text we set earlier
+      const isTrainer = document.getElementById('nav-user-plan').innerText === 'STAFF';
+
       container.innerHTML = '';
       classes.forEach(cls => {
         const [year, month, day] = cls.date.split('-');
         const dateObj = new Date(year, month - 1, day);
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
         const dayNum = dateObj.getDate();
+        
         const isFull = (cls.capacity || 0) <= 0;
+        const isBooked = bookedIds.includes(cls.id);
+
+        // --- DYNAMIC BUTTON LOGIC ---
+        let buttonHTML = '';
+        if (isTrainer) {
+          // Show Trainer Button
+          buttonHTML = `<button onclick="viewParticipants('${cls.id}', '${cls.name}')" class="px-6 py-4 border border-primary text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">View Roster</button>`;
+        } else {
+          // Show Member Buttons
+          if (isBooked) {
+             buttonHTML = `<button onclick="cancelBooking('${cls.id}', ${cls.capacity})" class="px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all bg-red-600/20 text-red-500 border border-red-500/50 hover:bg-red-600 hover:text-white">Remove Booking</button>`;
+          } else if (isFull) {
+             buttonHTML = `<button disabled class="px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all bg-zinc-800 text-zinc-500 cursor-not-allowed">Class Full</button>`;
+          } else {
+             buttonHTML = `<button onclick="bookClass('${cls.id}', ${cls.capacity})" class="book-btn bg-white text-black hover:bg-primary px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all">Book Spot</button>`;
+          }
+        }
 
         container.insertAdjacentHTML('beforeend', `
           <div class="timetable-grid border-b border-white/10 group hover:bg-surface-variant/30 transition-all duration-300">
@@ -236,19 +274,62 @@
                   <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Coach: <span class="text-primary">${cls.coach || 'Lead Staff'}</span></p>
                 </div>
               </div>
-              <button onclick="bookClass('${cls.id}', ${cls.capacity})" ${isFull ? 'disabled' : ''} class="${isFull ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'book-btn bg-white text-black hover:bg-primary'} px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all">
-                ${isFull ? 'Class Full' : 'Book Spot'}
-              </button>
+              <div class="flex gap-3">
+                ${buttonHTML}
+              </div>
             </div>
           </div>`);
       });
     }
 
     async function bookClass(classId, capacity) {
-      const { error } = await db.from('gym_classes').update({ capacity: Math.max(0, capacity - 1) }).eq('id', classId);
-      if (error) return alert('Booking failed: ' + error.message);
-      alert('Class booked successfully');
+      if (capacity <= 0) return;
+      // Fetch the user's name directly from the navigation bar so we don't have to change your variables!
+      const userName = document.getElementById('nav-user-name').innerText; 
+
+      const { error: bookingError } = await db.from('class_bookings').insert({
+        class_id: classId,
+        user_id: currentUser.id,
+        user_name: userName || 'Member'
+      });
+      if (bookingError) return alert('Booking failed: ' + bookingError.message);
+      
+      await db.from('gym_classes').update({ capacity: capacity - 1 }).eq('id', classId);
       fetchAndRenderTimetable();
+    }
+
+    async function cancelBooking(classId, capacity) {
+      await db.from('class_bookings').delete().match({ class_id: classId, user_id: currentUser.id });
+      await db.from('gym_classes').update({ capacity: capacity + 1 }).eq('id', classId);
+      fetchAndRenderTimetable();
+    }
+
+    async function viewParticipants(classId, className) {
+      const modal = document.getElementById('participant-modal');
+      const listContainer = document.getElementById('participants-list');
+      const title = document.getElementById('modal-class-name');
+      
+      title.innerText = className;
+      listContainer.innerHTML = '<div class="py-4 text-zinc-500 animate-pulse text-[10px] font-black uppercase tracking-[0.2em]">Loading Roster...</div>';
+      modal.classList.remove('hidden');
+
+      const { data, error } = await db.from('class_bookings').select('user_name').eq('class_id', classId);
+      
+      if (error || !data || data.length === 0) {
+        listContainer.innerHTML = '<div class="py-10 text-zinc-500 border border-white/5 bg-white/5 flex flex-col items-center"><span class="material-symbols-outlined mb-2 opacity-20">group_off</span><p class="text-[10px] font-black uppercase tracking-widest">No Participants Yet</p></div>';
+        return;
+      }
+
+      listContainer.innerHTML = data.map(p => `
+        <div class="flex items-center gap-4 bg-white/5 border border-white/10 p-4 group hover:bg-primary/10 transition-colors">
+          <div class="size-2 bg-primary group-hover:scale-125 transition-transform"></div>
+          <span class="text-xs font-headline font-bold text-white uppercase tracking-wider">${p.user_name}</span>
+        </div>
+      `).join('');
+    }
+
+    function closeModal() {
+      document.getElementById('participant-modal').classList.add('hidden');
     }
 
     document.getElementById('logout-btn').addEventListener('click', async () => {

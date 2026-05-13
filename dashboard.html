@@ -505,13 +505,26 @@ if (data) {
     async function loadUpcomingClasses() {
       const container = document.getElementById('upcoming-classes-list');
 
-      // Fetch the next 3 classes from Supabase
+      // 1. Get current user session
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+      const currentUser = session.user;
+
+      // 2. Fetch the user's REAL bookings from the database
+      const { data: myBookings } = await supabaseClient
+        .from('class_bookings')
+        .select('class_id')
+        .eq('user_id', currentUser.id);
+      
+      const bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
+
+      // 3. Fetch the next 3 classes
       const { data: classes, error } = await supabaseClient
         .from('gym_classes')
         .select('*')
         .order('date', { ascending: true })
         .order('time', { ascending: true })
-        .limit(3); // Only grab the top 3 for the dashboard!
+        .limit(3); 
 
       if (error) {
         console.error("Error fetching classes:", error);
@@ -527,7 +540,7 @@ if (data) {
       container.innerHTML = ''; // Clear the loading text
 
       classes.forEach((cls, index) => {
-        // Format the Date (e.g., "OCT" and "14")
+        // Format the Date
         const [year, month, day] = cls.date.split('-');
         const dateObj = new Date(year, month - 1, day);
         const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
@@ -541,21 +554,20 @@ if (data) {
         hour = hour ? hour : 12;
         const timeFormatted = `${hour.toString().padStart(2, '0')}:${minStr} ${ampm}`;
 
-        // Check if the user already booked this (reads the timetable's local storage)
-        const hasBooked = localStorage.getItem(`booked_${cls.id}`) === 'true';
+        // --- THE REAL DATABASE CHECKS ---
+        const isBooked = bookedIds.includes(cls.id);
         const isFull = cls.capacity <= 0;
 
-        // Apply a primary green border to only the first class in the list
         const borderClass = index === 0 ? 'border-primary' : 'border-transparent';
 
-        // Determine which button to show
+        // Determine which button to show based on the real database!
         let buttonHtml = '';
-        if (hasBooked) {
-          buttonHtml = `<button onclick="toggleDashboardSpot('${cls.id}', ${cls.capacity}, false)" class="px-6 py-2 bg-surface-variant text-white text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all">Cancel</button>`;
+        if (isBooked) {
+          buttonHtml = `<button onclick="cancelDashboardBooking('${cls.id}', ${cls.capacity})" class="px-6 py-2 bg-red-600/20 text-red-500 border border-red-500/50 text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">Cancel</button>`;
         } else if (isFull) {
           buttonHtml = `<button disabled class="px-6 py-2 bg-zinc-900 text-zinc-600 text-[10px] font-bold uppercase tracking-widest cursor-not-allowed">Full</button>`;
         } else {
-          buttonHtml = `<button onclick="toggleDashboardSpot('${cls.id}', ${cls.capacity}, true)" class="px-6 py-2 bg-primary text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Book</button>`;
+          buttonHtml = `<button onclick="bookDashboardClass('${cls.id}', ${cls.capacity})" class="px-6 py-2 bg-primary text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Book</button>`;
         }
 
         // Build the HTML card
@@ -583,34 +595,32 @@ if (data) {
       });
     }
 
-    // --- DASHBOARD BOOKING LOGIC ---
-    async function toggleDashboardSpot(classId, currentCapacity, isJoining) {
-      const newCapacity = isJoining ? currentCapacity - 1 : currentCapacity + 1;
+    // --- DASHBOARD BOOKING LOGIC (Synced with Database) ---
+    async function bookDashboardClass(classId, capacity) {
+      if (capacity <= 0) return;
+      
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const userName = document.getElementById('nav-user-name').innerText; 
 
-      if (isJoining && currentCapacity <= 0) {
-        alert("This class is already full!");
-        return;
-      }
+      const { error: bookingError } = await supabaseClient.from('class_bookings').insert({
+        class_id: classId,
+        user_id: session.user.id,
+        user_name: userName || 'Member'
+      });
+      
+      if (bookingError) return alert('Booking failed: ' + bookingError.message);
+      
+      await supabaseClient.from('gym_classes').update({ capacity: capacity - 1 }).eq('id', classId);
+      loadUpcomingClasses(); // Instantly refresh the dashboard list
+    }
 
-      // Update Supabase
-      const { error } = await supabaseClient
-        .from('gym_classes')
-        .update({ capacity: newCapacity })
-        .eq('id', classId);
-
-      if (error) {
-        console.error("Supabase Error:", error);
-        alert("Failed to update spot. Check database connection.");
-      } else {
-        // Save to local memory so both pages know it's booked!
-        if (isJoining) {
-          localStorage.setItem(`booked_${classId}`, 'true');
-        } else {
-          localStorage.removeItem(`booked_${classId}`);
-        }
-        // Refresh the list instantly
-        loadUpcomingClasses();
-      }
+    async function cancelDashboardBooking(classId, capacity) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      
+      await supabaseClient.from('class_bookings').delete().match({ class_id: classId, user_id: session.user.id });
+      await supabaseClient.from('gym_classes').update({ capacity: capacity + 1 }).eq('id', classId);
+      
+      loadUpcomingClasses(); // Instantly refresh the dashboard list
     }
 
     document.addEventListener("DOMContentLoaded", () => {
