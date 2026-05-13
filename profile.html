@@ -41,34 +41,53 @@
 <body class="bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     
-    <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
+      
       <div class="flex items-center gap-12">
         <div class="flex items-center gap-4 text-primary">
           <div class="size-6">
-            <svg fill="currentColor" viewBox="0 0 48 48">
-              <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
+            <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
             </svg>
           </div>
-          <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW</h2>
+          <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
         </div>
-        
-        <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
+
+        <nav id="main-nav" class="hidden md:flex items-center h-10">
+          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+            <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+            <span class="text-xs uppercase tracking-widest">Dashboard</span>
+          </a>
+          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="membership.html">
+            <span class="material-symbols-outlined" style="font-size: 20px;">card_membership</span>
+            <span class="text-xs uppercase tracking-widest">Memberships</span>
+          </a>
+          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="Timetable.html">
+            <span class="material-symbols-outlined" style="font-size: 20px;">event_note</span>
+            <span class="text-xs uppercase tracking-widest">Schedule</span>
+          </a>
+          <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="profile.html">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">person</span>
+            <span class="text-xs uppercase tracking-widest">Profile</span>
+          </a>
+        </nav>
       </div>
-      
+
       <div class="flex items-center gap-6">
         <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
           <div class="text-right">
-            <p id="header-name" class="font-headline font-bold text-white text-xs">...</p>
-            <p id="header-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">...</p>
+            <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
+            <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
           </div>
-          <div class="size-8 border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
-            <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
-            <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">?</span>
+          <div class="size-8 rounded-full border border-primary overflow-hidden flex items-center justify-center bg-surface-variant">
+            <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
+            <span id="nav-avatar-initial" class="text-primary font-bold text-xs">?</span>
           </div>
         </div>
-        <button id="logout-btn" class="flex items-center gap-2 px-4 h-10 bg-surface-variant text-on-surface-variant hover:bg-white hover:text-black transition-colors text-xs font-bold uppercase tracking-widest">
-          <span class="material-symbols-outlined text-[18px]">logout</span>
-          <span class="hidden sm:inline">Sign out</span>
+
+        <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
+          <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+          <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
         </button>
       </div>
     </header>
@@ -168,26 +187,65 @@
     let currentProfile = {};
 
     async function init() {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) return window.location.replace('login.html');
+      const { data: { session }, error: sessionError } = await db.auth.getSession();
+      if (sessionError || !session) {
+        window.location.href = 'login.html';
+        return;
+      }
       currentUser = session.user;
 
-      const { data: profile } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
-      currentProfile = profile || {};
-
-      const role = currentProfile.role || 'member';
-      renderNavbar(role);
-
-      if (role === 'trainer') {
-        const cyan = "#00E0FF";
-        document.documentElement.style.setProperty('--primary-color', cyan);
-      }
-
-      const { data: subData } = await db.from('user_subscriptions').select('plan_name').eq('user_id', currentUser.id).maybeSingle();
-      const planLabel = role === 'trainer' ? 'Staff / Trainer' : (subData?.plan_name || 'Member');
+      const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
       
-      document.getElementById('header-plan').textContent = planLabel.toUpperCase();
-      document.getElementById('card-plan').textContent = planLabel.toUpperCase();
+      if (error) {
+        showPageAlert('Error loading profile: ' + error.message, 'error');
+        return;
+      }
+      currentProfile = profile;
+
+      // --- NEW NAV BAR POPULATION LOGIC ---
+      if (profile) {
+        document.getElementById('nav-user-name').innerText = profile.name || 'Member';
+        document.getElementById('nav-user-plan').innerText = profile.plan_name || 'GUEST PASS';
+        document.getElementById('card-plan').innerText = profile.plan_name || 'GUEST PASS'; // Updates the big Status card
+        document.getElementById('nav-avatar-initial').innerText = (profile.name || 'M').charAt(0).toUpperCase();
+
+        if (profile.avatar_url) {
+          const img = document.getElementById('nav-user-avatar');
+          img.src = profile.avatar_url;
+          img.classList.remove('hidden');
+          document.getElementById('nav-avatar-initial').classList.add('hidden');
+        }
+
+        // --- TRAINER NAV OVERRIDE ---
+        if (profile.role === 'trainer') {
+          document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+          document.getElementById('nav-user-plan').innerText = 'STAFF';
+          document.getElementById('card-plan').innerText = 'STAFF';
+
+          const navMenu = document.getElementById('main-nav');
+          if (navMenu) {
+            navMenu.innerHTML = `
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+                <span class="text-xs uppercase tracking-widest">Dashboard</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="Timetable.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">event_note</span>
+                <span class="text-xs uppercase tracking-widest">Timetable</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="trainer-report.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">assessment</span>
+                <span class="text-xs uppercase tracking-widest">Trainer Report</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="profile.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">person</span>
+                <span class="text-xs uppercase tracking-widest">Profile</span>
+              </a>
+            `;
+          }
+        }
+      }
+      // --- END NAV BAR LOGIC ---
 
       renderProfile(currentProfile, currentUser);
     }
