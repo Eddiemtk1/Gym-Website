@@ -17,7 +17,7 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#D7FF00",
+            "primary": "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             "background": "#0e0e0e",
             "surface": "#131313",
@@ -44,10 +44,6 @@
     .glass-nav {
       background: rgba(14, 14, 14, 0.8);
       backdrop-filter: blur(12px);
-    }
-
-    .kinetic-gradient {
-      background: #D7FF00;
     }
   </style>
 </head>
@@ -83,14 +79,20 @@
               <span class="text-xs uppercase tracking-widest">Memberships</span>
             </a>
             <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="#">
-              <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
-              <span class="text-xs uppercase tracking-widest">Classes</span>
+              href="Timetable.html">
+              <span class="material-symbols-outlined" style="font-size: 20px">event_note</span>
+              <span class="text-xs uppercase tracking-widest">Timetable</span>
+            </a>
+            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
+              href="profile.html">
+              <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+              <span class="text-xs uppercase tracking-widest">Profile</span>
             </a>
           </nav>
         </div>
         <div class="flex items-center gap-6">
 
+          <!-- Profile Mini -->
           <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
             <div class="text-right">
               <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
@@ -105,7 +107,11 @@
             </div>
           </div>
           
-          </div>
+          <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
+            <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+            <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
+          </button>
+        
         </div>
       </header>
 
@@ -118,7 +124,6 @@
               choose your <br /> <span class="text-primary">Future.</span>
           </h1>
           </div>
-
 
             <!-- GOLD CARD -->
             <div id="plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto w-full mb-12">
@@ -167,30 +172,69 @@
     </div>
   </div>
   
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <script>
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     async function loadPageData() {
-      const testUserId = "00000000-0000-0000-0000-000000000000";
+      const { data: { session } } = await supabaseClient.auth.getSession();
 
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const realUserId = session.user.id;
+
+      // ADDED 'role' to the select query
       const { data: userData, error: userError } = await supabaseClient
-        .from("user_subscriptions")
-        .select("first_name, last_name, plan_name, avatar_url")
-        .eq("user_id", testUserId)
+        .from("profiles")
+        .select("name, role, plan_name, avatar_url")
+        .eq("user_id", realUserId)
         .single();
 
       if (userError) {
         console.error("Error fetching user data:", userError.message);
       } else if (userData) {
-        document.getElementById('nav-user-name').innerText = `${userData.first_name} ${userData.last_name}`;
-        document.getElementById('nav-user-plan').innerText = userData.plan_name;
-        document.getElementById('nav-user-avatar').src = userData.avatar_url;
+        // FIXED: Now uses the unified 'name' column
+        document.getElementById('nav-user-name').innerText = userData.name || "Member";
+        document.getElementById('nav-user-plan').innerText = userData.plan_name || "GUEST PASS";
+        if(userData.avatar_url) document.getElementById('nav-user-avatar').src = userData.avatar_url;
+
+        // --- TRAINER/STAFF OVERRIDE ---
+        if (userData.role === 'trainer') {
+          // Change Theme
+          document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+          document.getElementById('nav-user-plan').innerText = 'STAFF';
+          
+          // Overwrite the Nav Menu
+          const navMenu = document.getElementById('main-nav');
+          if(navMenu) {
+            navMenu.innerHTML = `
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+                <span class="text-xs uppercase tracking-widest">Dashboard</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="Timetable.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">event_note</span>
+                <span class="text-xs uppercase tracking-widest">Timetable</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="trainer-report.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">assessment</span>
+                <span class="text-xs uppercase tracking-widest">Trainer Report</span>
+              </a>
+              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
+                <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+                <span class="text-xs uppercase tracking-widest">Profile</span>
+              </a>
+            `;
+          }
+        }
       }
 
-      const currentPlanName = userData ? userData.plan_name.toUpperCase() : null;
+      const currentPlanName = userData ? (userData.plan_name || "").toUpperCase() : null;
 
       const { data: plans, error: plansError } = await supabaseClient
         .from('membership_plans')
@@ -206,10 +250,9 @@
       container.innerHTML = ''; 
 
       plans.forEach((plan, index) => {
-        // Check if this card is their active plan
         const isActive = plan.name.toUpperCase() === currentPlanName;
 
-        // Apply active (yellow) or inactive (dark) colors
+        //apply active or inactive colors
         const cardClasses = isActive 
           ? 'bg-primary text-black border-primary' 
           : 'bg-surface text-white border-white/5 hover:bg-surface-variant';
@@ -219,7 +262,7 @@
           ? `<button disabled class="w-full py-4 bg-black text-primary font-headline font-black text-xs tracking-widest uppercase transition-all">CURRENT PLAN</button>`
           : `<button onclick="window.location.href='membership_checkout.html?plan=${plan.name.toLowerCase()}'" class="w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">ACTIVATE</button>`;
 
-        // creates the list of benefits
+        // Shows the benefits
         let benefitsHTML = '';
         plan.benefits.forEach(benefit => {
           benefitsHTML += `
@@ -229,6 +272,7 @@
             </li>
           `;
         });
+        //Shows the excluded benefits
         if (plan.excluded_benefits) {
           plan.excluded_benefits.forEach(benefit => {
             benefitsHTML += `
@@ -264,6 +308,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", loadPageData);
+
+    //Sign Out button
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'login.html'; 
+    });
   </script>
 
 
