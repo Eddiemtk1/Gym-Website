@@ -7,6 +7,7 @@
   <title>Register – GymFlow</title>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth-role.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -32,7 +33,6 @@
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
-  <!-- Top nav bar -->
   <nav class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 bg-background sticky top-0 z-50">
     <a href="dashboard.html" class="flex items-center gap-2 text-on-surface-variant hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
       <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -52,7 +52,6 @@
 
   <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
 
-    <!-- Brand panel -->
     <div class="hidden lg:flex flex-col justify-between bg-primary p-16 sticky top-0 h-screen">
       <div class="flex items-center gap-3">
         <div class="size-8">
@@ -71,11 +70,9 @@
       <p class="text-on-primary/40 text-xs">© 2026 GymFlow. All rights reserved.</p>
     </div>
 
-    <!-- Form panel -->
     <div class="flex flex-col justify-center min-h-screen px-6 py-16 lg:px-16 overflow-y-auto">
       <div class="w-full max-w-md mx-auto">
 
-        <!-- Mobile logo -->
         <div class="flex items-center gap-3 mb-12 lg:hidden">
           <div class="size-7 text-primary">
             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -160,9 +157,14 @@
 
     const requiredFields = ['name', 'email', 'password', 'confirm'];
 
+    const getHomeRoute = GymflowRoles.getHomeRoute;
+    const resolveUserRole = user => GymflowRoles.resolveUserRole(db, user);
+
     db.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        window.location.replace('dashboard.html');
+        resolveUserRole(session.user).then(role => {
+          window.location.replace(getHomeRoute(role));
+        });
       }
     });
 
@@ -202,23 +204,23 @@
       let isValid = true;
 
       if (!name) {
-        setFieldError('name', 'Full name is required.');
+        setFieldError('name', 'Please enter your full name.');
         isValid = false;
       }
 
       if (!email) {
-        setFieldError('email', 'Email address is required.');
+        setFieldError('email', 'Please enter your email address.');
         isValid = false;
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setFieldError('email', 'Enter a valid email address.');
+        setFieldError('email', 'Please enter a valid email address.');
         isValid = false;
       }
 
       if (!password) {
-        setFieldError('password', 'Password is required.');
+        setFieldError('password', 'Please create a password.');
         isValid = false;
       } else if (password.length < 8) {
-        setFieldError('password', 'Password must be at least 8 characters.');
+        setFieldError('password', 'Use at least 8 characters.');
         isValid = false;
       }
 
@@ -244,7 +246,7 @@
 
       if (!validateForm(formValues)) return;
 
-      setButtonState('Creating account...', true);
+      setButtonState('Creating your account...', true);
 
       const { data, error } = await db.auth.signUp({
         email: formValues.email,
@@ -253,6 +255,7 @@
           data: {
             name: formValues.name,
             phone: formValues.phone || null,
+            role: 'member',
           },
         },
       });
@@ -264,16 +267,25 @@
       }
 
       if (data.user) {
-        await db.from('profiles').upsert({
+        const baseProfile = {
           user_id: data.user.id,
           name: formValues.name,
           email: formValues.email,
           phone: formValues.phone || null,
+        };
+
+        const { error: roleProfileError } = await db.from('profiles').upsert({
+          ...baseProfile,
+          role: 'member',
         }, { onConflict: 'user_id' });
+
+        if (roleProfileError) {
+          await db.from('profiles').upsert(baseProfile, { onConflict: 'user_id' });
+        }
       }
 
       ui.form.style.display = 'none';
-      showAlert('Account created! Check your inbox and click the verification link before signing in.', 'success');
+      showAlert('Account created. Check your inbox to verify your email before signing in.', 'success');
     });
   </script>
 </body>

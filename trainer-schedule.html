@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth-role.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -101,7 +102,7 @@
           <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
             My Schedule
           </h1>
-          <p class="text-on-surface-variant mt-3">All classes you are currently assigned to lead.</p>
+          <p class="text-on-surface-variant mt-3">Classes currently assigned to you.</p>
         </div>
 
         <!-- Not a trainer message (hidden by default) -->
@@ -110,7 +111,7 @@
             <span class="material-symbols-outlined text-5xl text-on-surface-variant opacity-40 block">person_off</span>
             <h2 class="font-headline font-bold text-white text-xl">No trainer profile found</h2>
             <p class="text-on-surface-variant text-sm max-w-sm mx-auto">
-              This page is for registered trainers. If you believe this is an error, ask a staff member to add you as a trainer in Supabase.
+              We could not find a trainer profile for this account. Ask an admin to grant trainer access.
             </p>
             <a href="dashboard.html" class="inline-flex items-center gap-2 mt-4 px-5 h-10 border border-outline/60 text-on-surface-variant hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
               Back to Dashboard
@@ -147,7 +148,7 @@
             <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Upcoming Sessions</h2>
             <div id="upcoming-empty" class="hidden bg-surface border border-outline/40 p-10 text-center">
               <span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-40 block mb-2">event_available</span>
-              <p class="text-on-surface-variant text-sm">No upcoming classes assigned yet.</p>
+              <p class="text-on-surface-variant text-sm">No upcoming classes assigned.</p>
             </div>
             <div id="upcoming-list" class="space-y-3"></div>
           </div>
@@ -157,7 +158,7 @@
             <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Past Sessions</h2>
             <div id="past-empty" class="hidden bg-surface border border-outline/40 p-10 text-center">
               <span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-40 block mb-2">history</span>
-              <p class="text-on-surface-variant text-sm">No completed sessions yet.</p>
+              <p class="text-on-surface-variant text-sm">No completed or cancelled sessions yet.</p>
             </div>
             <div id="past-list" class="space-y-3"></div>
           </div>
@@ -173,13 +174,24 @@
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentUser = null;
+    let currentRole = 'member';
     let trainerRecord = null;
+
+    const getHomeRoute = GymflowRoles.getHomeRoute;
+    const resolveUserRole = user => GymflowRoles.resolveUserRole(db, user);
 
     // Start page
     async function init() {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { window.location.replace('login.html'); return; }
       currentUser = session.user;
+
+      currentRole = await resolveUserRole(currentUser);
+      if (currentRole !== 'trainer') {
+        window.location.replace(getHomeRoute(currentRole));
+        return;
+      }
+
       loadHeader();
 
       // Check if user has a trainer record

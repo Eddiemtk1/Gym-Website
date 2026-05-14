@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth-role.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -102,7 +103,7 @@
             <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
               Hours Report
             </h1>
-            <p id="page-subtitle" class="text-on-surface-variant mt-3">Summary of trainer hours across all sessions.</p>
+            <p id="page-subtitle" class="text-on-surface-variant mt-3">Overview of trainer hours across sessions.</p>
           </div>
           <!-- Staff only: link back to assignment page -->
           <a id="staff-link" href="assign-trainer.html"
@@ -170,7 +171,7 @@
               </thead>
               <tbody id="report-tbody">
                 <tr>
-                  <td colspan="5" class="text-center py-12 text-on-surface-variant text-sm">Loading...</td>
+                  <td colspan="5" class="text-center py-12 text-on-surface-variant text-sm">Loading report...</td>
                 </tr>
               </tbody>
             </table>
@@ -207,12 +208,16 @@
     };
 
     let currentUser = null;
+    let currentRole = 'member';
     let trainerRecord = null;
     let isTrainer = false;
     let activeRange = 'week';
 
     const toIsoDate = date => date.toISOString().split('T')[0];
     const toHours = value => Number(value || 0);
+
+    const getHomeRoute = GymflowRoles.getHomeRoute;
+    const resolveUserRole = user => GymflowRoles.resolveUserRole(db, user);
 
     async function init() {
       const { data: { session } } = await db.auth.getSession();
@@ -222,27 +227,45 @@
       }
 
       currentUser = session.user;
+      currentRole = await resolveUserRole(currentUser);
+      if (currentRole === 'member') {
+        window.location.replace('dashboard.html');
+        return;
+      }
+
       await loadHeader();
-      await detectRole();
+      const roleReady = await detectRole();
+      if (!roleReady) return;
       bindRangeButtons();
       await refreshReport();
     }
 
     async function detectRole() {
+      if (currentRole !== 'trainer') {
+        isTrainer = false;
+        trainerRecord = null;
+        return true;
+      }
+
       const { data: trainer } = await db
         .from('trainers')
         .select('id, name')
         .eq('user_id', currentUser.id)
         .maybeSingle();
 
-      if (!trainer) return;
+      if (!trainer) {
+        showAlert('We could not find your trainer profile. Contact an admin.', 'error');
+        setTimeout(() => window.location.replace('dashboard.html'), 1400);
+        return false;
+      }
 
       isTrainer = true;
       trainerRecord = trainer;
-      ui.pageSubtitle.textContent = 'Your personal hours summary.';
+      ui.pageSubtitle.textContent = 'Your logged hours for this period.';
       ui.groupedSection.classList.add('hidden');
       ui.statTrainersCard.classList.add('hidden');
       ui.staffLink.classList.add('hidden');
+      return true;
     }
 
     async function loadHeader() {
@@ -317,7 +340,7 @@
 
     function renderLoadingState() {
       ui.reportBody.innerHTML =
-        '<tr><td colspan="5" class="text-center py-12 text-on-surface-variant text-sm">Loading...</td></tr>';
+        '<tr><td colspan="5" class="text-center py-12 text-on-surface-variant text-sm">Loading report...</td></tr>';
     }
 
     function renderEmptyState(message) {
@@ -349,7 +372,7 @@
 
       const { data, error } = await query;
       if (error) {
-        showAlert(`Failed to load report: ${error.message}`, 'error');
+        showAlert(`Could not load report: ${error.message}`, 'error');
         renderEmptyState('Error loading data.');
         return;
       }
@@ -399,7 +422,7 @@
       const trainers = Object.values(totalsByTrainer).sort((a, b) => b.hours - a.hours);
 
       if (!trainers.length) {
-        ui.groupedList.innerHTML = '<p class="text-on-surface-variant text-sm col-span-full">No data for this period.</p>';
+        ui.groupedList.innerHTML = '<p class="text-on-surface-variant text-sm col-span-full">No trainer activity for this period.</p>';
         return;
       }
 
@@ -427,7 +450,7 @@
       ui.reportBody.innerHTML = '';
 
       if (!rows.length) {
-        renderEmptyState('No hours logged for this period.');
+        renderEmptyState('No logged hours for this period.');
         return;
       }
 
@@ -461,7 +484,7 @@
     async function confirmHours(rowId) {
       const { error } = await db.from('trainer_hours').update({ confirmed: true }).eq('id', rowId);
       if (error) {
-        showAlert(`Failed: ${error.message}`, 'error');
+        showAlert(`Could not confirm hours: ${error.message}`, 'error');
         return;
       }
 

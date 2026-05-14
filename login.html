@@ -7,6 +7,7 @@
   <title>Sign In – GymFlow</title>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth-role.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -32,7 +33,6 @@
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
-  <!-- Top nav bar -->
   <nav class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 bg-background sticky top-0 z-50">
     <a href="dashboard.html" class="flex items-center gap-2 text-on-surface-variant hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
       <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -52,7 +52,6 @@
 
   <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
 
-    <!-- Brand panel -->
     <div class="hidden lg:flex flex-col justify-between bg-primary p-16 sticky top-0 h-screen">
       <div class="flex items-center gap-3">
         <div class="size-8">
@@ -71,11 +70,9 @@
       <p class="text-on-primary/40 text-xs">© 2026 GymFlow. All rights reserved.</p>
     </div>
 
-    <!-- Form panel -->
     <div class="flex flex-col justify-center min-h-screen px-6 py-16 lg:px-16">
       <div class="w-full max-w-md mx-auto">
 
-        <!-- Mobile logo -->
         <div class="flex items-center gap-3 mb-12 lg:hidden">
           <div class="size-7 text-primary">
             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -87,11 +84,10 @@
 
         <div id="alert" class="hidden mb-6 px-4 py-3 text-sm font-medium border"></div>
 
-        <!-- ── Sign in view ── -->
         <div id="login-view">
           <h2 class="font-headline text-3xl font-black text-white uppercase tracking-tight mb-1">Sign In</h2>
           <p class="text-on-surface-variant text-sm mb-10">
-            No account yet? <a href="register.html" class="text-primary font-semibold hover:underline">Register</a>
+            New here? <a href="register.html" class="text-primary font-semibold hover:underline">Create an account</a>
           </p>
           <form id="login-form" class="space-y-5" novalidate>
             <div>
@@ -105,8 +101,12 @@
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant" for="password">Password</label>
                 <button type="button" id="forgot-link" class="text-xs text-primary hover:underline">Forgot password?</button>
               </div>
-              <input id="password" type="password" autocomplete="current-password" placeholder="Your password"
-                class="w-full bg-surface border border-outline px-4 py-3 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
+              <div class="relative">
+                <input id="password" type="password" autocomplete="current-password" placeholder="Your password"
+                  class="w-full bg-surface border border-outline px-4 py-3 pr-20 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
+                <button id="password-toggle" type="button" aria-label="Show password" aria-pressed="false"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Show</button>
+              </div>
               <p id="password-error" class="hidden text-red-400 text-xs mt-1.5"></p>
             </div>
             <button id="login-btn" type="submit"
@@ -116,10 +116,9 @@
           </form>
         </div>
 
-        <!-- ── Forgot password view ── -->
         <div id="forgot-view" class="hidden">
           <h2 class="font-headline text-3xl font-black text-white uppercase tracking-tight mb-1">Reset Password</h2>
-          <p class="text-on-surface-variant text-sm mb-10">Enter your email and we'll send you a reset link.</p>
+          <p class="text-on-surface-variant text-sm mb-10">Enter your email and we will send you a reset link.</p>
           <form id="forgot-form" class="space-y-5" novalidate>
             <div>
               <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="reset-email">Email Address</label>
@@ -137,21 +136,28 @@
           </button>
         </div>
 
-        <!-- ── New password view (triggered by reset email link) ── -->
         <div id="recovery-view" class="hidden">
           <h2 class="font-headline text-3xl font-black text-white uppercase tracking-tight mb-1">Set New Password</h2>
           <p class="text-on-surface-variant text-sm mb-10">Choose a strong new password for your account.</p>
           <form id="recovery-form" class="space-y-5" novalidate>
             <div>
               <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="new-password">New Password</label>
-              <input id="new-password" type="password" autocomplete="new-password" placeholder="Minimum 8 characters"
-                class="w-full bg-surface border border-outline px-4 py-3 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
+              <div class="relative">
+                <input id="new-password" type="password" autocomplete="new-password" placeholder="Minimum 8 characters"
+                  class="w-full bg-surface border border-outline px-4 py-3 pr-20 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
+                <button id="new-password-toggle" type="button" aria-label="Show new password" aria-pressed="false"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Show</button>
+              </div>
               <p id="new-password-error" class="hidden text-red-400 text-xs mt-1.5"></p>
             </div>
             <div>
               <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="new-confirm">Confirm New Password</label>
-              <input id="new-confirm" type="password" autocomplete="new-password" placeholder="Repeat your new password"
-                class="w-full bg-surface border border-outline px-4 py-3 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
+              <div class="relative">
+                <input id="new-confirm" type="password" autocomplete="new-password" placeholder="Repeat your new password"
+                  class="w-full bg-surface border border-outline px-4 py-3 pr-20 text-white text-sm placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors">
+                <button id="new-confirm-toggle" type="button" aria-label="Show confirm password" aria-pressed="false"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Show</button>
+              </div>
               <p id="new-confirm-error" class="hidden text-red-400 text-xs mt-1.5"></p>
             </div>
             <button id="recovery-btn" type="submit"
@@ -169,6 +175,7 @@
   <script>
     const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
+    const RESET_REDIRECT_OVERRIDE = '';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const viewIds = ['login-view', 'forgot-view', 'recovery-view'];
@@ -178,6 +185,7 @@
       loginBtn: document.getElementById('login-btn'),
       email: document.getElementById('email'),
       password: document.getElementById('password'),
+      passwordToggle: document.getElementById('password-toggle'),
       emailError: document.getElementById('email-error'),
       passwordError: document.getElementById('password-error'),
       forgotLink: document.getElementById('forgot-link'),
@@ -188,11 +196,38 @@
       resetBtn: document.getElementById('reset-btn'),
       recoveryForm: document.getElementById('recovery-form'),
       newPassword: document.getElementById('new-password'),
+      newPasswordToggle: document.getElementById('new-password-toggle'),
       newConfirm: document.getElementById('new-confirm'),
+      newConfirmToggle: document.getElementById('new-confirm-toggle'),
       newPasswordError: document.getElementById('new-password-error'),
       newConfirmError: document.getElementById('new-confirm-error'),
       recoveryBtn: document.getElementById('recovery-btn'),
     };
+
+    function syncPasswordToggle(button, input) {
+      const isVisible = input.type === 'text';
+      button.textContent = isVisible ? 'Hide' : 'Show';
+      button.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
+      button.setAttribute('aria-pressed', String(isVisible));
+    }
+
+    function bindPasswordToggle(button, input) {
+      if (!button || !input) return;
+
+      syncPasswordToggle(button, input);
+      button.addEventListener('click', () => {
+        input.type = input.type === 'password' ? 'text' : 'password';
+        syncPasswordToggle(button, input);
+      });
+    }
+
+    bindPasswordToggle(ui.passwordToggle, ui.password);
+    bindPasswordToggle(ui.newPasswordToggle, ui.newPassword);
+    bindPasswordToggle(ui.newConfirmToggle, ui.newConfirm);
+
+    const getHomeRoute = GymflowRoles.getHomeRoute;
+    const resolveUserRole = user => GymflowRoles.resolveUserRole(db, user);
+    const redirectToRoleHome = user => GymflowRoles.redirectToRoleHome(db, user);
 
     function showAlert(message, type = 'error') {
       ui.alert.textContent = message;
@@ -230,22 +265,97 @@
       hideAlert();
     }
 
+    function getSearchParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function getHashParam(name) {
+      const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+      return new URLSearchParams(hash).get(name);
+    }
+
+    function isRecoveryRequest() {
+      return getSearchParam('type') === 'recovery' || getHashParam('type') === 'recovery';
+    }
+
+    function hasAuthCallbackParams() {
+      return Boolean(
+        getSearchParam('type') ||
+        getSearchParam('code') ||
+        getSearchParam('token_hash') ||
+        getSearchParam('access_token') ||
+        getSearchParam('refresh_token') ||
+        getHashParam('type') ||
+        getHashParam('token_hash') ||
+        getHashParam('access_token') ||
+        getHashParam('refresh_token')
+      );
+    }
+
+    async function prepareRecoverySession() {
+      const tokenHash = getSearchParam('token_hash') || getHashParam('token_hash');
+      if (!tokenHash || !isRecoveryRequest()) {
+        return true;
+      }
+
+      const { error } = await db.auth.verifyOtp({
+        type: 'recovery',
+        token_hash: tokenHash,
+      });
+
+      if (error) {
+        showAlert(error.message);
+        return false;
+      }
+
+      const cleanUrl = `${window.location.origin}${window.location.pathname}#type=recovery`;
+      window.history.replaceState({}, '', cleanUrl);
+      return true;
+    }
+
+    function getPasswordResetRedirectUrl() {
+      const isWebUrl = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+      if (isWebUrl) {
+        return `${window.location.origin}${window.location.pathname}`;
+      }
+
+      // Supabase can't redirect back to file:// URLs.
+      return RESET_REDIRECT_OVERRIDE || null;
+    }
+
     db.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        window.location.replace('dashboard.html');
+      if (event === 'PASSWORD_RECOVERY') {
+        showView('recovery-view');
         return;
       }
 
-      if (event === 'PASSWORD_RECOVERY') {
-        showView('recovery-view');
+      if (event === 'SIGNED_IN' && session) {
+        if (hasAuthCallbackParams()) {
+          if (isRecoveryRequest()) {
+            showView('recovery-view');
+          }
+          return;
+        }
+
+        redirectToRoleHome(session.user);
       }
     });
 
-    db.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        window.location.replace('dashboard.html');
+    (async () => {
+      if (isRecoveryRequest()) {
+        showView('recovery-view');
       }
-    });
+
+      const recoveryReady = await prepareRecoverySession();
+      if (!recoveryReady) {
+        return;
+      }
+
+      const { data: { session } } = await db.auth.getSession();
+      if (session && !hasAuthCallbackParams()) {
+        await redirectToRoleHome(session.user);
+      }
+    })();
 
     ui.loginForm.addEventListener('submit', async event => {
       event.preventDefault();
@@ -255,23 +365,26 @@
       const password = ui.password.value;
 
       if (!email) {
-        ui.emailError.textContent = 'Email is required.';
+        ui.emailError.textContent = 'Please enter your email.';
         ui.emailError.classList.remove('hidden');
         return;
       }
 
       if (!password) {
-        ui.passwordError.textContent = 'Password is required.';
+        ui.passwordError.textContent = 'Please enter your password.';
         ui.passwordError.classList.remove('hidden');
         return;
       }
 
       setButtonState(ui.loginBtn, 'Signing in...', true);
-      const { error } = await db.auth.signInWithPassword({ email, password });
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
 
-      if (!error) return;
+      if (!error && data?.user) {
+        await redirectToRoleHome(data.user);
+        return;
+      }
 
-      showAlert('Incorrect email or password. Please try again.');
+      showAlert('We could not sign you in with those details.');
       setButtonState(ui.loginBtn, 'Sign In', false);
     });
 
@@ -286,15 +399,22 @@
       hideAlert();
 
       if (!email) {
-        ui.resetEmailError.textContent = 'Email is required.';
+        ui.resetEmailError.textContent = 'Please enter your email.';
         ui.resetEmailError.classList.remove('hidden');
         return;
       }
 
       setButtonState(ui.resetBtn, 'Sending...', true);
 
+      const redirectTo = getPasswordResetRedirectUrl();
+      if (!redirectTo) {
+        setButtonState(ui.resetBtn, 'Send Reset Link', false);
+        showAlert('Open this page via http://localhost (for example Live Server) or set RESET_REDIRECT_OVERRIDE in login.html.');
+        return;
+      }
+
       const { error } = await db.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.href,
+        redirectTo,
       });
 
       setButtonState(ui.resetBtn, 'Send Reset Link', false);
@@ -304,7 +424,7 @@
         return;
       }
 
-      showAlert('Reset link sent. Check your inbox.', 'success');
+      showAlert('We have sent a reset link. Check your inbox.', 'success');
       ui.forgotForm.reset();
     });
 
@@ -316,7 +436,7 @@
       const confirmPassword = ui.newConfirm.value;
 
       if (newPassword.length < 8) {
-        ui.newPasswordError.textContent = 'Password must be at least 8 characters.';
+        ui.newPasswordError.textContent = 'Use at least 8 characters.';
         ui.newPasswordError.classList.remove('hidden');
         return;
       }
@@ -336,8 +456,16 @@
         return;
       }
 
-      showAlert('Password updated successfully. Redirecting...', 'success');
-      setTimeout(() => window.location.replace('dashboard.html'), 2000);
+      showAlert('Password updated. Taking you back in...', 'success');
+      setTimeout(async () => {
+        const { data: { session } } = await db.auth.getSession();
+        if (!session?.user) {
+          window.location.replace('login.html');
+          return;
+        }
+
+        await redirectToRoleHome(session.user);
+      }, 2000);
     });
   </script>
 </body>
