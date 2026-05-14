@@ -125,7 +125,6 @@
           </h1>
           </div>
 
-
             <!-- GOLD CARD -->
             <div id="plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto w-full mb-12">
 </div>
@@ -251,10 +250,9 @@
       container.innerHTML = ''; 
 
       plans.forEach((plan, index) => {
-        // Check if this card is their active plan
         const isActive = plan.name.toUpperCase() === currentPlanName;
 
-        // Apply active or inactive colors
+        //apply active or inactive colors
         const cardClasses = isActive 
           ? 'bg-primary text-black border-primary' 
           : 'bg-surface text-white border-white/5 hover:bg-surface-variant';
@@ -264,7 +262,7 @@
           ? `<button disabled class="w-full py-4 bg-black text-primary font-headline font-black text-xs tracking-widest uppercase transition-all">CURRENT PLAN</button>`
           : `<button onclick="window.location.href='membership_checkout.html?plan=${plan.name.toLowerCase()}'" class="w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">ACTIVATE</button>`;
 
-        // creates the list of benefits
+        // Shows the benefits
         let benefitsHTML = '';
         plan.benefits.forEach(benefit => {
           benefitsHTML += `
@@ -274,6 +272,7 @@
             </li>
           `;
         });
+        //Shows the excluded benefits
         if (plan.excluded_benefits) {
           plan.excluded_benefits.forEach(benefit => {
             benefitsHTML += `
@@ -310,7 +309,7 @@
 
     document.addEventListener("DOMContentLoaded", loadPageData);
 
-    // --- ADDED: Make the Sign Out button actually work ---
+    //Sign Out button
     document.getElementById('logout-btn').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();
       window.location.href = 'login.html'; 
