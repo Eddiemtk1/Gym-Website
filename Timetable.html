@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
   <link href="shared-nav.css" rel="stylesheet">
   <script src="shared-theme.js"></script>
@@ -120,6 +121,8 @@
     document.getElementById('current-week').innerText = `Week of ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
     let currentUser = null;
+    let currentRole = 'member';
+    const resolveUserRole = user => GymflowRoles.resolveUserRole(db, user);
 
     async function init() {
       const { data: { session }, error: sessionError } = await db.auth.getSession();
@@ -128,6 +131,11 @@
       }
 
       currentUser = session?.user || null;
+      currentRole = currentUser ? await resolveUserRole(currentUser) : 'member';
+
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: currentRole, activeHref: 'Timetable.html' });
+      GymflowNav.initMenuNav();
+
       await loadProfile();
       await fetchAndRenderTimetable();
     }
@@ -157,13 +165,13 @@
           document.getElementById('nav-avatar-initial').classList.add('hidden');
         }
 
-        // --- TRAINER LOGIC ---
-        if (profile.role === 'trainer') {
+        if (currentRole !== 'member') {
           document.documentElement.style.setProperty('--primary-color', '#00E0FF');
           document.getElementById('nav-user-plan').innerText = 'STAFF';
-          document.getElementById('trainer-actions').classList.remove('hidden');
 
-          GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'Timetable.html' });
+          if (currentRole === 'admin') {
+            document.getElementById('trainer-actions').classList.remove('hidden');
+          }
         }
       }
     }
@@ -194,8 +202,7 @@
         return;
       }
 
-      // Check if the user is a trainer by looking at the navigation role text we set earlier
-      const isTrainer = document.getElementById('nav-user-plan').innerText === 'STAFF';
+      const isPrivileged = currentRole === 'trainer' || currentRole === 'admin';
 
       container.innerHTML = '';
       classes.forEach(cls => {
@@ -209,7 +216,7 @@
 
         // --- DYNAMIC BUTTON LOGIC ---
         let buttonHTML = '';
-        if (isTrainer) {
+        if (isPrivileged) {
           // Show Trainer Button
           buttonHTML = `<button onclick="viewParticipants('${cls.id}', '${cls.name}')" class="px-6 py-4 border border-primary text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">View Roster</button>`;
         } else {
@@ -321,8 +328,6 @@
       window.location.href = 'login.html';
     });
 
-    GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'Timetable.html' });
-    GymflowNav.initMenuNav();
     init();
   </script>
 </body>

@@ -11,6 +11,7 @@
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
   <link href="shared-nav.css" rel="stylesheet">
   <script src="shared-theme.js"></script>
@@ -134,6 +135,7 @@
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
     let currentSession = null;
+    const resolveUserRole = user => GymflowRoles.resolveUserRole(supabaseClient, user);
 
     async function loadPageData() {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -143,16 +145,20 @@
       let userData = null;
 
       if (!session) {
+        GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'membership.html' });
+
         document.getElementById('nav-user-name').innerText = 'Guest';
         document.getElementById('nav-user-plan').innerText = 'Public View';
         document.getElementById('nav-user-avatar').src = '';
         if (signOutLabel) signOutLabel.innerText = 'Sign In';
       } else {
         const realUserId = session.user.id;
+        const resolvedRole = await resolveUserRole(session.user);
+        GymflowNav.renderRoleMenu({ navId: 'main-nav', role: resolvedRole, activeHref: 'membership.html' });
 
         const { data, error: userError } = await supabaseClient
           .from("profiles")
-          .select("name, role, plan_name, avatar_url")
+          .select("name, plan_name, avatar_url")
           .eq("user_id", realUserId)
           .single();
 
@@ -164,11 +170,9 @@
           document.getElementById('nav-user-plan').innerText = userData.plan_name || "GUEST PASS";
           if (userData.avatar_url) document.getElementById('nav-user-avatar').src = userData.avatar_url;
 
-          if (userData.role === 'trainer') {
+          if (resolvedRole !== 'member') {
             document.documentElement.style.setProperty('--primary-color', '#00E0FF');
             document.getElementById('nav-user-plan').innerText = 'STAFF';
-
-            GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'membership.html' });
           }
         }
       }
@@ -253,7 +257,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'membership.html' });
       GymflowNav.initMenuNav();
       loadPageData();
     });

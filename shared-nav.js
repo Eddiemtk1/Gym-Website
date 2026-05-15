@@ -1,7 +1,8 @@
 (function registerGymflowNav(global) {
   function normalizeRole(role) {
     const value = String(role || 'member').toLowerCase();
-    if (value === 'admin' || value === 'staff' || value === 'trainer') return value;
+    if (value === 'staff') return 'admin';
+    if (value === 'admin' || value === 'trainer') return value;
     return 'member';
   }
 
@@ -17,7 +18,6 @@
     const classes = [
       'site-nav-link',
       link.emphasis ? 'emphasis' : '',
-      link.hidden ? 'hidden' : '',
       isActiveLink(link.href, activeHref) ? 'is-active' : ''
     ].filter(Boolean).join(' ');
 
@@ -37,7 +37,7 @@
   function getRoleLinks(role) {
     const resolvedRole = normalizeRole(role);
 
-    if (resolvedRole === 'admin' || resolvedRole === 'staff') {
+    if (resolvedRole === 'admin') {
       return [
         { label: 'Dashboard', href: 'dashboard.html', icon: 'dashboard' },
         { label: 'Timetable', href: 'Timetable.html', icon: 'event_note' },

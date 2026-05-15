@@ -12,6 +12,7 @@
     rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
   <link href="shared-nav.css" rel="stylesheet" />
   <script src="shared-theme.js"></script>
@@ -231,6 +232,7 @@
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
     let currentSession = null;
+    const resolveUserRole = user => GymflowRoles.resolveUserRole(supabaseClient, user);
 
     //Fetch the Data
     async function loadSubscriptionData() {
@@ -239,6 +241,8 @@
       const logoutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
 
       if (!session) {
+        GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'dashboard.html' });
+
         if (logoutLabel) logoutLabel.innerText = 'Sign In';
 
         document.getElementById('nav-user-name').innerText = 'Guest';
@@ -261,6 +265,8 @@
       if (logoutLabel) logoutLabel.innerText = 'Sign Out';
 
       const realUserId = session.user.id;
+      const resolvedRole = await resolveUserRole(session.user);
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: resolvedRole, activeHref: 'dashboard.html' });
       const urlParams = new URLSearchParams(window.location.search);
 
       if (urlParams.get('success') === 'true') {
@@ -390,12 +396,9 @@ if (data) {
   document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
   document.getElementById('calories-display').innerText = `${data.calories_burnt || 0} Kcal`;
 
-  // --- TRAINER/STAFF LOGIC ---
-  if (data.role === 'trainer') {
+  if (resolvedRole !== 'member') {
     document.documentElement.style.setProperty('--primary-color', '#00E0FF');
     document.getElementById('nav-user-plan').innerText = 'STAFF';
-    
-    GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'dashboard.html' });
   }
 }
     }
@@ -535,7 +538,6 @@ if (data) {
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'dashboard.html' });
       GymflowNav.initMenuNav();
       loadSubscriptionData();
       loadUpcomingClasses();

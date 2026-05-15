@@ -1,14 +1,16 @@
 (function registerGymflowRoleHelpers(global) {
-  const VALID_ROLES = new Set(['admin', 'trainer', 'member']);
+  const VALID_ROLES = new Set(['admin', 'staff', 'trainer', 'member']);
 
   function normalizeRole(value) {
     const role = String(value || '').toLowerCase();
-    return VALID_ROLES.has(role) ? role : null;
+    if (!VALID_ROLES.has(role)) return null;
+    return role === 'staff' ? 'admin' : role;
   }
 
   function getHomeRoute(role) {
-    if (role === 'admin') return 'assign-trainer.html';
-    if (role === 'trainer') return 'trainer-schedule.html';
+    const normalizedRole = normalizeRole(role) || 'member';
+    if (normalizedRole === 'admin') return 'assign-trainer.html';
+    if (normalizedRole === 'trainer') return 'trainer-schedule.html';
     return 'dashboard.html';
   }
 
