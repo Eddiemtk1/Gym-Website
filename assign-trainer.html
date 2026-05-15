@@ -45,7 +45,7 @@
           <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
               <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
-              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
+              <p id="header-role-label" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Admin</p>
             </div>
             <div class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
               <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
@@ -236,17 +236,21 @@
 
     // Header user info
     async function loadHeader() {
-      const { data: profile } = await db.from('profiles').select('name, avatar_url').eq('user_id', currentUser.id).single();
-      if (!profile) return;
-      const name = profile.name || currentUser.email;
-      document.getElementById('header-name').textContent = name;
-      document.getElementById('header-avatar-initial').textContent = name.charAt(0).toUpperCase();
-      if (profile.avatar_url) {
-        const img = document.getElementById('header-avatar-img');
-        img.src = profile.avatar_url;
-        img.classList.remove('hidden');
-        document.getElementById('header-avatar-initial').classList.add('hidden');
-      }
+      const { data: profile } = await db
+        .from('profiles')
+        .select('name, avatar_url')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      GymflowNav.applyProfileMini({
+        nameId: 'header-name',
+        subtitleId: 'header-role-label',
+        avatarImgId: 'header-avatar-img',
+        avatarInitialId: 'header-avatar-initial',
+        name: profile?.name || currentUser.email || 'Admin',
+        subtitle: GymflowNav.getRoleLabel(currentRole),
+        avatarUrl: profile?.avatar_url,
+      });
     }
 
     // Load classes and trainers

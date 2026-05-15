@@ -133,9 +133,14 @@
 
     async function loadProfile() {
       if (!currentUser) {
-        document.getElementById('nav-user-name').innerText = 'Guest';
-        document.getElementById('nav-user-plan').innerText = 'Public View';
-        document.getElementById('nav-avatar-initial').innerText = 'G';
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          avatarInitialId: 'nav-avatar-initial',
+          name: 'Guest',
+          subtitle: 'Public View',
+        });
         const logoutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
         if (logoutLabel) logoutLabel.innerText = 'Sign In';
         return;
@@ -145,25 +150,33 @@
       if (error) console.error("Profile Load Error:", error);
 
       if (profile) {
-        document.getElementById('nav-user-name').innerText = profile.name || 'Member';
-        document.getElementById('nav-user-plan').innerText = profile.plan_name || 'GUEST PASS';
-        document.getElementById('nav-avatar-initial').innerText = (profile.name || 'M').charAt(0).toUpperCase();
-
-        if (profile.avatar_url) {
-          const img = document.getElementById('nav-user-avatar');
-          img.src = profile.avatar_url;
-          img.classList.remove('hidden');
-          document.getElementById('nav-avatar-initial').classList.add('hidden');
-        }
+        const miniSubtitle = currentRole !== 'member' ? 'Staff' : (profile.plan_name || 'Member');
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          avatarInitialId: 'nav-avatar-initial',
+          name: profile.name || currentUser.email || 'Member',
+          subtitle: miniSubtitle,
+          avatarUrl: profile.avatar_url,
+        });
 
         if (currentRole !== 'member') {
           GymflowTheme.applyStaffAccent();
-          document.getElementById('nav-user-plan').innerText = 'STAFF';
 
           if (currentRole === 'admin') {
             document.getElementById('trainer-actions').classList.remove('hidden');
           }
         }
+      } else {
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          avatarInitialId: 'nav-avatar-initial',
+          name: currentUser.email || 'Member',
+          subtitle: GymflowNav.getRoleLabel(currentRole),
+        });
       }
     }
 

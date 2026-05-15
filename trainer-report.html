@@ -45,7 +45,7 @@
           <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
               <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
-              <p class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
+              <p id="header-role-label" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
             </div>
             <div class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
               <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
@@ -247,17 +247,15 @@
         .eq('user_id', currentUser.id)
         .maybeSingle();
 
-      if (!profile) return;
-
-      const name = profile.name || currentUser.email;
-      ui.headerName.textContent = name;
-      ui.headerAvatarInitial.textContent = name.charAt(0).toUpperCase();
-
-      if (profile.avatar_url) {
-        ui.headerAvatarImg.src = profile.avatar_url;
-        ui.headerAvatarImg.classList.remove('hidden');
-        ui.headerAvatarInitial.classList.add('hidden');
-      }
+      GymflowNav.applyProfileMini({
+        nameId: 'header-name',
+        subtitleId: 'header-role-label',
+        avatarImgId: 'header-avatar-img',
+        avatarInitialId: 'header-avatar-initial',
+        name: profile?.name || currentUser.email || 'Member',
+        subtitle: GymflowNav.getRoleLabel(currentRole),
+        avatarUrl: profile?.avatar_url,
+      });
     }
 
     function getDateRange(rangeKey) {

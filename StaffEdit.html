@@ -197,16 +197,17 @@
         .from('profiles')
         .select('name, avatar_url')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (profile) {
-        document.getElementById('header-name').textContent = profile.name || 'Staff Team';
-        if (profile.avatar_url) {
-          document.getElementById('header-avatar-img').src = profile.avatar_url;
-          document.getElementById('header-avatar-img').classList.remove('hidden');
-          document.getElementById('header-avatar-initial').classList.add('hidden');
-        }
-      }
+      GymflowNav.applyProfileMini({
+        nameId: 'header-name',
+        subtitleId: 'header-plan',
+        avatarImgId: 'header-avatar-img',
+        avatarInitialId: 'header-avatar-initial',
+        name: profile?.name || session.user.email || 'Staff Team',
+        subtitle: 'Admin Access',
+        avatarUrl: profile?.avatar_url,
+      });
 
       fetchStaffSchedule();
     }

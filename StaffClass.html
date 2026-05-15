@@ -183,18 +183,23 @@
       const session = await GymflowSupabase.getSession(db);
       if (!session) return window.location.replace('login.html');
       
-      const { data: profile } = await db.from('profiles').select('*').eq('user_id', session.user.id).single();
+      const { data: profile } = await db
+        .from('profiles')
+        .select('name, avatar_url')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
       GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'admin', activeHref: 'StaffClass.html' });
       GymflowNav.initMenuNav();
-      
-      if (profile) {
-        document.getElementById('header-name').textContent = profile.name || 'Staff Team';
-        if (profile.avatar_url) {
-          document.getElementById('header-avatar-img').src = profile.avatar_url;
-          document.getElementById('header-avatar-img').classList.remove('hidden');
-          document.getElementById('header-avatar-initial').classList.add('hidden');
-        }
-      }
+
+      GymflowNav.applyProfileMini({
+        nameId: 'header-name',
+        subtitleId: 'header-plan',
+        avatarImgId: 'header-avatar-img',
+        avatarInitialId: 'header-avatar-initial',
+        name: profile?.name || session.user.email || 'Staff Team',
+        subtitle: 'Admin Access',
+        avatarUrl: profile?.avatar_url,
+      });
     }
 
     function toggleSpecialties() {

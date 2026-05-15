@@ -146,9 +146,13 @@
       if (!session) {
         GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'membership.html' });
 
-        document.getElementById('nav-user-name').innerText = 'Guest';
-        document.getElementById('nav-user-plan').innerText = 'Public View';
-        document.getElementById('nav-user-avatar').src = '';
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          name: 'Guest',
+          subtitle: 'Public View',
+        });
         if (signOutLabel) signOutLabel.innerText = 'Sign In';
       } else {
         const realUserId = session.user.id;
@@ -165,14 +169,27 @@
           console.error("Error fetching user data:", userError.message);
         } else if (data) {
           userData = data;
-          document.getElementById('nav-user-name').innerText = userData.name || "Member";
-          document.getElementById('nav-user-plan').innerText = userData.plan_name || "GUEST PASS";
-          if (userData.avatar_url) document.getElementById('nav-user-avatar').src = userData.avatar_url;
+          const miniSubtitle = resolvedRole !== 'member' ? 'Staff' : (userData.plan_name || 'Member');
+          GymflowNav.applyProfileMini({
+            nameId: 'nav-user-name',
+            subtitleId: 'nav-user-plan',
+            avatarImgId: 'nav-user-avatar',
+            name: userData.name || session.user.email || 'Member',
+            subtitle: miniSubtitle,
+            avatarUrl: userData.avatar_url,
+          });
 
           if (resolvedRole !== 'member') {
             GymflowTheme.applyStaffAccent();
-            document.getElementById('nav-user-plan').innerText = 'STAFF';
           }
+        } else {
+          GymflowNav.applyProfileMini({
+            nameId: 'nav-user-name',
+            subtitleId: 'nav-user-plan',
+            avatarImgId: 'nav-user-avatar',
+            name: session.user.email || 'Member',
+            subtitle: GymflowNav.getRoleLabel(resolvedRole),
+          });
         }
       }
 

@@ -261,7 +261,7 @@
       const trainersNavLink = document.getElementById('trainers-nav-link');
       const roleLabel = document.getElementById('header-role-label');
 
-      roleLabel.textContent = role;
+      roleLabel.textContent = GymflowNav.getRoleLabel(role);
 
       if (role === 'member') {
         trainersNavLink.classList.add('hidden');
@@ -293,15 +293,16 @@
       const avatarUrl = profile.avatar_url || '';
 
       // Header
-      document.getElementById('header-name').textContent = name;
       const initial = name.charAt(0).toUpperCase();
-      document.getElementById('header-avatar-initial').textContent = initial;
-      if (avatarUrl) {
-        const hImg = document.getElementById('header-avatar-img');
-        hImg.src = avatarUrl;
-        hImg.classList.remove('hidden');
-        document.getElementById('header-avatar-initial').classList.add('hidden');
-      }
+      GymflowNav.applyProfileMini({
+        nameId: 'header-name',
+        subtitleId: 'header-role-label',
+        avatarImgId: 'header-avatar-img',
+        avatarInitialId: 'header-avatar-initial',
+        name,
+        subtitle: GymflowNav.getRoleLabel(currentRole),
+        avatarUrl,
+      });
 
       // Avatar card
       document.getElementById('card-name').textContent = name;

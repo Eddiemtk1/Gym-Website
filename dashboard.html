@@ -244,9 +244,13 @@
 
         if (logoutLabel) logoutLabel.innerText = 'Sign In';
 
-        document.getElementById('nav-user-name').innerText = 'Guest';
-        document.getElementById('nav-user-plan').innerText = 'Public View';
-        document.getElementById('nav-user-avatar').src = '';
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          name: 'Guest',
+          subtitle: 'Public View',
+        });
 
         document.getElementById("mem-status").innerText = 'SIGN IN';
         document.getElementById("sub-plan").innerText = 'STARTER';
@@ -353,10 +357,15 @@
 
       // Inject the Data into the HTML
 if (data) {
-  // Update name mapping to match the new profiles table
-  document.getElementById('nav-user-name').innerText = data.name;
-  document.getElementById('nav-user-plan').innerText = data.plan_name || 'MEMBER';
-  if (data.avatar_url) document.getElementById('nav-user-avatar').src = data.avatar_url;
+  const miniSubtitle = resolvedRole !== 'member' ? 'Staff' : (data.plan_name || 'Member');
+  GymflowNav.applyProfileMini({
+    nameId: 'nav-user-name',
+    subtitleId: 'nav-user-plan',
+    avatarImgId: 'nav-user-avatar',
+    name: data.name || session.user.email || 'Member',
+    subtitle: miniSubtitle,
+    avatarUrl: data.avatar_url,
+  });
 
   document.getElementById("mem-status").innerText = data.status || 'PENDING';
   document.getElementById("sub-plan").innerText = data.plan_name || 'GUEST PASS';
@@ -382,8 +391,15 @@ if (data) {
 
   if (resolvedRole !== 'member') {
     GymflowTheme.applyStaffAccent();
-    document.getElementById('nav-user-plan').innerText = 'STAFF';
   }
+} else {
+  GymflowNav.applyProfileMini({
+    nameId: 'nav-user-name',
+    subtitleId: 'nav-user-plan',
+    avatarImgId: 'nav-user-avatar',
+    name: session.user.email || 'Member',
+    subtitle: GymflowNav.getRoleLabel(resolvedRole),
+  });
 }
     }
 

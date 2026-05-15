@@ -1,4 +1,54 @@
 (function registerGymflowNav(global) {
+  function getRoleLabel(role) {
+    const resolvedRole = normalizeRole(role);
+    if (resolvedRole === 'admin') return 'Admin';
+    if (resolvedRole === 'trainer') return 'Trainer';
+    return 'Member';
+  }
+
+  function getAvatarInitial(name) {
+    const text = String(name || '').trim();
+    return text ? text.charAt(0).toUpperCase() : 'M';
+  }
+
+  function getDefaultAvatarDataUri(initial) {
+    const safeInitial = (String(initial || 'M').match(/[A-Za-z0-9]/) || ['M'])[0].toUpperCase();
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' fill='#131313'/><circle cx='40' cy='40' r='38' fill='#1a1a1a' stroke='#00E0FF' stroke-width='2'/><text x='40' y='52' text-anchor='middle' font-family='Inter,Arial,sans-serif' font-size='30' font-weight='700' fill='#00E0FF'>${safeInitial}</text></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  }
+
+  function applyProfileMini(options) {
+    const opts = options || {};
+    const nameEl = opts.nameId ? document.getElementById(opts.nameId) : null;
+    const subtitleEl = opts.subtitleId ? document.getElementById(opts.subtitleId) : null;
+    const avatarImgEl = opts.avatarImgId ? document.getElementById(opts.avatarImgId) : null;
+    const avatarInitialEl = opts.avatarInitialId ? document.getElementById(opts.avatarInitialId) : null;
+
+    const fallbackName = String(opts.fallbackName || 'Member');
+    const displayName = String(opts.name || fallbackName).trim() || fallbackName;
+    const displaySubtitle = opts.subtitle;
+    const avatarUrl = String(opts.avatarUrl || '').trim();
+    const avatarInitial = getAvatarInitial(displayName);
+
+    if (nameEl) {
+      nameEl.textContent = displayName;
+    }
+
+    if (subtitleEl && typeof displaySubtitle === 'string') {
+      subtitleEl.textContent = displaySubtitle;
+    }
+
+    if (avatarImgEl) {
+      avatarImgEl.src = avatarUrl || getDefaultAvatarDataUri(avatarInitial);
+      avatarImgEl.classList.remove('hidden');
+    }
+
+    if (avatarInitialEl) {
+      avatarInitialEl.textContent = avatarInitial;
+      avatarInitialEl.classList.add('hidden');
+    }
+  }
+
   function normalizeRole(role) {
     const value = String(role || 'member').toLowerCase();
     if (value === 'staff') return 'admin';
@@ -141,8 +191,11 @@
   }
 
   global.GymflowNav = {
+    normalizeRole,
+    getRoleLabel,
     getRoleLinks,
     getPublicLinks,
+    applyProfileMini,
     renderLinks,
     renderRoleMenu,
     renderPublicMenu,
