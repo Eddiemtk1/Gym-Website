@@ -65,3 +65,15 @@
   opacity: 1;
   transform: translateX(2px);
 }
+
+.site-nav-link.is-active {
+  color: #fff;
+  border-color: rgba(0, 224, 255, 0.55);
+  background: rgba(0, 224, 255, 0.08);
+}
+
+.site-nav-link.emphasis {
+  color: var(--primary-color, #00E0FF);
+  border-color: rgba(0, 224, 255, 0.4);
+  background: rgba(0, 224, 255, 0.08);
+}

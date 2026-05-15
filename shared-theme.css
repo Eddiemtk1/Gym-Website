@@ -1,0 +1,7 @@
+:root {
+  --primary-color: #00E0FF;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" var(--material-symbol-fill, 0), "wght" 400, "GRAD" 0, "opsz" 24;
+}

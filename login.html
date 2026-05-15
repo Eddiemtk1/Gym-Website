@@ -9,27 +9,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth-role.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="shared-theme.js"></script>
   <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#00E0FF",
-            "on-primary": "#0e0e0e",
-            "background": "#0e0e0e",
-            "surface": "#131313",
-            "surface-variant": "#1a1a1a",
-            "outline": "#404040",
-            "on-surface": "#ffffff",
-            "on-surface-variant": "#a3a3a3",
-          },
-          fontFamily: { "headline": ["Lexend"], "body": ["Inter"] },
-          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
-        },
-      },
-    }
+    applyGymflowTailwindConfig();
   </script>
+  <link href="shared-theme.css" rel="stylesheet">
 </head>
 
 <body class="bg-background text-on-surface font-body antialiased">
