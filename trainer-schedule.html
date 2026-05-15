@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth-role.js"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -33,7 +35,7 @@
   </script>
   <style>
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    .site-nav-link.is-active { color: #fff; border-color: rgba(215, 255, 0, 0.55); background: rgba(215, 255, 0, 0.08); }
   </style>
 </head>
 
@@ -42,40 +44,23 @@
     <div class="flex h-full grow flex-col">
 
       <!-- Header -->
-      <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-        <div class="flex items-center gap-12">
-          <div class="flex items-center gap-4 text-primary">
+      <header class="site-nav sticky top-0 z-50 relative">
+        <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+          <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
             <div class="size-6">
               <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
               </svg>
             </div>
             <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
-          </div>
-          <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-              <span class="text-xs uppercase tracking-widest">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
-              <span class="material-symbols-outlined" style="font-size: 20px;">fitness_center</span>
-              <span class="text-xs uppercase tracking-widest">Workouts</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="#">
-              <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
-              <span class="text-xs uppercase tracking-widest">Classes</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="trainer-schedule.html">
-              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">manage_accounts</span>
-              <span class="text-xs uppercase tracking-widest">Trainers</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
-              <span class="text-xs uppercase tracking-widest">Settings</span>
-            </a>
-          </nav>
-        </div>
-        <div class="flex items-center gap-6">
+          </a>
+
+          <div class="flex items-center gap-3">
+            <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+              <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+              <span>Menu</span>
+            </button>
+
           <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
               <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
@@ -91,6 +76,11 @@
             <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
             <span class="hidden sm:inline">Sign out</span>
           </button>
+        </div>
+        </div>
+
+        <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+          <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
         </div>
       </header>
 
@@ -308,6 +298,8 @@
       await db.auth.signOut(); window.location.replace('login.html');
     });
 
+    GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'trainer-schedule.html' });
+    GymflowNav.initMenuNav();
     init();
   </script>
 </body>

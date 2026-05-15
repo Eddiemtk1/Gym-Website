@@ -11,6 +11,8 @@
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet">
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -41,9 +43,16 @@
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
 
-    .glass-nav {
-      background: rgba(14, 14, 14, 0.8);
-      backdrop-filter: blur(12px);
+    .site-nav-link.is-active {
+      color: #fff;
+      border-color: rgba(215, 255, 0, 0.55);
+      background: rgba(215, 255, 0, 0.08);
+    }
+
+    .site-nav-link.emphasis {
+      color: var(--primary-color, #D7FF00);
+      border-color: rgba(0, 224, 255, 0.4);
+      background: rgba(0, 224, 255, 0.08);
     }
   </style>
 </head>
@@ -52,10 +61,9 @@
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
 
-      <header
-        class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-        <div class="flex items-center gap-12">
-          <div class="flex items-center gap-4 text-primary">
+      <header class="site-nav sticky top-0 z-50 relative">
+        <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+          <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
             <div class="size-6">
               <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path clip-rule="evenodd"
@@ -64,36 +72,16 @@
               </svg>
             </div>
             <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
-          </div>
+          </a>
 
-          <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="dashboard.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-              <span class="text-xs uppercase tracking-widest">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all"
-              href="membership.html">
-              <span class="material-symbols-outlined"
-                style="font-variation-settings: 'FILL' 1; font-size: 20px;">card_membership</span>
-              <span class="text-xs uppercase tracking-widest">Memberships</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="Timetable.html">
-              <span class="material-symbols-outlined" style="font-size: 20px">event_note</span>
-              <span class="text-xs uppercase tracking-widest">Timetable</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="profile.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
-              <span class="text-xs uppercase tracking-widest">Profile</span>
-            </a>
-          </nav>
-        </div>
-        <div class="flex items-center gap-6">
+          <div class="flex items-center gap-3">
+            <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+              <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+              <span>Menu</span>
+            </button>
 
           <!-- Profile Mini -->
-          <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
+          <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-3 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
               <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
                 ...
@@ -105,13 +93,18 @@
             <div class="size-8 rounded-full border border-primary overflow-hidden">
               <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
             </div>
-          </div>
+          </a>
           
           <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
             <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
             <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
           </button>
-        
+
+        </div>
+        </div>
+
+        <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+          <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
         </div>
       </header>
 
@@ -177,59 +170,42 @@
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    let currentSession = null;
 
     async function loadPageData() {
       const { data: { session } } = await supabaseClient.auth.getSession();
+      currentSession = session || null;
+
+      const signOutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
+      let userData = null;
 
       if (!session) {
-        window.location.href = 'login.html';
-        return;
-      }
+        document.getElementById('nav-user-name').innerText = 'Guest';
+        document.getElementById('nav-user-plan').innerText = 'Public View';
+        document.getElementById('nav-user-avatar').src = '';
+        if (signOutLabel) signOutLabel.innerText = 'Sign In';
+      } else {
+        const realUserId = session.user.id;
 
-      const realUserId = session.user.id;
+        const { data, error: userError } = await supabaseClient
+          .from("profiles")
+          .select("name, role, plan_name, avatar_url")
+          .eq("user_id", realUserId)
+          .single();
 
-      // ADDED 'role' to the select query
-      const { data: userData, error: userError } = await supabaseClient
-        .from("profiles")
-        .select("name, role, plan_name, avatar_url")
-        .eq("user_id", realUserId)
-        .single();
+        if (userError) {
+          console.error("Error fetching user data:", userError.message);
+        } else if (data) {
+          userData = data;
+          document.getElementById('nav-user-name').innerText = userData.name || "Member";
+          document.getElementById('nav-user-plan').innerText = userData.plan_name || "GUEST PASS";
+          if (userData.avatar_url) document.getElementById('nav-user-avatar').src = userData.avatar_url;
 
-      if (userError) {
-        console.error("Error fetching user data:", userError.message);
-      } else if (userData) {
-        // FIXED: Now uses the unified 'name' column
-        document.getElementById('nav-user-name').innerText = userData.name || "Member";
-        document.getElementById('nav-user-plan').innerText = userData.plan_name || "GUEST PASS";
-        if(userData.avatar_url) document.getElementById('nav-user-avatar').src = userData.avatar_url;
+          if (userData.role === 'trainer') {
+            document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+            document.getElementById('nav-user-plan').innerText = 'STAFF';
 
-        // --- TRAINER/STAFF OVERRIDE ---
-        if (userData.role === 'trainer') {
-          // Change Theme
-          document.documentElement.style.setProperty('--primary-color', '#00E0FF');
-          document.getElementById('nav-user-plan').innerText = 'STAFF';
-          
-          // Overwrite the Nav Menu
-          const navMenu = document.getElementById('main-nav');
-          if(navMenu) {
-            navMenu.innerHTML = `
-              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-                <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-                <span class="text-xs uppercase tracking-widest">Dashboard</span>
-              </a>
-              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="Timetable.html">
-                <span class="material-symbols-outlined" style="font-size: 20px;">event_note</span>
-                <span class="text-xs uppercase tracking-widest">Timetable</span>
-              </a>
-              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="trainer-report.html">
-                <span class="material-symbols-outlined" style="font-size: 20px;">assessment</span>
-                <span class="text-xs uppercase tracking-widest">Trainer Report</span>
-              </a>
-              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
-                <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
-                <span class="text-xs uppercase tracking-widest">Profile</span>
-              </a>
-            `;
+            GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'membership.html' });
           }
         }
       }
@@ -260,7 +236,13 @@
 
         const buttonHTML = isActive
           ? `<button disabled class="w-full py-4 bg-black text-primary font-headline font-black text-xs tracking-widest uppercase transition-all">CURRENT PLAN</button>`
-          : `<button onclick="window.location.href='membership_checkout.html?plan=${plan.name.toLowerCase()}'" class="w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">ACTIVATE</button>`;
+          : (() => {
+              const activateUrl = session
+                ? `membership_checkout.html?plan=${plan.name.toLowerCase()}`
+                : 'register.html';
+              const activateText = session ? 'ACTIVATE' : 'SIGN IN TO ACTIVATE';
+              return `<button onclick="window.location.href='${activateUrl}'" class="w-full py-4 bg-black/20 font-headline font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">${activateText}</button>`;
+            })();
 
         // Shows the benefits
         let benefitsHTML = '';
@@ -307,12 +289,21 @@
       });
     }
 
-    document.addEventListener("DOMContentLoaded", loadPageData);
+    document.addEventListener("DOMContentLoaded", () => {
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'membership.html' });
+      GymflowNav.initMenuNav();
+      loadPageData();
+    });
 
     //Sign Out button
     document.getElementById('logout-btn').addEventListener('click', async () => {
+      if (!currentSession) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       await supabaseClient.auth.signOut();
-      window.location.href = 'login.html'; 
+      window.location.href = 'login.html';
     });
   </script>
 

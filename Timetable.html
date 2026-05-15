@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet">
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -33,7 +35,8 @@
   <style>
     :root { --primary-color: #D7FF00; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
+    .site-nav-link.is-active { color: #fff; border-color: rgba(215, 255, 0, 0.55); background: rgba(215, 255, 0, 0.08); }
+    .site-nav-link.emphasis { color: var(--primary-color, #D7FF00); border-color: rgba(0, 224, 255, 0.4); background: rgba(0, 224, 255, 0.08); }
     .timetable-grid { display: grid; grid-template-columns: 80px 1fr; }
     .book-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .book-btn:not(:disabled):hover { letter-spacing: 0.2em; transform: scale(1.05); }
@@ -58,39 +61,23 @@
     </div>
   </div>
   <div class="min-h-screen flex flex-col">
-    <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-      
-      <div class="flex items-center gap-12">
-        <div class="flex items-center gap-4 text-primary">
+    <header class="site-nav sticky top-0 z-50 relative">
+      <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+        <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
           <div class="size-6">
             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
             </svg>
           </div>
           <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
-        </div>
+        </a>
 
-        <nav id="main-nav" class="hidden md:flex items-center h-10">
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-            <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-            <span class="text-xs uppercase tracking-widest">Dashboard</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="membership.html">
-            <span class="material-symbols-outlined" style="font-size: 20px;">card_membership</span>
-            <span class="text-xs uppercase tracking-widest">Memberships</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="Timetable.html">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">event_note</span>
-            <span class="text-xs uppercase tracking-widest">Timetable</span>
-          </a>
-          <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
-            <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
-            <span class="text-xs uppercase tracking-widest">Profile</span>
-          </a>
-        </nav>
-      </div>
+        <div class="flex items-center gap-3">
+          <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+            <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+            <span>Menu</span>
+          </button>
 
-      <div class="flex items-center gap-6">
         <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
           <div class="text-right">
             <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
@@ -106,6 +93,11 @@
           <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
           <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
         </button>
+      </div>
+      </div>
+
+      <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+        <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
       </div>
     </header>
 
@@ -151,16 +143,25 @@
 
     async function init() {
       const { data: { session }, error: sessionError } = await db.auth.getSession();
-      if (sessionError || !session) {
-        window.location.href = 'login.html';
-        return;
+      if (sessionError) {
+        console.error('Session check failed:', sessionError.message);
       }
-      currentUser = session.user;
+
+      currentUser = session?.user || null;
       await loadProfile();
       await fetchAndRenderTimetable();
     }
 
     async function loadProfile() {
+      if (!currentUser) {
+        document.getElementById('nav-user-name').innerText = 'Guest';
+        document.getElementById('nav-user-plan').innerText = 'Public View';
+        document.getElementById('nav-avatar-initial').innerText = 'G';
+        const logoutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
+        if (logoutLabel) logoutLabel.innerText = 'Sign In';
+        return;
+      }
+
       const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
       if (error) console.error("Profile Load Error:", error);
 
@@ -182,27 +183,7 @@
           document.getElementById('nav-user-plan').innerText = 'STAFF';
           document.getElementById('trainer-actions').classList.remove('hidden');
 
-          const navMenu = document.getElementById('main-nav');
-          if (navMenu) {
-            navMenu.innerHTML = `
-              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="dashboard.html">
-                <span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
-                <span class="text-xs uppercase tracking-widest">Dashboard</span>
-              </a>
-              <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all" href="Timetable.html">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">event_note</span>
-                <span class="text-xs uppercase tracking-widest">Timetable</span>
-              </a>
-              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="trainer-report.html">
-                <span class="material-symbols-outlined" style="font-size: 20px;">assessment</span>
-                <span class="text-xs uppercase tracking-widest">Trainer Report</span>
-              </a>
-              <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all" href="profile.html">
-                <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
-                <span class="text-xs uppercase tracking-widest">Profile</span>
-              </a>
-            `;
-          }
+          GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'Timetable.html' });
         }
       }
     }
@@ -212,10 +193,16 @@
 
       // 1. Fetch classes and current user's bookings
       const { data: classes, error } = await db.from('gym_classes').select('*').order('date', { ascending: true });
-      const { data: myBookings } = await db.from('class_bookings').select('class_id').eq('user_id', currentUser.id);
-      
-      // Create a simple list of IDs the user has booked
-      const bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
+      let bookedIds = [];
+
+      if (currentUser) {
+        const { data: myBookings } = await db
+          .from('class_bookings')
+          .select('class_id')
+          .eq('user_id', currentUser.id);
+
+        bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
+      }
 
       if (error) {
         container.innerHTML = `<div class="py-20 text-center"><p class="text-red-500 font-bold">Error: ${error.message}</p></div>`;
@@ -247,7 +234,9 @@
           buttonHTML = `<button onclick="viewParticipants('${cls.id}', '${cls.name}')" class="px-6 py-4 border border-primary text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">View Roster</button>`;
         } else {
           // Show Member Buttons
-          if (isBooked) {
+          if (!currentUser) {
+             buttonHTML = `<button onclick="window.location.href='login.html'" class="px-6 py-4 border border-primary/40 text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">Sign In to Book</button>`;
+          } else if (isBooked) {
              buttonHTML = `<button onclick="cancelBooking('${cls.id}', ${cls.capacity})" class="px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all bg-red-600/20 text-red-500 border border-red-500/50 hover:bg-red-600 hover:text-white">Remove Booking</button>`;
           } else if (isFull) {
              buttonHTML = `<button disabled class="px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all bg-zinc-800 text-zinc-500 cursor-not-allowed">Class Full</button>`;
@@ -283,6 +272,11 @@
     }
 
     async function bookClass(classId, capacity) {
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       if (capacity <= 0) return;
       // Fetch the user's name directly from the navigation bar so we don't have to change your variables!
       const userName = document.getElementById('nav-user-name').innerText; 
@@ -299,6 +293,11 @@
     }
 
     async function cancelBooking(classId, capacity) {
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       await db.from('class_bookings').delete().match({ class_id: classId, user_id: currentUser.id });
       await db.from('gym_classes').update({ capacity: capacity + 1 }).eq('id', classId);
       fetchAndRenderTimetable();
@@ -333,10 +332,17 @@
     }
 
     document.getElementById('logout-btn').addEventListener('click', async () => {
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       await db.auth.signOut();
       window.location.href = 'login.html';
     });
 
+    GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'Timetable.html' });
+    GymflowNav.initMenuNav();
     init();
   </script>
 </body>

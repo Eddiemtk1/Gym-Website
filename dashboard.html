@@ -12,13 +12,15 @@
     rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet" />
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
           colors: {
-            primary: "#D7FF00",
+            primary: "var(--primary-color, #D7FF00)",
             "on-primary": "#0e0e0e",
             background: "#0e0e0e",
             surface: "#131313",
@@ -51,13 +53,16 @@
         "opsz" 24;
     }
 
-    .glass-nav {
-      background: rgba(14, 14, 14, 0.8);
-      backdrop-filter: blur(12px);
+    .site-nav-link.is-active {
+      color: #fff;
+      border-color: rgba(215, 255, 0, 0.55);
+      background: rgba(215, 255, 0, 0.08);
     }
 
-    .kinetic-gradient {
-      background: #d7ff00;
+    .site-nav-link.emphasis {
+      color: var(--primary-color, #D7FF00);
+      border-color: rgba(0, 224, 255, 0.4);
+      background: rgba(0, 224, 255, 0.08);
     }
   </style>
 </head>
@@ -66,10 +71,9 @@
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
       <!-- Header -->
-      <header
-        class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-        <div class="flex items-center gap-12">
-          <div class="flex items-center gap-4 text-primary">
+      <header class="site-nav sticky top-0 z-50 relative">
+        <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+          <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
             <div class="size-6">
               <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path clip-rule="evenodd"
@@ -80,41 +84,16 @@
             <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">
               GYMFLOW
             </h2>
-          </div>
+          </a>
 
-          <!-- Horizontal Navigation -->
-          <nav class="hidden md:flex items-center h-10">
-            <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary font-bold transition-all"
-              href="dashboard.html">
-              <span class="material-symbols-outlined" style="
-                    font-variation-settings: &quot;FILL&quot; 1;
-                    font-size: 20px;
-                  ">dashboard</span>
-              <span class="text-xs uppercase tracking-widest">Dashboard</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="membership.html">
-              <span class="material-symbols-outlined" style="font-size: 20px">card_membership</span>
-              <span class="text-xs uppercase tracking-widest">Memberships</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="#">
-              <span class="material-symbols-outlined" style="font-size: 20px">calendar_today</span>
-              <span class="text-xs uppercase tracking-widest">Classes</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="assign-trainer.html">
-              <span class="material-symbols-outlined" style="font-size: 20px;">manage_accounts</span>
-              <span class="text-xs uppercase tracking-widest">Trainers</span>
-            </a>
-            <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white hover:bg-surface-variant transition-all"
-              href="#">
-            </a>
-          </nav>
-        </div>
-        <div class="flex items-center gap-6">
+          <div class="flex items-center gap-3">
+            <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+              <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+              <span>Menu</span>
+            </button>
+
           <!-- Profile Mini -->
-          <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
+          <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-3 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
               <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
                 ...
@@ -126,7 +105,18 @@
             <div class="size-8 rounded-full border border-primary overflow-hidden">
               <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
             </div>
-          </div>
+          </a>
+
+          <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
+            <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+            <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
+          </button>
+
+        </div>
+        </div>
+
+        <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+          <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
         </div>
       </header>
       <main class="flex-1 flex flex-col">
@@ -143,8 +133,8 @@
             <div class="flex flex-col items-end gap-2">
               <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Calories burnt this
                 month:</span>
-              <div class="text-5xl font-headline font-black text-primary">
-                6749 Kcal
+              <div id="calories-display" class="text-5xl font-headline font-black text-primary">
+                0 Kcal
               </div>
             </div>
           </div>
@@ -220,14 +210,15 @@
           <!-- Content Rows -->
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
             <!-- Upcoming Classes -->
-           <div class="lg:col-span-3 space-y-6">
+            <div class="lg:col-span-3 space-y-6">
               <div class="flex justify-between items-center border-b border-white/10 pb-4">
                 <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter">
                   Upcoming Classes
                 </h2>
-                <a class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline" href="timetable.html">View All</a>
+                <a class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline"
+                  href="Timetable.html">View All</a>
               </div>
-              
+
               <div id="upcoming-classes-list" class="space-y-4">
                 <p class="text-on-surface-variant text-sm italic py-4">Syncing schedule...</p>
               </div>
@@ -237,7 +228,7 @@
             <div class="lg:col-span-2 space-y-6">
               <div class="bg-surface p-8 space-y-6 border-t-2 border-primary flex flex-col h-full">
                 <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
-                
+
                 <!-- Dynamic List Container -->
                 <div id="pr-list" class="space-y-4 flex-1 overflow-y-auto max-h-[200px] pr-2">
                   <!-- Records will be injected here by JavaScript -->
@@ -247,24 +238,26 @@
                 <!-- ADD NEW PR FORM (Styled like your screenshot) -->
                 <div class="mt-8 pt-8 border-t border-white/10">
                   <h4 class="font-headline text-2xl font-black uppercase italic tracking-tighter mb-6">
-                    LOG NEW <br/><span class="text-primary">RECORD</span>
+                    LOG NEW <br /><span class="text-primary">RECORD</span>
                   </h4>
-                  
+
                   <form id="add-pr-form" class="space-y-5">
                     <div>
-                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Exercise Name</label>
-                      <input type="text" id="pr-name" placeholder="E.G. OVERHEAD PRESS" required 
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Exercise
+                        Name</label>
+                      <input type="text" id="pr-name" placeholder="E.G. OVERHEAD PRESS" required
                         class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary uppercase placeholder:text-white/20">
                     </div>
-                    
+
                     <div>
-                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Weight (KG)</label>
-                      <input type="number" id="pr-weight" placeholder="100" required 
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Weight
+                        (KG)</label>
+                      <input type="number" id="pr-weight" placeholder="100" required
                         class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary placeholder:text-white/20">
                     </div>
-                    
-                    <button type="submit" id="pr-submit-btn" 
-                      class="w-full py-4 mt-2 kinetic-gradient text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all flex justify-center items-center gap-2">
+
+                    <button type="submit" id="pr-submit-btn"
+                      class="w-full py-4 mt-2 bg-primary text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all flex justify-center items-center gap-2">
                       <span>Publish Record</span>
                     </button>
                   </form>
@@ -279,51 +272,88 @@
   </div>
   </div>
   <script>
-    // Initialize Supabase
+    //Contact Supabase
     const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
     const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    let currentSession = null;
 
     //Fetch the Data
     async function loadSubscriptionData() {
       const { data: { session } } = await supabaseClient.auth.getSession();
+      currentSession = session || null;
+      const logoutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
 
-      // 2. If no session exists, stop the script and kick them to the login page
       if (!session) {
-        console.error("No active session found.");
-        window.location.href = 'login.html'; // Make sure this matches your friend's login file name!
+        if (logoutLabel) logoutLabel.innerText = 'Sign In';
+
+        document.getElementById('nav-user-name').innerText = 'Guest';
+        document.getElementById('nav-user-plan').innerText = 'Public View';
+        document.getElementById('nav-user-avatar').src = '';
+
+        document.getElementById("mem-status").innerText = 'SIGN IN';
+        document.getElementById("sub-plan").innerText = 'STARTER';
+        document.getElementById("next-billing").innerText = 'Sign in to track billing';
+        document.getElementById("profile-score-text").innerText = 'Create an account to track progress';
+        document.getElementById("profile-score-bar").style.width = '0%';
+        document.getElementById('workouts-count').innerText = '--';
+        document.getElementById('workouts-trend').innerText = 'Sign in to track';
+        document.getElementById('calories-display').innerText = '0 Kcal';
+        document.getElementById('pr-list').innerHTML =
+          '<p class="text-on-surface-variant text-sm italic">Sign in to log and track personal records.</p>';
         return;
       }
 
-      // 3. Save the real, secure user ID from the session
-      const realUserId = session.user.id;
+      if (logoutLabel) logoutLabel.innerText = 'Sign Out';
 
-      
+      const realUserId = session.user.id;
       const urlParams = new URLSearchParams(window.location.search);
-      
+
       if (urlParams.get('success') === 'true') {
         const upgradedPlan = urlParams.get('new_plan');
-        
+
         if (upgradedPlan) {
-          //Update the database
+          const nextBilling = new Date();
+          nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+          const formattedBillingDate = nextBilling.toISOString().split('T')[0];
+
           const { error: updateError } = await supabaseClient
-            .from('user_subscriptions')
-            .update({ plan_name: upgradedPlan.toUpperCase() })
+            .from('profiles')
+            .update({
+              plan_name: upgradedPlan.toUpperCase(),
+              status: 'ACTIVE',
+              next_billing_date: formattedBillingDate
+            })
             .eq('user_id', realUserId);
 
           if (updateError) {
+            alert("Failed to update database: " + updateError.message);
             console.error("Failed to update plan:", updateError);
           } else {
-            window.location.href = window.location.origin + '/dashboard.html';
+            try {
+              const { data: profile } = await supabaseClient.from('profiles').select('name, email').eq('user_id', realUserId).single();
+              const userName = profile && profile.name ? profile.name.split(' ')[0] : 'Athlete';
+              const userEmail = profile && profile.email ? profile.email : session.user.email;
+
+              // Fire the webhook
+              const { data: funcData, error: funcError } = await supabaseClient.functions.invoke('send-welcome-email', {
+                body: { email: userEmail, name: userName, planName: upgradedPlan.toUpperCase() }
+              });
+
+              if (funcError) console.error("Email Function Error:", funcError);
+            } catch (err) {
+              console.error("Failed to trigger email function:", err);
+            }
+
+            window.location.href = window.location.pathname;
             return;
           }
         }
-        
-        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       const { data, error } = await supabaseClient
-        .from("user_subscriptions")
+        .from("profiles")
         .select("*")
         .eq("user_id", realUserId)
         .single();
@@ -347,13 +377,13 @@
       if (prData && prData.length > 0) {
         const prContainer = document.getElementById('pr-list');
         prContainer.innerHTML = ''; // Clear the "No records found" message
-        
+
         prData.forEach(record => {
 
           let trendHTML = '';
           if (record.previous_weight !== null) {
             const difference = record.weight - record.previous_weight;
-            
+
             if (difference > 0) {
               // They got stronger! Show neon green
               trendHTML = `<span class="text-[10px] font-bold text-primary ml-2 tracking-widest">+${difference}KG</span>`;
@@ -377,42 +407,70 @@
         });
       }
 
-      //Injects the Data into the HTML
-      if (data) {
-        document.getElementById('nav-user-name').innerText = `${data.first_name} ${data.last_name}`;
-        document.getElementById('nav-user-plan').innerText = data.plan_name;
-        document.getElementById('nav-user-avatar').src = data.avatar_url;
+      // Inject the Data into the HTML
+if (data) {
+  // Update name mapping to match the new profiles table
+  document.getElementById('nav-user-name').innerText = data.name;
+  document.getElementById('nav-user-plan').innerText = data.plan_name || 'MEMBER';
+  if (data.avatar_url) document.getElementById('nav-user-avatar').src = data.avatar_url;
 
-        document.getElementById("mem-status").innerText = data.status;
-        document.getElementById("sub-plan").innerText = data.plan_name;
-        document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date}`;
+  document.getElementById("mem-status").innerText = data.status || 'PENDING';
+  document.getElementById("sub-plan").innerText = data.plan_name || 'GUEST PASS';
+  
+  // Use a fallback if next_billing_date doesn't exist yet
+  document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date || 'N/A'}`;
 
-        document.getElementById("profile-score-text").innerText = `${data.profile_score}% Profile Score`;
-        document.getElementById("profile-score-bar").style.width = `${data.profile_score}%`;
+  document.getElementById("profile-score-text").innerText = `${data.profile_score || 0}% Profile Score`;
+  document.getElementById("profile-score-bar").style.width = `${data.profile_score || 0}%`;
 
-        document.getElementById('workouts-count').innerText = data.workouts_this_month;
+  document.getElementById('workouts-count').innerText = data.workouts_this_month || 0;
 
-        let diff = data.workouts_this_month - data.workouts_last_month;
-        let percentChange = (diff / data.workouts_last_month) * 100;
+  // Protect against math errors if last month was 0
+  let lastMonth = data.workouts_last_month || 1; 
+  let diff = (data.workouts_this_month || 0) - (data.workouts_last_month || 0);
+  let percentChange = (diff / lastMonth) * 100;
 
-        let roundedChange = Math.round(percentChange);
-        let sign = roundedChange >= 0 ? '+' : '';
+  let roundedChange = Math.round(percentChange);
+  let sign = roundedChange >= 0 ? '+' : '';
 
-        document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
-      }
+  document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
+  document.getElementById('calories-display').innerText = `${data.calories_burnt || 0} Kcal`;
+
+  // --- TRAINER/STAFF LOGIC ---
+  if (data.role === 'trainer') {
+    document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+    document.getElementById('nav-user-plan').innerText = 'STAFF';
+    
+    GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'dashboard.html' });
+  }
+}
     }
 
-    // --- FETCH UPCOMING CLASSES FOR DASHBOARD ---
+    //////// Fetch upcoming classes ///////
     async function loadUpcomingClasses() {
       const container = document.getElementById('upcoming-classes-list');
 
-      // Fetch the next 3 classes from Supabase
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const currentUser = session?.user || null;
+
+      // get the user's bookings from supabase
+      let bookedIds = [];
+      if (currentUser) {
+        const { data: myBookings } = await supabaseClient
+          .from('class_bookings')
+          .select('class_id')
+          .eq('user_id', currentUser.id);
+
+        bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
+      }
+
+      // Puts the next 3 classes onto dashboard.
       const { data: classes, error } = await supabaseClient
         .from('gym_classes')
         .select('*')
         .order('date', { ascending: true })
         .order('time', { ascending: true })
-        .limit(3); // Only grab the top 3 for the dashboard!
+        .limit(5); 
 
       if (error) {
         console.error("Error fetching classes:", error);
@@ -428,7 +486,7 @@
       container.innerHTML = ''; // Clear the loading text
 
       classes.forEach((cls, index) => {
-        // Format the Date (e.g., "OCT" and "14")
+        // Format the Date
         const [year, month, day] = cls.date.split('-');
         const dateObj = new Date(year, month - 1, day);
         const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
@@ -439,24 +497,25 @@
         let hour = parseInt(hourStr);
         const ampm = hour >= 12 ? 'PM' : 'AM';
         hour = hour % 12;
-        hour = hour ? hour : 12; 
+        hour = hour ? hour : 12;
         const timeFormatted = `${hour.toString().padStart(2, '0')}:${minStr} ${ampm}`;
 
-        // Check if the user already booked this (reads the timetable's local storage)
-        const hasBooked = localStorage.getItem(`booked_${cls.id}`) === 'true';
+        // --- THE REAL DATABASE CHECKS ---
+        const isBooked = bookedIds.includes(cls.id);
         const isFull = cls.capacity <= 0;
 
-        // Apply a primary green border to only the first class in the list
         const borderClass = index === 0 ? 'border-primary' : 'border-transparent';
 
-        // Determine which button to show
+        // Determine which button to show based on the real database!
         let buttonHtml = '';
-        if (hasBooked) {
-          buttonHtml = `<button onclick="toggleDashboardSpot('${cls.id}', ${cls.capacity}, false)" class="px-6 py-2 bg-surface-variant text-white text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all">Cancel</button>`;
+        if (!currentUser) {
+          buttonHtml = `<button onclick="window.location.href='login.html'" class="px-6 py-2 border border-primary/40 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-black transition-all">Sign In to Book</button>`;
+        } else if (isBooked) {
+          buttonHtml = `<button onclick="cancelDashboardBooking('${cls.id}', ${cls.capacity})" class="px-6 py-2 bg-red-600/20 text-red-500 border border-red-500/50 text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">Cancel</button>`;
         } else if (isFull) {
           buttonHtml = `<button disabled class="px-6 py-2 bg-zinc-900 text-zinc-600 text-[10px] font-bold uppercase tracking-widest cursor-not-allowed">Full</button>`;
         } else {
-          buttonHtml = `<button onclick="toggleDashboardSpot('${cls.id}', ${cls.capacity}, true)" class="px-6 py-2 bg-primary text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Book</button>`;
+          buttonHtml = `<button onclick="bookDashboardClass('${cls.id}', ${cls.capacity})" class="px-6 py-2 bg-primary text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Book</button>`;
         }
 
         // Build the HTML card
@@ -484,109 +543,132 @@
       });
     }
 
-    // --- DASHBOARD BOOKING LOGIC ---
-    async function toggleDashboardSpot(classId, currentCapacity, isJoining) {
-      const newCapacity = isJoining ? currentCapacity - 1 : currentCapacity + 1;
-
-      if (isJoining && currentCapacity <= 0) {
-        alert("This class is already full!");
+    // --- DASHBOARD BOOKING LOGIC (Synced with Database) ---
+    async function bookDashboardClass(classId, capacity) {
+      if (capacity <= 0) return;
+      
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html';
         return;
       }
 
-      // Update Supabase
-      const { error } = await supabaseClient
-        .from('gym_classes')
-        .update({ capacity: newCapacity })
-        .eq('id', classId);
+      const userName = document.getElementById('nav-user-name').innerText; 
 
-      if (error) {
-        console.error("Supabase Error:", error);
-        alert("Failed to update spot. Check database connection.");
-      } else {
-        // Save to local memory so both pages know it's booked!
-        if (isJoining) {
-          localStorage.setItem(`booked_${classId}`, 'true');
-        } else {
-          localStorage.removeItem(`booked_${classId}`);
-        }
-        // Refresh the list instantly
-        loadUpcomingClasses();
+      const { error: bookingError } = await supabaseClient.from('class_bookings').insert({
+        class_id: classId,
+        user_id: session.user.id,
+        user_name: userName || 'Member'
+      });
+      
+      if (bookingError) return alert('Booking failed: ' + bookingError.message);
+      
+      await supabaseClient.from('gym_classes').update({ capacity: capacity - 1 }).eq('id', classId);
+      loadUpcomingClasses(); // Instantly refresh the dashboard list
+    }
+
+    async function cancelDashboardBooking(classId, capacity) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
       }
+      
+      await supabaseClient.from('class_bookings').delete().match({ class_id: classId, user_id: session.user.id });
+      await supabaseClient.from('gym_classes').update({ capacity: capacity + 1 }).eq('id', classId);
+      
+      loadUpcomingClasses(); // Instantly refresh the dashboard list
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'dashboard.html' });
+      GymflowNav.initMenuNav();
       loadSubscriptionData();
       loadUpcomingClasses();
     });
 
-    // --- ADD NEW PERSONAL RECORD LOGIC ---
+    ////// Personal records  /////////
     document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
-      event.preventDefault(); 
-      
-      const realUserId = (await supabaseClient.auth.getSession()).data.session.user.id;
-      // Added .trim() so accidental spaces don't create duplicates!
+      event.preventDefault();
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const realUserId = session?.user?.id;
+      if (!realUserId) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       const exerciseName = document.getElementById('pr-name').value.trim().toUpperCase();
-      const exerciseWeight = document.getElementById('pr-weight').value;
+      const exerciseWeight = parseInt(document.getElementById('pr-weight').value); // Added parseInt!
       const btn = document.getElementById('pr-submit-btn');
 
-      // Change button state to loading
       const originalText = btn.innerHTML;
       btn.innerHTML = '<span>PUBLISHING...</span><span class="material-symbols-outlined animate-spin" style="font-size: 20px;">sync</span>';
       btn.disabled = true;
 
-      // 1. Check if this exact exercise already exists for this user
-      const { data: existingRecord, error: checkError } = await supabaseClient
-        .from('personal_records')
-        .select('*')
-        .eq('user_id', realUserId)
-        .eq('exercise_name', exerciseName);
+      try {
+        // Get current calories burnt
+        const { data: currentStats } = await supabaseClient
+          .from('profiles')
+          .select('calories_burnt')
+          .eq('user_id', realUserId)
+          .single();
 
-      if (checkError) {
-        console.error("Error checking record:", checkError);
-        alert("System error verifying record.");
-      } else if (existingRecord && existingRecord.length > 0) {
-        const oldWeight = existingRecord[0].weight;
+        const newCalorieTotal = (currentStats?.calories_burnt || 0) + 150;
 
-        // 2. IT EXISTS! Update the existing row instead of making a duplicate
-        const { error: updateError } = await supabaseClient
+        // Gets current PR
+        const { data: existingRecord } = await supabaseClient
           .from('personal_records')
-          .update({ 
+          .select('*')
+          .eq('user_id', realUserId)
+          .eq('exercise_name', exerciseName)
+          .single(); // returns ONE object!
+
+        // Update or Insert PR
+        if (existingRecord) {
+          await supabaseClient.from('personal_records').update({
             weight: exerciseWeight,
-            previous_weight: oldWeight
-           })
-          .eq('id', existingRecord[0].id);
-
-        if (updateError) {
-          console.error("Error updating:", updateError);
-          alert("Failed to update record.");
-        }
-      } else {
-        // 3. IT DOES NOT EXIST! Insert a brand new row
-        const { error: insertError } = await supabaseClient
-          .from('personal_records')
-          .insert([
+            previous_weight: existingRecord.weight // Removed the [0]
+          }).eq('id', existingRecord.id); // Removed the [0]
+        } else {
+          await supabaseClient.from('personal_records').insert([
             { user_id: realUserId, exercise_name: exerciseName, weight: exerciseWeight }
           ]);
-
-        if (insertError) {
-          console.error("Error inserting:", insertError);
-          alert("Failed to save new record.");
         }
+
+        // 4. Update the Calorie Count in the database
+        await supabaseClient
+          .from('profiles')
+          .update({ calories_burnt: newCalorieTotal })
+          .eq('user_id', realUserId);
+
+        // 5. Refresh UI
+        document.getElementById('pr-name').value = '';
+        document.getElementById('pr-weight').value = '';
+        await loadSubscriptionData();
+
+      } catch (err) {
+        console.error("PR Update Error:", err);
+        alert("Failed to log record. Check console for details.");
+      } finally {
+        // Reset Button State
+        btn.innerHTML = originalText;
+        btn.disabled = false;
       }
-
-      // Clear the form inputs
-      document.getElementById('pr-name').value = '';
-      document.getElementById('pr-weight').value = '';
-      
-      // Reload the data so the UI updates instantly!
-      await loadSubscriptionData(); 
-
-      // Reset button
-      btn.innerHTML = originalText;
-      btn.disabled = false;
     });
 
-</script>
+    // --- SIGN OUT LOGIC ---
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    if (!currentSession) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html'; 
+  });
+
+  </script>
 </body>
 
 </html>

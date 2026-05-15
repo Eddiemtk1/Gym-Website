@@ -6,6 +6,10 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>GYMFLOW | REDEFINE YOUR LIMITS</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth-role.js"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lexend:wght@400;900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   
   <script id="tailwind-config">
@@ -41,8 +45,8 @@
   <style>
     :root { --primary-color: #D7FF00; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
     .kinetic-gradient { background: #D7FF00; }
+    .site-nav-link.is-active { color: #fff; border-color: rgba(215, 255, 0, 0.55); background: rgba(215, 255, 0, 0.08); }
     
     /* Momentum Variant Custom CSS */
     .diagonal-break { clip-path: polygon(0 0, 100% 5%, 100% 100%, 0 95%); }
@@ -73,9 +77,9 @@
     <div class="watermark text-white -rotate-12 whitespace-nowrap">MOTION MOTION MOTION</div>
   </div>
 
-  <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-    <div class="flex items-center gap-12">
-      <a href="index.html" class="flex items-center gap-4 text-primary hover:scale-105 transition-transform">
+  <header class="site-nav sticky top-0 z-50 relative">
+    <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+      <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
         <div class="size-6">
           <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
@@ -84,17 +88,20 @@
         <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
       </a>
 
-      <nav class="hidden md:flex items-center h-10">
-        <a class="flex items-center gap-2 px-6 h-full text-white font-bold transition-all border-b-2 border-primary" href="index.html">
-          <span class="text-xs uppercase tracking-widest">Home</span>
+      <div class="flex items-center gap-3">
+        <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+          <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+          <span>Menu</span>
+        </button>
+
+        <a id="auth-cta" href="register.html" class="px-8 py-3 kinetic-gradient text-on-primary font-headline font-black uppercase text-[10px] md:text-xs tracking-widest hover:brightness-110 hover:scale-105 transition-all">
+          Login / Register
         </a>
-      </nav>
+      </div>
     </div>
 
-    <div class="flex items-center gap-6">
-      <a href="register.html" class="px-8 py-3 kinetic-gradient text-on-primary font-headline font-black uppercase text-[10px] md:text-xs tracking-widest hover:brightness-110 hover:scale-105 transition-all">
-        Login / Register
-      </a>
+    <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+      <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
     </div>
   </header>
 
@@ -310,6 +317,51 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    (() => {
+      GymflowNav.renderPublicMenu({ navId: 'main-nav', activeHref: 'index.html' });
+      GymflowNav.initMenuNav();
+
+      const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR';
+      const authCta = document.getElementById('auth-cta');
+
+      const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+      const getHomeRoute = window.GymflowRoles?.getHomeRoute || (() => 'dashboard.html');
+      const resolveUserRole = async (user) => {
+        if (!window.GymflowRoles?.resolveUserRole || !db) return 'member';
+        return window.GymflowRoles.resolveUserRole(db, user);
+      };
+
+      const syncAuthCta = async () => {
+        if (!authCta || !db) return;
+
+        const { data: { session } } = await db.auth.getSession();
+
+        if (!session) {
+          authCta.href = 'register.html';
+          authCta.innerText = 'Login / Register';
+          return;
+        }
+
+        let role = 'member';
+        try {
+          role = await resolveUserRole(session.user);
+        } catch (err) {
+          console.warn('Role lookup failed on home CTA:', err);
+        }
+
+        authCta.href = getHomeRoute(role) || 'dashboard.html';
+        authCta.innerText = role === 'trainer' || role === 'admin'
+          ? 'Go to Staff Hub'
+          : 'Go to Dashboard';
+      };
+
+      syncAuthCta();
+    })();
+  </script>
 
 </body>
 </html>
