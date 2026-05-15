@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
   <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
   <link href="shared-nav.css" rel="stylesheet">
@@ -113,22 +114,17 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const db = GymflowSupabase.createClient();
 
     const today = new Date();
     document.getElementById('current-week').innerText = `Week of ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
     let currentUser = null;
     let currentRole = 'member';
-    const resolveUserRole = user => GymflowRoles.resolveUserRole(db, user);
+    const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
 
     async function init() {
-      const { data: { session }, error: sessionError } = await db.auth.getSession();
-      if (sessionError) {
-        console.error('Session check failed:', sessionError.message);
-      }
+      const session = await GymflowSupabase.getSession(db);
 
       currentUser = session?.user || null;
       currentRole = currentUser ? await resolveUserRole(currentUser) : 'member';

@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
   
   <!-- GymFlow Theme Config -->
@@ -142,16 +143,14 @@
   </div>
 
   <script>
-    const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
-    const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseClient = GymflowSupabase.createClient();
 
     //Stripe public key
     const stripe = Stripe('pk_test_51TTQoLP3N58mW1OAC1buqxRf888Rbqf5kqGApFClbi8NsQVqKRX1dtPHfxot7nwg6bcpEWwGZVpugM1v1XHtEyv400NZQ94v9k'); 
 
     document.addEventListener("DOMContentLoaded", async () => {
       
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const session = await GymflowSupabase.getSession(supabaseClient);
       
       if (!session) {
         window.location.href = 'login.html';

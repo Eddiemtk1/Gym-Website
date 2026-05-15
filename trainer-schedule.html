@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
   <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
   <link href="shared-nav.css" rel="stylesheet">
@@ -139,20 +140,18 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const db = GymflowSupabase.createClient();
 
     let currentUser = null;
     let currentRole = 'member';
     let trainerRecord = null;
 
     const getHomeRoute = GymflowRoles.getHomeRoute;
-    const resolveUserRole = user => GymflowRoles.resolveUserRole(db, user);
+    const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
 
     // Start page
     async function init() {
-      const { data: { session } } = await db.auth.getSession();
+      const session = await GymflowSupabase.getSession(db);
       if (!session) { window.location.replace('login.html'); return; }
       currentUser = session.user;
 

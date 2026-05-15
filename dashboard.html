@@ -11,6 +11,7 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
     rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
@@ -228,15 +229,13 @@
   </div>
   <script>
     //Contact Supabase
-    const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
-    const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseClient = GymflowSupabase.createClient();
     let currentSession = null;
-    const resolveUserRole = user => GymflowRoles.resolveUserRole(supabaseClient, user);
+    const resolveUserRole = user => GymflowSupabase.resolveUserRole(supabaseClient, user);
 
     //Fetch the Data
     async function loadSubscriptionData() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const session = await GymflowSupabase.getSession(supabaseClient);
       currentSession = session || null;
       const logoutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
 
@@ -291,21 +290,6 @@
             alert("Failed to update database: " + updateError.message);
             console.error("Failed to update plan:", updateError);
           } else {
-            try {
-              const { data: profile } = await supabaseClient.from('profiles').select('name, email').eq('user_id', realUserId).single();
-              const userName = profile && profile.name ? profile.name.split(' ')[0] : 'Athlete';
-              const userEmail = profile && profile.email ? profile.email : session.user.email;
-
-              // Fire the webhook
-              const { data: funcData, error: funcError } = await supabaseClient.functions.invoke('send-welcome-email', {
-                body: { email: userEmail, name: userName, planName: upgradedPlan.toUpperCase() }
-              });
-
-              if (funcError) console.error("Email Function Error:", funcError);
-            } catch (err) {
-              console.error("Failed to trigger email function:", err);
-            }
-
             window.location.href = window.location.pathname;
             return;
           }
@@ -407,7 +391,7 @@ if (data) {
     async function loadUpcomingClasses() {
       const container = document.getElementById('upcoming-classes-list');
 
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const session = await GymflowSupabase.getSession(supabaseClient);
       const currentUser = session?.user || null;
 
       // get the user's bookings from supabase
@@ -504,7 +488,7 @@ if (data) {
     async function bookDashboardClass(classId, capacity) {
       if (capacity <= 0) return;
       
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const session = await GymflowSupabase.getSession(supabaseClient);
       if (!session) {
         window.location.href = 'login.html';
         return;
@@ -525,7 +509,7 @@ if (data) {
     }
 
     async function cancelDashboardBooking(classId, capacity) {
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const session = await GymflowSupabase.getSession(supabaseClient);
       if (!session) {
         window.location.href = 'login.html';
         return;
@@ -547,7 +531,7 @@ if (data) {
     document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const session = await GymflowSupabase.getSession(supabaseClient);
       const realUserId = session?.user?.id;
       if (!realUserId) {
         window.location.href = 'login.html';

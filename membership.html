@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
@@ -131,14 +132,12 @@
   
   
   <script>
-    const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
-    const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseClient = GymflowSupabase.createClient();
     let currentSession = null;
-    const resolveUserRole = user => GymflowRoles.resolveUserRole(supabaseClient, user);
+    const resolveUserRole = user => GymflowSupabase.resolveUserRole(supabaseClient, user);
 
     async function loadPageData() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const session = await GymflowSupabase.getSession(supabaseClient);
       currentSession = session || null;
 
       const signOutLabel = document.querySelector('#logout-btn .hidden.md\\:block');

@@ -7,6 +7,7 @@
   <title>GYMFLOW | REDEFINE YOUR LIMITS</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
   <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
   <link href="shared-nav.css" rel="stylesheet">
@@ -295,22 +296,20 @@
       GymflowNav.renderPublicMenu({ navId: 'main-nav', activeHref: 'index.html' });
       GymflowNav.initMenuNav();
 
-      const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
-      const SUPABASE_ANON_KEY = 'sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR';
       const authCta = document.getElementById('auth-cta');
 
-      const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+      const db = window.GymflowSupabase ? window.GymflowSupabase.createClient() : null;
 
       const getHomeRoute = window.GymflowRoles?.getHomeRoute || (() => 'dashboard.html');
       const resolveUserRole = async (user) => {
-        if (!window.GymflowRoles?.resolveUserRole || !db) return 'member';
-        return window.GymflowRoles.resolveUserRole(db, user);
+        if (!db || !window.GymflowSupabase) return 'member';
+        return window.GymflowSupabase.resolveUserRole(db, user);
       };
 
       const syncAuthCta = async () => {
         if (!authCta || !db) return;
 
-        const { data: { session } } = await db.auth.getSession();
+        const session = await window.GymflowSupabase.getSession(db);
 
         if (!session) {
           authCta.href = 'register.html';
