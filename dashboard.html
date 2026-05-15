@@ -83,7 +83,7 @@
             <div>
               <h1
                 class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
-                Ready to <span class="text-primary">Crush</span> it?
+                Ready to <span class="text-primary">Train</span> today?
               </h1>
             </div>
             <div class="flex flex-col items-end gap-2">
@@ -176,7 +176,7 @@
               </div>
 
               <div id="upcoming-classes-list" class="space-y-4">
-                <p class="text-on-surface-variant text-sm italic py-4">Syncing schedule...</p>
+                <p class="text-on-surface-variant text-sm italic py-4">Loading your class schedule...</p>
               </div>
             </div>
 
@@ -194,14 +194,14 @@
                 <!-- ADD NEW PR FORM (Styled like your screenshot) -->
                 <div class="mt-8 pt-8 border-t border-white/10">
                   <h4 class="font-headline text-2xl font-black uppercase italic tracking-tighter mb-6">
-                    LOG NEW <br /><span class="text-primary">RECORD</span>
+                    ADD NEW <br /><span class="text-primary">RECORD</span>
                   </h4>
 
                   <form id="add-pr-form" class="space-y-5">
                     <div>
                       <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Exercise
                         Name</label>
-                      <input type="text" id="pr-name" placeholder="E.G. OVERHEAD PRESS" required
+                      <input type="text" id="pr-name" placeholder="e.g. Overhead Press" required
                         class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary uppercase placeholder:text-white/20">
                     </div>
 
@@ -214,7 +214,7 @@
 
                     <button type="submit" id="pr-submit-btn"
                       class="w-full py-4 mt-2 bg-primary text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all flex justify-center items-center gap-2">
-                      <span>Publish Record</span>
+                      <span>Save Record</span>
                     </button>
                   </form>
                 </div>
@@ -589,7 +589,7 @@ if (data) {
 
       } catch (err) {
         console.error("PR Update Error:", err);
-        alert("Failed to log record. Check console for details.");
+        alert("Could not save your record. Please try again.");
       } finally {
         // Reset Button State
         btn.innerHTML = originalText;

@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Staff | Schedule Management – GymFlow</title>
+  <title>Staff | Class Timetable – GymFlow</title>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -42,8 +42,8 @@
 
           <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
-              <p id="header-name" class="font-headline font-bold text-white text-xs">STAFF ADMIN</p>
-              <p id="header-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">MANAGER MODE</p>
+              <p id="header-name" class="font-headline font-bold text-white text-xs">Staff Team</p>
+                <p id="header-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Admin Access</p>
             </div>
             <div class="size-8 border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
               <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
@@ -71,7 +71,7 @@
           <h1 class="font-headline text-4xl lg:text-6xl font-black text-white uppercase italic leading-none tracking-tighter">
             Schedule <span class="text-primary">New Class</span>
           </h1>
-          <p class="text-on-surface-variant mt-4 uppercase text-[10px] tracking-[0.2em] font-bold">Timetable Management Console</p>
+            <p class="text-on-surface-variant mt-4 uppercase text-[10px] tracking-[0.2em] font-bold">Add classes to the weekly timetable</p>
         </div>
 
         <form id="staffClassForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -90,7 +90,7 @@
             </div>
             
             <select id="classCoach" required class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4 font-bold uppercase text-sm">
-              <option value="" disabled selected>Select Leader</option>
+                <option value="" disabled selected>Select Coach</option>
               <option value="Alex Rivers">Alex Rivers</option>
               <option value="Jordan Vance">Jordan Vance</option>
               <option value="Casey Morgan">Casey Morgan</option>
@@ -108,7 +108,7 @@
             </select>
 
             <div id="specialtyPanel" class="hidden absolute left-0 right-0 top-full mt-2 z-20 specialty-card border border-white/10 p-6 shadow-2xl">
-              <h4 class="text-primary font-headline font-bold text-xs uppercase tracking-widest mb-4 border-b border-primary/20 pb-2">Coach Expertise Directory</h4>
+                <h4 class="text-primary font-headline font-bold text-xs uppercase tracking-widest mb-4 border-b border-primary/20 pb-2">Coach Specialty List</h4>
               <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[10px] uppercase tracking-wider font-bold">
                 <div><span class="text-white">Alex Rivers:</span> <span class="text-on-surface-variant">Swimming, HIIT</span></div>
                 <div><span class="text-white">Jordan Vance:</span> <span class="text-on-surface-variant">Yoga, Pilates</span></div>
@@ -165,7 +165,7 @@
 
     <footer class="bg-surface border-t border-white/10 p-10 mt-auto">
       <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.3em]">© 2026 GymFlow Systems • Performance Driven</p>
+          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.3em]">© 2026 GymFlow Staff Tools</p>
       </div>
     </footer>
   </div>
@@ -182,7 +182,7 @@
       GymflowNav.initMenuNav();
       
       if (profile) {
-        document.getElementById('header-name').textContent = profile.name || 'STAFF';
+        document.getElementById('header-name').textContent = profile.name || 'Staff Team';
         if (profile.avatar_url) {
           document.getElementById('header-avatar-img').src = profile.avatar_url;
           document.getElementById('header-avatar-img').classList.remove('hidden');
@@ -199,7 +199,7 @@
       e.preventDefault();
       const session = await GymflowSupabase.getSession(db);
       const btnText = document.getElementById('btnText');
-      btnText.innerText = 'Syncing...';
+        btnText.innerText = 'Saving...';
 
       const classData = {
         name: document.getElementById('className').value,
