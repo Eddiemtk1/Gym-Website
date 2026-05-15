@@ -1,4 +1,10 @@
 (function registerGymflowNav(global) {
+  function normalizeRole(role) {
+    const value = String(role || 'member').toLowerCase();
+    if (value === 'admin' || value === 'staff' || value === 'trainer') return value;
+    return 'member';
+  }
+
   function normalizePath(path) {
     return String(path || '').split('?')[0].toLowerCase();
   }
@@ -29,12 +35,25 @@
   }
 
   function getRoleLinks(role) {
-    if (role === 'trainer' || role === 'admin' || role === 'staff') {
+    const resolvedRole = normalizeRole(role);
+
+    if (resolvedRole === 'admin' || resolvedRole === 'staff') {
       return [
         { label: 'Dashboard', href: 'dashboard.html', icon: 'dashboard' },
         { label: 'Timetable', href: 'Timetable.html', icon: 'event_note' },
+        { label: 'Trainer Assignment', href: 'assign-trainer.html', icon: 'manage_accounts', emphasis: true },
         { label: 'Manage Timetable', href: 'StaffClass.html', icon: 'edit_calendar', emphasis: true },
         { label: 'Edit Classes', href: 'StaffEdit.html', icon: 'update', emphasis: true },
+        { label: 'Trainer Report', href: 'trainer-report.html', icon: 'summarize' },
+        { label: 'Profile', href: 'profile.html', icon: 'settings' }
+      ];
+    }
+
+    if (resolvedRole === 'trainer') {
+      return [
+        { label: 'Dashboard', href: 'dashboard.html', icon: 'dashboard' },
+        { label: 'Timetable', href: 'Timetable.html', icon: 'event_note' },
+        { label: 'My Schedule', href: 'trainer-schedule.html', icon: 'event_available', emphasis: true },
         { label: 'Trainer Report', href: 'trainer-report.html', icon: 'summarize' },
         { label: 'Profile', href: 'profile.html', icon: 'settings' }
       ];

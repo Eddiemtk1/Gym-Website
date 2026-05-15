@@ -226,6 +226,9 @@
         return;
       }
 
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: currentRole, activeHref: 'assign-trainer.html' });
+      GymflowNav.initMenuNav();
+
       loadHeader();
       await Promise.all([loadClasses(), loadTrainers()]);
       setupFilterTabs();
@@ -497,8 +500,6 @@
       if (e.target === document.getElementById('complete-modal')) closeCompleteModal();
     });
 
-    GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'assign-trainer.html' });
-    GymflowNav.initMenuNav();
     init();
   </script>
 </body>

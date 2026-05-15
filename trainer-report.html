@@ -203,6 +203,9 @@
         return;
       }
 
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: currentRole, activeHref: 'trainer-report.html' });
+      GymflowNav.initMenuNav();
+
       await loadHeader();
       const roleReady = await detectRole();
       if (!roleReady) return;
@@ -478,8 +481,6 @@
 
     ui.logoutBtn.addEventListener('click', handleLogout);
     window.confirmHours = confirmHours;
-    GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'trainer-report.html' });
-    GymflowNav.initMenuNav();
     init();
   </script>
 </body>
