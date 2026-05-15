@@ -11,40 +11,16 @@
   <script src="auth-role.js"></script>
   <script src="shared-nav.js"></script>
   <link href="shared-nav.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lexend:wght@400;900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="shared-theme.js"></script>
   <script id="tailwind-config">
     applyGymflowTailwindConfig();
   </script>
-  
-  <style>
-    :root { --material-symbol-fill: 1; }
-.kinetic-gradient { background: var(--primary-color, #00E0FF); }
-/* Momentum Variant Custom CSS */
-    .diagonal-break { clip-path: polygon(0 0, 100% 5%, 100% 100%, 0 95%); }
-    .marquee-container { overflow: hidden; white-space: nowrap; }
-    .marquee-content { display: inline-block; animation: marquee 10s linear infinite; }
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
-    }
-    .watermark {
-      font-size: 25vw;
-      line-height: 1;
-      font-family: 'Lexend', sans-serif;
-      font-weight: 900;
-      font-style: italic;
-      pointer-events: none;
-      user-select: none;
-    }
-    .tilted-block { transform: skewY(-2deg); }
-    .tilted-content { transform: skewY(2deg); }
-    * { border-radius: 0 !important; }
-  </style>
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary overflow-x-hidden">
+<body class="home-page bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary overflow-x-hidden">
   
   <div class="fixed inset-0 z-0 flex items-center justify-center opacity-[0.03] overflow-hidden pointer-events-none">
     <div class="watermark text-white -rotate-12 whitespace-nowrap">MOTION MOTION MOTION</div>

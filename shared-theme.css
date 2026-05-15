@@ -36,3 +36,68 @@
   background: #404040;
   border-radius: 10px;
 }
+
+.home-page {
+  --material-symbol-fill: 1;
+}
+
+.home-page .kinetic-gradient {
+  background: var(--primary-color, #00E0FF);
+}
+
+.home-page .diagonal-break {
+  clip-path: polygon(0 0, 100% 5%, 100% 100%, 0 95%);
+}
+
+.home-page .marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.home-page .marquee-content {
+  display: inline-block;
+  animation: home-marquee 10s linear infinite;
+}
+
+@keyframes home-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.home-page .watermark {
+  font-size: 25vw;
+  line-height: 1;
+  font-family: "Lexend", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+}
+
+.home-page * {
+  border-radius: 0 !important;
+}
+
+.timetable-page .timetable-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+}
+
+.timetable-page .book-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timetable-page .book-btn:not(:disabled):hover {
+  letter-spacing: 0.2em;
+  transform: scale(1.05);
+}
+
+.checkout-page .glass-nav {
+  background: rgba(14, 14, 14, 0.8);
+  backdrop-filter: blur(12px);
+}

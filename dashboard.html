@@ -381,7 +381,7 @@ if (data) {
   document.getElementById('calories-display').innerText = `${data.calories_burnt || 0} Kcal`;
 
   if (resolvedRole !== 'member') {
-    document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+    GymflowTheme.applyStaffAccent();
     document.getElementById('nav-user-plan').innerText = 'STAFF';
   }
 }

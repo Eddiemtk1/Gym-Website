@@ -170,7 +170,7 @@
           if (userData.avatar_url) document.getElementById('nav-user-avatar').src = userData.avatar_url;
 
           if (resolvedRole !== 'member') {
-            document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+            GymflowTheme.applyStaffAccent();
             document.getElementById('nav-user-plan').innerText = 'STAFF';
           }
         }

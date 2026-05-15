@@ -1,4 +1,6 @@
 (function () {
+  const STAFF_ACCENT = "#00E0FF";
+
   const BASE_TAILWIND_CONFIG = {
     darkMode: "class",
     theme: {
@@ -65,5 +67,13 @@
 
     tailwind.config = config;
     return config;
+  };
+
+  window.GymflowTheme = {
+    staffAccent: STAFF_ACCENT,
+    applyStaffAccent: function applyStaffAccent() {
+      document.documentElement.style.setProperty("--primary-color", STAFF_ACCENT);
+      return STAFF_ACCENT;
+    }
   };
 })();

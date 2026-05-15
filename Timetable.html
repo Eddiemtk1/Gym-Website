@@ -17,15 +17,10 @@
   <script id="tailwind-config">
     applyGymflowTailwindConfig();
   </script>
-  <style>
-.timetable-grid { display: grid; grid-template-columns: 80px 1fr; }
-    .book-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .book-btn:not(:disabled):hover { letter-spacing: 0.2em; transform: scale(1.05); }
-  </style>
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="timetable-page bg-background text-on-surface font-body antialiased">
     <div id="participant-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm">
     <div class="bg-surface border border-white/10 w-full max-w-md p-8 relative">
       <button onclick="closeModal()" class="absolute top-4 right-4 text-on-surface-variant hover:text-white transition-colors">
@@ -162,7 +157,7 @@
         }
 
         if (currentRole !== 'member') {
-          document.documentElement.style.setProperty('--primary-color', '#00E0FF');
+          GymflowTheme.applyStaffAccent();
           document.getElementById('nav-user-plan').innerText = 'STAFF';
 
           if (currentRole === 'admin') {
