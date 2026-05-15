@@ -5,3 +5,34 @@
 .material-symbols-outlined {
   font-variation-settings: "FILL" var(--material-symbol-fill, 0), "wght" 400, "GRAD" 0, "opsz" 24;
 }
+
+.staff-form-page input[type="date"]::-webkit-calendar-picker-indicator,
+.staff-form-page input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.staff-form-page select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300E0FF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-position: right 0.5rem center !important;
+  background-repeat: no-repeat !important;
+  background-size: 1.5em 1.5em !important;
+  appearance: none;
+}
+
+.staff-form-page .specialty-card {
+  backdrop-filter: blur(16px);
+  background: rgba(26, 26, 26, 0.96);
+}
+
+.staff-form-page .custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.staff-form-page .custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.staff-form-page .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 10px;
+}
