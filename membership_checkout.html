@@ -18,7 +18,7 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#D7FF00",
+            "primary": "#00E0FF",
             "on-primary": "#0e0e0e",
             "background": "#0e0e0e",
             "surface": "#131313",
@@ -250,7 +250,7 @@
         const clientSecret = secretData.clientSecret;
         const elements = stripe.elements({ 
           clientSecret, 
-          appearance: { theme: 'night', variables: { colorPrimary: '#D7FF00' } } 
+          appearance: { theme: 'night', variables: { colorPrimary: '#00E0FF' } } 
         }); 
         
         const paymentElement = elements.create('payment');

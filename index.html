@@ -18,7 +18,7 @@
       theme: {
         extend: {
           colors: {
-            "primary": "var(--primary-color, #D7FF00)",
+            "primary": "var(--primary-color, #00E0FF)",
             "on-primary": "#0e0e0e",
             "background": "#0e0e0e",
             "surface": "#131313",
@@ -43,10 +43,10 @@
   </script>
   
   <style>
-    :root { --primary-color: #D7FF00; }
+    :root { --primary-color: #00E0FF; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .kinetic-gradient { background: #D7FF00; }
-    .site-nav-link.is-active { color: #fff; border-color: rgba(215, 255, 0, 0.55); background: rgba(215, 255, 0, 0.08); }
+    .kinetic-gradient { background: var(--primary-color, #00E0FF); }
+    .site-nav-link.is-active { color: #fff; border-color: rgba(0, 224, 255, 0.55); background: rgba(0, 224, 255, 0.08); }
     
     /* Momentum Variant Custom CSS */
     .diagonal-break { clip-path: polygon(0 0, 100% 5%, 100% 100%, 0 95%); }
@@ -259,7 +259,7 @@
           </button>
         </div>
 
-        <div class="bg-primary p-12 flex flex-col items-start relative scale-105 z-20 shadow-[0_0_100px_rgba(215,255,0,0.15)]">
+        <div class="bg-primary p-12 flex flex-col items-start relative scale-105 z-20 shadow-[0_0_100px_rgba(0,224,255,0.15)]">
           <div class="text-black/10 font-headline text-8xl font-black absolute top-4 right-4 pointer-events-none italic">02</div>
           <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black font-black text-[10px] tracking-widest px-4 py-1">MOST DEPLOYED</div>
           <p class="text-black/60 text-xs font-black tracking-widest mb-2">IGNITION 02</p>

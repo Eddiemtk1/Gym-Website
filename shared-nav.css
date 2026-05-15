@@ -50,7 +50,7 @@
 }
 
 .site-nav-link .link-arrow {
-  color: var(--primary-color, #D7FF00);
+  color: var(--primary-color, #00E0FF);
   opacity: 0.72;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
