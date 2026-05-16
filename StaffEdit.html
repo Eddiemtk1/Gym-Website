@@ -146,6 +146,21 @@
                 <input type="number" id="capacity" required placeholder="20" class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold text-xs">
               </div>
             </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Duration (min)</label>
+                <input type="number" id="duration" required min="15" step="15" placeholder="60" class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Status</label>
+                <select id="status" required class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold uppercase text-xs">
+                  <option value="scheduled" selected>Scheduled</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="pt-4 space-y-3">
@@ -185,10 +200,32 @@
     const submitBtn = document.getElementById('submit-btn');
     const editIdInput = document.getElementById('edit-id');
     const cancelEditBtn = document.getElementById('cancel-edit');
+    let currentSession = null;
+    let trainerIdByName = new Map();
+
+    function normalizeName(value) {
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function isMissingColumnError(error) {
+      return Boolean(error) && /column .* does not exist/i.test(error.message || '');
+    }
+
+    async function loadTrainerDirectory() {
+      const { data, error } = await _supabase.from('trainers').select('id, name');
+      if (error) {
+        console.error('Trainer directory error:', error);
+        trainerIdByName = new Map();
+        return;
+      }
+
+      trainerIdByName = new Map((data || []).map(row => [normalizeName(row.name), row.id]));
+    }
 
     async function init() {
       const session = await GymflowSupabase.getSession(_supabase);
       if (!session) return window.location.replace('login.html');
+      currentSession = session;
 
       GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'admin', activeHref: 'StaffEdit.html' });
       GymflowNav.initMenuNav();
@@ -209,6 +246,7 @@
         avatarUrl: profile?.avatar_url,
       });
 
+      await loadTrainerDirectory();
       fetchStaffSchedule();
     }
 
@@ -219,13 +257,24 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = editIdInput.value;
-      const classData = {
+      const baseClassData = {
         name: document.getElementById('name').value.toUpperCase(),
         coach: document.getElementById('coach').value,
         date: document.getElementById('date').value,
         time: document.getElementById('time').value,
         location: document.getElementById('location').value.toUpperCase(),
-        capacity: parseInt(document.getElementById('capacity').value)
+        capacity: parseInt(document.getElementById('capacity').value),
+      };
+
+      const durationMinutes = parseInt(document.getElementById('duration').value) || 60;
+      const status = (document.getElementById('status').value || 'scheduled').toLowerCase();
+      const trainerId = trainerIdByName.get(normalizeName(baseClassData.coach)) ?? null;
+
+      const richClassData = {
+        ...baseClassData,
+        duration_minutes: durationMinutes,
+        status,
+        trainer_id: trainerId,
       };
 
       submitBtn.disabled = true;
@@ -233,9 +282,24 @@
 
       let result;
       if (id) {
-        result = await _supabase.from('gym_classes').update(classData).eq('id', id);
+        result = await _supabase.from('gym_classes').update(richClassData).eq('id', id);
+        if (result.error && isMissingColumnError(result.error)) {
+          result = await _supabase.from('gym_classes').update(baseClassData).eq('id', id);
+        }
       } else {
-        result = await _supabase.from('gym_classes').insert([classData]);
+        const richInsertData = {
+          ...richClassData,
+          user_id: currentSession?.user?.id,
+        };
+        result = await _supabase.from('gym_classes').insert([richInsertData]);
+
+        if (result.error && isMissingColumnError(result.error)) {
+          const fallbackInsertData = {
+            ...baseClassData,
+            user_id: currentSession?.user?.id,
+          };
+          result = await _supabase.from('gym_classes').insert([fallbackInsertData]);
+        }
       }
 
       if (result.error) {
@@ -264,13 +328,20 @@
         // Escape strings for the onclick function to prevent syntax errors
         const safeName = cls.name.replace(/'/g, "\\'");
         const safeCoach = (cls.coach || '').replace(/'/g, "\\'");
+        const safeDate = (cls.date || '').replace(/'/g, "\\'");
+        const safeTime = (cls.time || '').replace(/'/g, "\\'");
         const safeLoc = (cls.location || '').replace(/'/g, "\\'");
+        const safeStatus = (cls.status || 'scheduled').replace(/'/g, "\\'");
+        const durationMinutes = Number(cls.duration_minutes) || 60;
+        const displayTime = cls.time ? cls.time.slice(0, 5) : '--:--';
+        const displayDate = cls.date ? cls.date.split('-').slice(1).join('/') : '--/--';
+        const displayStatus = String(cls.status || 'scheduled').toUpperCase();
 
         row.innerHTML = `
             <div class="flex gap-6 items-center">
                 <div class="text-center border-r border-white/10 pr-6">
-                    <p class="text-primary font-black text-xl leading-none italic">${cls.time.slice(0, 5)}</p>
-                    <p class="text-[9px] font-bold text-on-surface-variant uppercase mt-1">${cls.date.split('-').slice(1).join('/')}</p>
+              <p class="text-primary font-black text-xl leading-none italic">${displayTime}</p>
+              <p class="text-[9px] font-bold text-on-surface-variant uppercase mt-1">${displayDate}</p>
                 </div>
                 <div>
                     <h3 class="text-xl font-black uppercase italic text-white mb-1 group-hover:text-primary transition-colors">${cls.name}</h3>
@@ -280,11 +351,15 @@
                         <span>${cls.location}</span>
                         <span class="text-white/20">|</span>
                         <span>Cap: ${cls.capacity}</span>
+                <span class="text-white/20">|</span>
+                <span>Dur: ${durationMinutes}m</span>
+                <span class="text-white/20">|</span>
+                <span>Status: ${displayStatus}</span>
                     </div>
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="loadEdit('${cls.id}', '${safeName}', '${safeCoach}', '${cls.date}', '${cls.time}', '${safeLoc}', ${cls.capacity})" class="size-12 bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
+            <button onclick="loadEdit('${cls.id}', '${safeName}', '${safeCoach}', '${safeDate}', '${safeTime}', '${safeLoc}', ${cls.capacity}, ${durationMinutes}, '${safeStatus}')" class="size-12 bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
                     <span class="material-symbols-outlined text-[20px]">edit</span>
                 </button>
                 <button onclick="handleDelete('${cls.id}')" class="size-12 bg-white/5 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">
@@ -296,7 +371,7 @@
       });
     }
 
-    window.loadEdit = (id, name, coach, date, time, location, capacity) => {
+    window.loadEdit = (id, name, coach, date, time, location, capacity, durationMinutes = 60, status = 'scheduled') => {
       editIdInput.value = id;
       document.getElementById('name').value = name;
       document.getElementById('coach').value = coach;
@@ -305,6 +380,12 @@
       document.getElementById('time').value = time.slice(0, 5);
       document.getElementById('location').value = location;
       document.getElementById('capacity').value = capacity;
+      document.getElementById('duration').value = durationMinutes || 60;
+
+      const normalizedStatus = String(status || 'scheduled').toLowerCase();
+      document.getElementById('status').value = ['scheduled', 'completed', 'cancelled'].includes(normalizedStatus)
+        ? normalizedStatus
+        : 'scheduled';
 
       document.getElementById('form-title').innerText = "Edit Class";
       submitBtn.innerText = "Save Changes";
@@ -323,6 +404,8 @@
     function resetForm() {
       form.reset();
       editIdInput.value = '';
+      document.getElementById('duration').value = 60;
+      document.getElementById('status').value = 'scheduled';
       document.getElementById('form-title').innerText = "Add New Class";
       submitBtn.innerText = "Publish Class";
       submitBtn.disabled = false;

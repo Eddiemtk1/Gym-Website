@@ -144,6 +144,11 @@
           </div>
 
           <div>
+            <label class="block text-[10px] font-bold text-primary uppercase mb-2 tracking-widest">Duration (minutes)</label>
+            <input type="number" id="classDuration" required placeholder="60" min="15" step="15" class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4">
+          </div>
+
+          <div>
             <label class="block text-[10px] font-bold text-primary uppercase mb-2 tracking-widest">Location / Studio</label>
             <select id="classLocation" required class="w-full bg-surface-variant border-none text-white focus:ring-2 focus:ring-primary py-4 px-4 font-bold uppercase text-sm">
               <option value="" disabled selected>Select Studio</option>
@@ -212,30 +217,43 @@
       const btnText = document.getElementById('btnText');
         btnText.innerText = 'Saving...';
 
-      const classData = {
-        name: document.getElementById('className').value,
-        coach: document.getElementById('classCoach').value,
-        date: document.getElementById('classDate').value,
-        time: document.getElementById('classTime').value,
-        capacity: parseInt(document.getElementById('classCapacity').value),
-        location: document.getElementById('classLocation').value,
-        user_id: session.user.id
+      const name     = document.getElementById('className').value;
+      const coach     = document.getElementById('classCoach').value;
+      const date      = document.getElementById('classDate').value;
+      const time      = document.getElementById('classTime').value;
+      const capacity  = parseInt(document.getElementById('classCapacity').value);
+      const duration  = parseInt(document.getElementById('classDuration').value) || 60;
+      const location  = document.getElementById('classLocation').value;
+
+      const baseGymClassData = { name, coach, date, time, capacity, location, user_id: session.user.id };
+      const richGymClassData = {
+        ...baseGymClassData,
+        duration_minutes: duration,
+        status: 'scheduled',
       };
 
-      const { error } = await db.from('gym_classes').insert([classData]);
+      let { error } = await db.from('gym_classes').insert([richGymClassData]);
+
+      // Backward compatibility: some environments may not have richer columns yet.
+      if (error && /column .* does not exist/i.test(error.message || '')) {
+        const fallback = await db.from('gym_classes').insert([baseGymClassData]);
+        error = fallback.error;
+      }
 
       if (error) {
         alert(error.message);
         btnText.innerText = 'Error - Try Again';
-      } else {
-        document.getElementById('successMessage').classList.remove('hidden');
-        btnText.innerText = 'Class Published!';
-        this.reset();
-        setTimeout(() => {
-          document.getElementById('successMessage').classList.add('hidden');
-          btnText.innerText = 'Publish to Timetable';
-        }, 2500);
+        return;
       }
+
+      document.getElementById('successMessage').classList.remove('hidden');
+      btnText.innerText = 'Class Published!';
+      this.reset();
+
+      setTimeout(() => {
+        document.getElementById('successMessage').classList.add('hidden');
+        btnText.innerText = 'Publish to Timetable';
+      }, 2500);
     };
 
     document.getElementById('logout-btn').onclick = async () => { await db.auth.signOut(); window.location.replace('login.html'); };

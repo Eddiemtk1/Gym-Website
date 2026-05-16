@@ -20,7 +20,7 @@
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="home-page bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary overflow-x-hidden">
+<body class="home-page s14-page s14-home bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary overflow-x-hidden">
   
   <div class="fixed inset-0 z-0 flex items-center justify-center opacity-[0.03] overflow-hidden pointer-events-none">
     <div class="watermark text-white -rotate-12 whitespace-nowrap">GYM GYM GYM</div>
@@ -268,8 +268,7 @@
   </footer>
 
   <script>
-    (() => {
-      GymflowNav.renderPublicMenu({ navId: 'main-nav', activeHref: 'index.html' });
+    (async () => {
       GymflowNav.initMenuNav();
 
       const authCta = document.getElementById('auth-cta');
@@ -280,6 +279,29 @@
       const resolveUserRole = async (user) => {
         if (!db || !window.GymflowSupabase) return 'member';
         return window.GymflowSupabase.resolveUserRole(db, user);
+      };
+
+      const syncNavMenu = async () => {
+        if (!db) {
+          GymflowNav.renderPublicMenu({ navId: 'main-nav', activeHref: 'index.html' });
+          return;
+        }
+
+        const session = await window.GymflowSupabase.getSession(db);
+
+        if (!session) {
+          GymflowNav.renderPublicMenu({ navId: 'main-nav', activeHref: 'index.html' });
+          return;
+        }
+
+        let role = 'member';
+        try {
+          role = await resolveUserRole(session.user);
+        } catch (err) {
+          console.warn('Role lookup failed on home menu:', err);
+        }
+
+        GymflowNav.renderRoleMenu({ navId: 'main-nav', role, activeHref: 'index.html' });
       };
 
       const syncAuthCta = async () => {
@@ -306,7 +328,8 @@
           : 'Go to Dashboard';
       };
 
-      syncAuthCta();
+      await syncNavMenu();
+      await syncAuthCta();
     })();
   </script>
 

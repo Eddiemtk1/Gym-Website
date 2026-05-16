@@ -20,7 +20,7 @@
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="flex h-full grow flex-col">
 
@@ -66,7 +66,7 @@
       </header>
 
       <!-- Main content -->
-      <main class="flex-1 p-6 lg:p-10 space-y-8">
+      <main class="flex-1 p-6 lg:p-10 space-y-8 s14-shell">
 
         <!-- Page title -->
         <div class="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -88,33 +88,33 @@
 
         <!-- Stats bar -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-surface border border-outline/40 p-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Total Classes</p>
             <p id="stat-total" class="font-headline font-black text-white text-3xl">—</p>
           </div>
-          <div class="bg-surface border border-outline/40 p-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Trainer Assigned</p>
             <p id="stat-assigned" class="font-headline font-black text-white text-3xl">—</p>
           </div>
-          <div class="bg-surface border border-outline/40 p-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Completed</p>
             <p id="stat-completed" class="font-headline font-black text-primary text-3xl">—</p>
           </div>
-          <div class="bg-surface border border-outline/40 p-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Registered Trainers</p>
             <p id="stat-trainers" class="font-headline font-black text-white text-3xl">—</p>
           </div>
         </div>
 
         <!-- Filter tabs -->
-        <div class="flex items-center gap-0 border border-outline/40 self-start w-fit">
+        <div class="flex items-center gap-0 border border-outline/40 self-start w-fit s14-pills">
           <button data-filter="all" class="px-5 h-9 bg-primary text-on-primary text-xs font-bold uppercase tracking-widest transition-colors">All</button>
           <button data-filter="upcoming" class="px-5 h-9 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">Upcoming</button>
           <button data-filter="completed" class="px-5 h-9 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:text-white transition-colors border-l border-outline/40">Completed</button>
         </div>
 
         <!-- Classes table -->
-        <div class="bg-surface border border-outline/40 overflow-x-auto">
+        <div class="bg-surface border border-outline/40 overflow-x-auto s14-card s14-table">
           <table class="w-full min-w-[700px]">
             <thead>
               <tr class="border-b border-white/10">
@@ -143,7 +143,7 @@
 
   <!-- Assign Trainer Modal -->
   <div id="assign-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-    <div class="bg-surface border border-outline/60 p-6 w-full max-w-sm space-y-5">
+    <div class="bg-surface border border-outline/60 p-6 w-full max-w-sm space-y-5 s14-card">
       <div class="flex items-center justify-between">
         <h3 class="font-headline font-black text-white text-lg uppercase tracking-tight">Assign Trainer</h3>
         <button id="modal-close" class="text-on-surface-variant hover:text-white transition-colors">
@@ -173,7 +173,7 @@
 
   <!-- Mark Complete Confirmation Modal -->
   <div id="complete-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-    <div class="bg-surface border border-outline/60 p-6 w-full max-w-sm space-y-5">
+    <div class="bg-surface border border-outline/60 p-6 w-full max-w-sm space-y-5 s14-card">
       <div class="flex items-center justify-between">
         <h3 class="font-headline font-black text-white text-lg uppercase tracking-tight">Mark Complete</h3>
         <button id="complete-close" class="text-on-surface-variant hover:text-white transition-colors">
@@ -208,6 +208,7 @@
     let allTrainers = [];
     let pendingClassId = null;
     let activeFilter = 'all';
+    let completedClassIds = new Set();
 
     const getHomeRoute = GymflowRoles.getHomeRoute;
     const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
@@ -253,15 +254,101 @@
       });
     }
 
+    function toDateTime(date, time) {
+      if (!date) return null;
+      const rawTime = String(time || '00:00').trim();
+      const hhmm = rawTime.length >= 5 ? rawTime.slice(0, 5) : '00:00';
+      return `${date}T${hhmm}:00`;
+    }
+
+    function normalizeName(value) {
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function getClassStatus(cls) {
+      const classId = String(cls.id);
+      if (completedClassIds.has(classId)) return 'completed';
+      return cls.status || 'scheduled';
+    }
+
+    function hasAssignedTrainer(cls) {
+      return (cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '') || Boolean(cls.coach_name);
+    }
+
+    function getDisplayedTrainer(cls) {
+      if (cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '') {
+        const trainerById = allTrainers.find(t => String(t.id) === String(cls.trainer_id));
+        if (trainerById) {
+          return {
+            name: trainerById.name,
+            specialisation: trainerById.specialisation || null,
+          };
+        }
+      }
+
+      if (!cls.coach_name) return null;
+
+      const trainerByName = allTrainers.find(t => normalizeName(t.name) === normalizeName(cls.coach_name));
+      if (trainerByName) {
+        return {
+          name: trainerByName.name,
+          specialisation: trainerByName.specialisation || null,
+        };
+      }
+
+      return { name: cls.coach_name, specialisation: null };
+    }
+
+    function getClassTrainer(cls) {
+      if (!cls) return null;
+
+      if (cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '') {
+        const trainerById = allTrainers.find(t => String(t.id) === String(cls.trainer_id));
+        if (trainerById) return trainerById;
+      }
+
+      if (!cls.coach_name) return null;
+      return allTrainers.find(t => normalizeName(t.name) === normalizeName(cls.coach_name)) || null;
+    }
+
+    function findClassById(classId) {
+      return allClasses.find(c => String(c.id) === String(classId));
+    }
+
+    async function markClassCompletedIfSupported(classId) {
+      const result = await db.from('gym_classes').update({ status: 'completed' }).eq('id', classId);
+      if (result.error && /column .* does not exist/i.test(result.error.message || '')) {
+        return;
+      }
+      if (result.error) throw result.error;
+    }
+
     // Load classes and trainers
     async function loadClasses() {
-      const { data, error } = await db
-        .from('classes')
-        .select(`id, name, description, datetime, duration_minutes, location, status,
-          class_trainers ( id, trainer_id, trainers ( id, name, specialisation ) )`)
-        .order('datetime', { ascending: true });
-      if (error) { console.error('Classes error:', error); }
-      allClasses = data || [];
+      const [{ data: gymRows, error: gymErr }, { data: hourRows, error: hourErr }] = await Promise.all([
+        db.from('gym_classes').select('*').order('date', { ascending: true }).order('time', { ascending: true }),
+        db.from('trainer_hours').select('class_id'),
+      ]);
+
+      if (gymErr) { console.error('Gym classes error:', gymErr); }
+      if (hourErr) { console.error('Trainer hours lookup error:', hourErr); }
+
+      completedClassIds = new Set((hourRows || []).map(row => String(row.class_id)));
+
+      const normalized = (gymRows || []).map(row => ({
+        id: row.id,
+        name: row.name,
+        description: row.description || null,
+        datetime: toDateTime(row.date, row.time),
+        duration_minutes: Number(row.duration_minutes) || 60,
+        location: row.location || null,
+        status: row.status || 'scheduled',
+        coach_name: row.coach || null,
+        trainer_id: row.trainer_id ?? null,
+      }));
+
+      normalized.sort((a, b) => new Date(a.datetime || 0) - new Date(b.datetime || 0));
+      allClasses = normalized;
     }
 
     async function loadTrainers() {
@@ -281,8 +368,8 @@
 
     // Render table and stats
     function getFilteredClasses() {
-      if (activeFilter === 'upcoming')  return allClasses.filter(c => c.status !== 'completed' && c.status !== 'cancelled');
-      if (activeFilter === 'completed') return allClasses.filter(c => c.status === 'completed');
+      if (activeFilter === 'upcoming')  return allClasses.filter(c => getClassStatus(c) !== 'completed' && getClassStatus(c) !== 'cancelled');
+      if (activeFilter === 'completed') return allClasses.filter(c => getClassStatus(c) === 'completed');
       return allClasses;
     }
 
@@ -302,17 +389,23 @@
       }
 
       filtered.forEach(cls => {
-        const assignment = cls.class_trainers?.[0];
-        const trainer = assignment?.trainers;
-        const dt = new Date(cls.datetime);
-        const dateStr = dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-        const timeStr = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const trainer = getDisplayedTrainer(cls);
+        const dt = cls.datetime ? new Date(cls.datetime) : null;
+        const hasDateTime = dt && !Number.isNaN(dt.getTime());
+        const dateStr = hasDateTime
+          ? dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+          : '—';
+        const timeStr = hasDateTime
+          ? dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+          : '—';
         const duration = cls.duration_minutes || 60;
-        const isUpcoming = cls.status !== 'completed' && cls.status !== 'cancelled';
+        const status = getClassStatus(cls);
+        const isUpcoming = status !== 'completed' && status !== 'cancelled';
+        const hasTrainer = hasAssignedTrainer(cls);
 
-        const statusBadge = cls.status === 'completed'
+        const statusBadge = status === 'completed'
           ? `<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">Completed</span>`
-          : cls.status === 'cancelled'
+          : status === 'cancelled'
           ? `<span class="px-2 py-0.5 bg-red-500/10 text-red-400 text-[10px] font-bold uppercase tracking-wider">Cancelled</span>`
           : `<span class="px-2 py-0.5 bg-white/10 text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Upcoming</span>`;
 
@@ -327,9 +420,9 @@
           ? `<div class="flex items-center gap-2 flex-wrap">
                <button onclick="openAssignModal('${cls.id}')"
                  class="px-3 py-1.5 bg-surface-variant hover:bg-primary hover:text-on-primary text-xs font-bold uppercase tracking-wider transition-colors">
-                 ${trainer ? 'Change' : 'Assign'}
+                 ${hasTrainer ? 'Change' : 'Assign'}
                </button>
-               ${trainer ? `
+               ${hasTrainer ? `
                <button onclick="removeTrainer('${cls.id}')"
                  class="px-3 py-1.5 border border-outline/60 hover:border-red-400 hover:text-red-400 text-xs font-bold uppercase tracking-wider transition-colors">
                  Remove
@@ -361,8 +454,8 @@
 
     function updateStats() {
       document.getElementById('stat-total').textContent     = allClasses.length;
-      document.getElementById('stat-assigned').textContent  = allClasses.filter(c => c.class_trainers?.length > 0).length;
-      document.getElementById('stat-completed').textContent = allClasses.filter(c => c.status === 'completed').length;
+      document.getElementById('stat-assigned').textContent  = allClasses.filter(hasAssignedTrainer).length;
+      document.getElementById('stat-completed').textContent = allClasses.filter(c => getClassStatus(c) === 'completed').length;
       document.getElementById('stat-trainers').textContent  = allTrainers.length;
     }
 
@@ -383,9 +476,15 @@
     // Assign modal handlers
     function openAssignModal(classId) {
       pendingClassId = classId;
-      const cls = allClasses.find(c => c.id === classId);
+      const cls = findClassById(classId);
       document.getElementById('modal-class-name').textContent = cls?.name || '';
-      document.getElementById('trainer-select').value = cls?.class_trainers?.[0]?.trainer_id || '';
+
+      const select = document.getElementById('trainer-select');
+      const trainerMatch = (cls && cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '')
+        ? allTrainers.find(t => String(t.id) === String(cls.trainer_id))
+        : allTrainers.find(t => normalizeName(t.name) === normalizeName(cls?.coach_name));
+      select.value = trainerMatch?.id || '';
+
       document.getElementById('assign-modal').classList.remove('hidden');
     }
 
@@ -398,11 +497,25 @@
       const trainerId = document.getElementById('trainer-select').value;
       if (!trainerId) { showAlert('Select a trainer to continue.', 'error'); return; }
 
+      const cls = findClassById(pendingClassId);
+      if (!cls) { showAlert('Selected class could not be found.', 'error'); return; }
+
+      const trainerPick = allTrainers.find(t => String(t.id) === String(trainerId));
+      if (!trainerPick) { showAlert('Selected trainer could not be found.', 'error'); return; }
+
       const btn = document.getElementById('modal-confirm');
       btn.disabled = true; btn.textContent = 'Saving changes...';
 
-      await db.from('class_trainers').delete().eq('class_id', pendingClassId);
-      const { error } = await db.from('class_trainers').insert({ class_id: pendingClassId, trainer_id: trainerId });
+      let { error } = await db
+        .from('gym_classes')
+        .update({ coach: trainerPick.name, trainer_id: trainerPick.id })
+        .eq('id', pendingClassId);
+
+      // Backward compatibility: some environments may not have trainer_id yet.
+      if (error && /column .* does not exist/i.test(error.message || '')) {
+        const fallback = await db.from('gym_classes').update({ coach: trainerPick.name }).eq('id', pendingClassId);
+        error = fallback.error;
+      }
 
       btn.disabled = false; btn.textContent = 'Assign';
 
@@ -414,7 +527,17 @@
     }
 
     async function removeTrainer(classId) {
-      const { error } = await db.from('class_trainers').delete().eq('class_id', classId);
+      const cls = findClassById(classId);
+      if (!cls) { showAlert('Selected class could not be found.', 'error'); return; }
+
+      let { error } = await db.from('gym_classes').update({ coach: null, trainer_id: null }).eq('id', classId);
+
+      // Backward compatibility: some environments may not have trainer_id yet.
+      if (error && /column .* does not exist/i.test(error.message || '')) {
+        const fallback = await db.from('gym_classes').update({ coach: null }).eq('id', classId);
+        error = fallback.error;
+      }
+
       if (error) { showAlert(`Could not remove trainer: ${error.message}`, 'error'); return; }
       await loadClasses();
       renderAll();
@@ -423,12 +546,22 @@
 
     // Complete session modal
     function openCompleteModal(classId) {
-      const cls = allClasses.find(c => c.id === classId);
-      const trainer = cls?.class_trainers?.[0]?.trainers;
+      const cls = findClassById(classId);
+      if (!cls) {
+        showAlert('Selected class could not be found.', 'error');
+        return;
+      }
+
+      const trainerPick = getClassTrainer(cls);
+      if (!trainerPick) {
+        showAlert('Assign a valid trainer before marking complete.', 'error');
+        return;
+      }
+
       const hours = ((cls?.duration_minutes || 60) / 60).toFixed(2);
       pendingClassId = classId;
       document.getElementById('complete-summary').innerHTML =
-        `Mark <strong class="text-white">${cls.name}</strong> as complete and log <strong class="text-white">${hours} hours</strong> for <strong class="text-white">${trainer?.name}</strong>.`;
+        `Mark <strong class="text-white">${cls.name}</strong> as complete and log <strong class="text-white">${hours} hours</strong> for <strong class="text-white">${trainerPick.name}</strong>.`;
       document.getElementById('complete-hours').textContent = `${hours} hrs`;
       document.getElementById('complete-modal').classList.remove('hidden');
     }
@@ -439,40 +572,60 @@
     }
 
     async function confirmComplete() {
-      const cls = allClasses.find(c => c.id === pendingClassId);
-      const assignment = cls?.class_trainers?.[0];
-      if (!assignment) return;
+      const cls = findClassById(pendingClassId);
+      if (!cls) {
+        showAlert('Selected class could not be found.', 'error');
+        closeCompleteModal();
+        return;
+      }
+
+      const trainerPick = getClassTrainer(cls);
+      if (!trainerPick) {
+        showAlert('Assign a valid trainer before marking complete.', 'error');
+        return;
+      }
 
       const btn = document.getElementById('complete-confirm');
       btn.disabled = true; btn.textContent = 'Saving changes...';
 
       const hours = (cls.duration_minutes || 60) / 60;
-      const date = new Date(cls.datetime).toISOString().split('T')[0];
-
-      const { error: classErr } = await db.from('classes').update({ status: 'completed' }).eq('id', pendingClassId);
-      if (classErr) {
-        btn.disabled = false; btn.textContent = 'Confirm';
-        showAlert(`Could not mark class complete: ${classErr.message}`, 'error'); return;
-      }
+      const parsedDate = cls.datetime ? new Date(cls.datetime) : null;
+      const date = parsedDate && !Number.isNaN(parsedDate.getTime())
+        ? parsedDate.toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
 
       const { error: hoursErr } = await db.from('trainer_hours').upsert({
-        trainer_id: assignment.trainer_id,
+        trainer_id: trainerPick.id,
         class_id: pendingClassId,
         date,
         hours_logged: hours,
         confirmed: false,
       }, { onConflict: 'trainer_id,class_id' });
 
+      if (!hoursErr) {
+        try {
+          await markClassCompletedIfSupported(pendingClassId);
+        } catch (statusErr) {
+          console.warn('Status update skipped:', statusErr.message || statusErr);
+        }
+      }
+
       btn.disabled = false; btn.textContent = 'Confirm';
 
       if (hoursErr) {
-        showAlert(`Class completed, but hour logging failed: ${hoursErr.message}`, 'error'); return;
+        const fkError = /trainer_hours_class_id_fkey/i.test(hoursErr.message || '');
+        if (fkError) {
+          showAlert('Hour logging is blocked by a database FK that still points to the legacy classes table. Run the FK migration SQL in Supabase.', 'error');
+        } else {
+          showAlert(`Class completed, but hour logging failed: ${hoursErr.message}`, 'error');
+        }
+        return;
       }
 
       closeCompleteModal();
       await loadClasses();
       renderAll();
-      showAlert(`Class completed. ${hours.toFixed(2)} hrs logged for ${assignment.trainers?.name}.`, 'success');
+      showAlert(`Class completed. ${hours.toFixed(2)} hrs logged for ${trainerPick.name}.`, 'success');
     }
 
     // Alert helper

@@ -20,7 +20,7 @@
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="flex h-full grow flex-col">
 
@@ -66,7 +66,7 @@
       </header>
 
       <!-- Main content -->
-      <main class="flex-1 p-6 lg:p-10 space-y-8">
+      <main class="flex-1 p-6 lg:p-10 space-y-8 s14-shell">
 
         <!-- Page title -->
         <div class="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -89,7 +89,7 @@
 
         <!-- Filter bar -->
         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div class="flex items-center gap-0 border border-outline/40 self-start">
+          <div class="flex items-center gap-0 border border-outline/40 self-start s14-pills">
             <button data-range="today"
               class="px-5 h-9 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">Today</button>
             <button data-range="week"
@@ -102,19 +102,19 @@
 
         <!-- Summary stats -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-surface border border-outline/40 p-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Total Hours</p>
             <p id="stat-hours" class="font-headline font-black text-primary text-3xl">—</p>
           </div>
-          <div class="bg-surface border border-outline/40 p-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Sessions</p>
             <p id="stat-sessions" class="font-headline font-black text-white text-3xl">—</p>
           </div>
-          <div id="stat-trainers-card" class="bg-surface border border-outline/40 p-4">
+          <div id="stat-trainers-card" class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Active Trainers</p>
             <p id="stat-trainers" class="font-headline font-black text-white text-3xl">—</p>
           </div>
-          <div class="bg-surface border border-outline/40 p-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Pending Confirmation</p>
             <p id="stat-unconfirmed" class="font-headline font-black text-white text-3xl">—</p>
           </div>
@@ -129,7 +129,7 @@
         <!-- Detail table -->
         <div>
           <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Session Breakdown</h2>
-          <div class="bg-surface border border-outline/40 overflow-x-auto">
+          <div class="bg-surface border border-outline/40 overflow-x-auto s14-card s14-table">
             <table class="w-full min-w-[600px]">
               <thead>
                 <tr class="border-b border-white/10">
@@ -322,6 +322,10 @@
       </tr>`;
     }
 
+    function asKey(value) {
+      return String(value);
+    }
+
     async function refreshReport() {
       const { start, end } = getDateRange(activeRange);
       ui.dateRange.textContent = `${formatDate(start)} – ${formatDate(end)}`;
@@ -329,9 +333,7 @@
 
       let query = db
         .from('trainer_hours')
-        .select(`id, date, hours_logged, confirmed,
-          trainers ( id, name, specialisation ),
-          classes ( id, name )`)
+        .select('id, trainer_id, class_id, date, hours_logged, confirmed')
         .gte('date', start)
         .lte('date', end)
         .order('date', { ascending: false });
@@ -340,14 +342,48 @@
         query = query.eq('trainer_id', trainerRecord.id);
       }
 
-      const { data, error } = await query;
-      if (error) {
-        showAlert(`Could not load report: ${error.message}`, 'error');
+      const { data: rawRows, error: hoursError } = await query;
+      if (hoursError) {
+        showAlert(`Could not load report: ${hoursError.message}`, 'error');
         renderEmptyState('Error loading data.');
         return;
       }
 
-      const rows = data || [];
+      const trainerIds = [...new Set((rawRows || []).map(row => row.trainer_id).filter(Boolean))];
+      const classIds = [...new Set((rawRows || []).map(row => row.class_id).filter(Boolean))];
+
+      let trainersById = new Map();
+      if (trainerIds.length) {
+        const { data: trainers, error: trainerError } = await db
+          .from('trainers')
+          .select('id, name, specialisation')
+          .in('id', trainerIds);
+        if (trainerError) {
+          showAlert(`Could not load trainers: ${trainerError.message}`, 'error');
+        } else {
+          trainersById = new Map((trainers || []).map(row => [asKey(row.id), row]));
+        }
+      }
+
+      let classesById = new Map();
+      if (classIds.length) {
+        const { data: classes, error: classError } = await db
+          .from('gym_classes')
+          .select('id, name')
+          .in('id', classIds);
+        if (classError) {
+          showAlert(`Could not load class names: ${classError.message}`, 'error');
+        } else {
+          classesById = new Map((classes || []).map(row => [asKey(row.id), row]));
+        }
+      }
+
+      const rows = (rawRows || []).map(row => ({
+        ...row,
+        trainer: trainersById.get(asKey(row.trainer_id)) || null,
+        classInfo: classesById.get(asKey(row.class_id)) || null,
+      }));
+
       updateStats(rows);
 
       if (!isTrainer) {
@@ -360,7 +396,7 @@
     function updateStats(rows) {
       const totalHours = rows.reduce((sum, row) => sum + toHours(row.hours_logged), 0);
       const unconfirmedCount = rows.filter(row => !row.confirmed).length;
-      const trainerIds = rows.map(row => row.trainers?.id).filter(Boolean);
+      const trainerIds = rows.map(row => row.trainer?.id).filter(Boolean);
 
       ui.statHours.textContent = totalHours.toFixed(1);
       ui.statSessions.textContent = rows.length;
@@ -373,7 +409,7 @@
 
       const totalsByTrainer = {};
       for (const row of rows) {
-        const trainer = row.trainers;
+        const trainer = row.trainer;
         if (!trainer?.id) continue;
 
         if (!totalsByTrainer[trainer.id]) {
@@ -398,7 +434,7 @@
 
       trainers.forEach(trainer => {
         const card = document.createElement('div');
-        card.className = 'bg-surface border border-outline/40 p-4 flex items-center gap-4';
+        card.className = 'bg-surface border border-outline/40 p-4 flex items-center gap-4 s14-card';
         card.innerHTML = `
           <div class="size-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
             <span class="font-headline font-black text-on-primary">${trainer.name.charAt(0).toUpperCase()}</span>
@@ -425,15 +461,17 @@
       }
 
       rows.forEach(row => {
+        const trainer = row.trainer;
+        const className = row.classInfo?.name || (row.class_id ? `Class #${row.class_id}` : '—');
         const tr = document.createElement('tr');
         tr.className = 'border-b border-white/5 hover:bg-surface-variant/30 transition-colors';
         tr.innerHTML = `
           <td class="px-4 py-3 text-sm text-on-surface-variant whitespace-nowrap">${formatDate(row.date)}</td>
           <td class="px-4 py-3">
-            <p class="text-sm font-semibold text-white">${row.trainers?.name || '—'}</p>
-            ${row.trainers?.specialisation ? `<p class="text-[10px] text-on-surface-variant">${row.trainers.specialisation}</p>` : ''}
+            <p class="text-sm font-semibold text-white">${trainer?.name || '—'}</p>
+            ${trainer?.specialisation ? `<p class="text-[10px] text-on-surface-variant">${trainer.specialisation}</p>` : ''}
           </td>
-          <td class="px-4 py-3 text-sm text-on-surface-variant">${row.classes?.name || '—'}</td>
+          <td class="px-4 py-3 text-sm text-on-surface-variant">${className}</td>
           <td class="px-4 py-3 whitespace-nowrap">
             <span class="font-headline font-bold text-primary">${toHours(row.hours_logged).toFixed(2)}</span>
             <span class="text-on-surface-variant text-xs"> hrs</span>

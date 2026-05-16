@@ -20,7 +20,7 @@
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="flex h-full grow flex-col">
 
@@ -66,7 +66,7 @@
       </header>
 
       <!-- Main content -->
-      <main class="flex-1 p-6 lg:p-10 space-y-8">
+      <main class="flex-1 p-6 lg:p-10 space-y-8 s14-shell">
 
         <!-- Page title -->
         <div class="border-b border-white/10 pb-6">
@@ -78,7 +78,7 @@
 
         <!-- Not a trainer message (hidden by default) -->
         <div id="not-trainer-msg" class="hidden">
-          <div class="bg-surface border border-outline/40 p-10 text-center space-y-3">
+          <div class="bg-surface border border-outline/40 p-10 text-center space-y-3 s14-card">
             <span class="material-symbols-outlined text-5xl text-on-surface-variant opacity-40 block">person_off</span>
             <h2 class="font-headline font-bold text-white text-xl">No trainer profile found</h2>
             <p class="text-on-surface-variant text-sm max-w-sm mx-auto">
@@ -94,7 +94,7 @@
         <div id="schedule-content" class="space-y-8">
 
           <!-- Trainer info card -->
-          <div class="bg-surface border border-outline/40 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <div class="bg-surface border border-outline/40 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5 s14-card">
             <div class="size-14 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
               <span id="trainer-initial" class="font-headline font-black text-on-primary text-2xl">?</span>
             </div>
@@ -117,7 +117,7 @@
           <!-- Upcoming classes -->
           <div>
             <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Upcoming Sessions</h2>
-            <div id="upcoming-empty" class="hidden bg-surface border border-outline/40 p-10 text-center">
+            <div id="upcoming-empty" class="hidden bg-surface border border-outline/40 p-10 text-center s14-card">
               <span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-40 block mb-2">event_available</span>
               <p class="text-on-surface-variant text-sm">No upcoming classes assigned.</p>
             </div>
@@ -127,7 +127,7 @@
           <!-- Past classes -->
           <div>
             <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Past Sessions</h2>
-            <div id="past-empty" class="hidden bg-surface border border-outline/40 p-10 text-center">
+            <div id="past-empty" class="hidden bg-surface border border-outline/40 p-10 text-center s14-card">
               <span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-40 block mb-2">history</span>
               <p class="text-on-surface-variant text-sm">No completed or cancelled sessions yet.</p>
             </div>
@@ -203,19 +203,54 @@
       });
     }
 
+    function toDateTime(date, time) {
+      if (!date) return null;
+      const rawTime = String(time || '00:00').trim();
+      const hhmm = rawTime.length >= 5 ? rawTime.slice(0, 5) : '00:00';
+      return `${date}T${hhmm}:00`;
+    }
+
+    function namesMatch(left, right) {
+      return String(left || '').trim().toLowerCase() === String(right || '').trim().toLowerCase();
+    }
+
+    function classBelongsToTrainer(row, trainer) {
+      const rowTrainerId = row?.trainer_id;
+      if (rowTrainerId !== null && rowTrainerId !== undefined && rowTrainerId !== '') {
+        return String(rowTrainerId) === String(trainer?.id);
+      }
+
+      // Legacy fallback for rows that predate trainer_id.
+      return namesMatch(row?.coach, trainer?.name);
+    }
+
     // Load trainer schedule
     async function loadSchedule() {
-      const { data: assignments, error } = await db
-        .from('class_trainers')
-        .select(`class_id, classes ( id, name, description, datetime, duration_minutes, location, status )`)
-        .eq('trainer_id', trainerRecord.id);
+      const [{ data: classesRows, error: classesErr }, { data: hoursRows, error: hoursErr }] = await Promise.all([
+        db.from('gym_classes').select('*').order('date', { ascending: true }).order('time', { ascending: true }),
+        db.from('trainer_hours').select('class_id').eq('trainer_id', trainerRecord.id),
+      ]);
 
-      if (error) { console.error('Schedule error:', error); return; }
+      if (classesErr) { console.error('Schedule classes error:', classesErr); return; }
+      if (hoursErr) { console.error('Schedule hours error:', hoursErr); return; }
 
-      const classes = (assignments || [])
-        .map(a => a.classes)
-        .filter(Boolean)
-        .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+      const completedIds = new Set((hoursRows || []).map(row => String(row.class_id)));
+
+      const classes = (classesRows || [])
+        .filter(row => classBelongsToTrainer(row, trainerRecord))
+        .map(row => {
+          const status = completedIds.has(String(row.id)) ? 'completed' : (row.status || 'scheduled');
+          return {
+            id: row.id,
+            name: row.name,
+            description: row.description || null,
+            datetime: toDateTime(row.date, row.time),
+            duration_minutes: Number(row.duration_minutes) || 60,
+            location: row.location || null,
+            status,
+          };
+        })
+        .sort((a, b) => new Date(a.datetime || 0) - new Date(b.datetime || 0));
 
       const upcoming = classes.filter(c => c.status !== 'completed' && c.status !== 'cancelled');
       const past = classes.filter(c => c.status === 'completed' || c.status === 'cancelled');
@@ -240,19 +275,24 @@
       emptyEl.classList.add('hidden');
 
       classes.forEach(cls => {
-        const dt = new Date(cls.datetime);
-        const dateStr = dt.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-        const timeStr = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const dt = cls.datetime ? new Date(cls.datetime) : null;
+        const hasDateTime = dt && !Number.isNaN(dt.getTime());
+        const dateStr = hasDateTime
+          ? dt.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+          : 'Date unavailable';
+        const timeStr = hasDateTime
+          ? dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+          : 'Time unavailable';
         const duration = cls.duration_minutes || 60;
-        const isToday = new Date().toDateString() === dt.toDateString();
+        const isToday = hasDateTime && new Date().toDateString() === dt.toDateString();
 
         const card = document.createElement('div');
-        card.className = 'bg-surface border border-outline/40 p-5 flex items-start gap-4 hover:border-primary/30 transition-colors';
+        card.className = 'bg-surface border border-outline/40 p-5 flex items-start gap-4 hover:border-primary/30 transition-colors s14-card';
         card.innerHTML = `
           <div class="size-14 bg-primary/10 border border-primary/20 flex flex-col items-center justify-center flex-shrink-0">
-            <span class="text-primary font-headline font-black text-xl leading-none">${dt.getDate()}</span>
+            <span class="text-primary font-headline font-black text-xl leading-none">${hasDateTime ? dt.getDate() : '--'}</span>
             <span class="text-primary text-[9px] font-bold uppercase tracking-wider">
-              ${dt.toLocaleDateString('en-GB', { month: 'short' })}
+              ${hasDateTime ? dt.toLocaleDateString('en-GB', { month: 'short' }) : '--'}
             </span>
           </div>
           <div class="flex-1 min-w-0">

@@ -23,7 +23,7 @@
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
       <!-- Header -->
@@ -77,7 +77,7 @@
       </header>
       <main class="flex-1 flex flex-col">
         <!-- Dashboard Content -->
-        <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto">
+        <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto s14-shell">
           <!-- Hero Section -->
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
@@ -98,7 +98,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Membership Status Card -->
             <div
-              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group">
+              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group s14-card">
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
                   Membership Status
@@ -121,7 +121,7 @@
             </div>
 
             <!-- Subscription Plan Card -->
-            <div class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group s14-card-strong">
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">
                   Subscription Plan
@@ -142,7 +142,7 @@
 
             <!-- Monthly Stats Card -->
             <div
-              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group">
+              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group s14-card">
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Workouts this
                   Month</p>
@@ -182,7 +182,7 @@
 
             <!-- Personal Records -->
             <div class="lg:col-span-2 space-y-6">
-              <div class="bg-surface p-8 space-y-6 border-t-2 border-primary flex flex-col h-full">
+              <div class="bg-surface p-8 space-y-6 border-t-2 border-primary flex flex-col h-full s14-card">
                 <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
 
                 <!-- Dynamic List Container -->
@@ -477,7 +477,7 @@ if (data) {
 
         // Build the HTML card
         const classHTML = `
-          <div class="flex items-center gap-6 p-4 bg-surface border-l-4 ${borderClass} group hover:bg-surface-variant transition-colors">
+          <div class="flex items-center gap-6 p-4 bg-surface border-l-4 ${borderClass} group hover:bg-surface-variant transition-colors s14-card">
             <div class="flex flex-col items-center justify-center bg-surface-variant min-w-[60px] h-[60px]">
               <span class="text-[10px] font-bold text-on-surface-variant">${monthName}</span>
               <span class="text-xl font-headline font-bold text-white leading-none">${dayNum}</span>

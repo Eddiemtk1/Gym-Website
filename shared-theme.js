@@ -1,5 +1,27 @@
 (function () {
   const STAFF_ACCENT = "#00E0FF";
+  const DEFAULT_FOOTER_MARKUP = `
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        <div>
+          <p class="font-headline text-2xl font-black text-primary uppercase tracking-tight">GymFlow</p>
+          <p class="text-on-surface-variant text-sm mt-3 max-w-md">
+            Flexible memberships, modern equipment, and expert support for every training level.
+          </p>
+        </div>
+        <div class="md:text-right space-y-4">
+          <div class="flex flex-wrap gap-6 md:justify-end text-[11px] font-bold uppercase tracking-widest">
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="index.html">Home</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="membership.html">Memberships</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="Timetable.html">Timetable</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="dashboard.html">Dashboard</a>
+            <a class="text-on-surface-variant hover:text-primary transition-colors" href="login.html">Staff Login</a>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">© ${new Date().getFullYear()} GymFlow. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  `;
 
   const BASE_TAILWIND_CONFIG = {
     darkMode: "class",
@@ -58,6 +80,39 @@
     return target;
   }
 
+  function ensureGlobalFooter(options) {
+    const opts = options || {};
+    const body = document.body;
+    if (!body) return null;
+    if (body.dataset.hideGlobalFooter === "true") return null;
+
+    let footer = document.getElementById("gymflow-global-footer");
+    if (footer) return footer;
+
+    const existingFooters = Array.from(document.querySelectorAll("footer"));
+    existingFooters.forEach(function (node) {
+      node.remove();
+    });
+
+    footer = document.createElement("footer");
+    footer.id = "gymflow-global-footer";
+    footer.className = "bg-black border-t border-white/10 mt-16 relative z-20";
+    footer.innerHTML = opts.markup || DEFAULT_FOOTER_MARKUP;
+    body.appendChild(footer);
+    return footer;
+  }
+
+  function initGlobalFooter() {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () {
+        ensureGlobalFooter();
+      }, { once: true });
+      return;
+    }
+
+    ensureGlobalFooter();
+  }
+
   window.applyGymflowTailwindConfig = function applyGymflowTailwindConfig(overrides) {
     const config = cloneConfig(BASE_TAILWIND_CONFIG);
 
@@ -74,6 +129,9 @@
     applyStaffAccent: function applyStaffAccent() {
       document.documentElement.style.setProperty("--primary-color", STAFF_ACCENT);
       return STAFF_ACCENT;
-    }
+    },
+    injectGlobalFooter: ensureGlobalFooter
   };
+
+  initGlobalFooter();
 })();

@@ -101,3 +101,154 @@
   background: rgba(14, 14, 14, 0.8);
   backdrop-filter: blur(12px);
 }
+
+/* Sprint 1 + Sprint 4 design refresh */
+.s14-page {
+  --s14-border: rgba(255, 255, 255, 0.12);
+  --s14-soft-border: rgba(255, 255, 255, 0.08);
+  --s14-shell-bg: linear-gradient(150deg, rgba(20, 23, 25, 0.9), rgba(12, 13, 14, 0.9));
+  --s14-card-bg: linear-gradient(145deg, rgba(29, 32, 34, 0.9), rgba(16, 17, 19, 0.92));
+  --s14-strong-bg: linear-gradient(145deg, #00d6f3, #00bcd7);
+  --s14-card-shadow: 0 14px 34px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  position: relative;
+  background:
+    radial-gradient(1000px 480px at -10% -20%, rgba(0, 224, 255, 0.14), transparent 62%),
+    radial-gradient(780px 460px at 110% -10%, rgba(255, 255, 255, 0.06), transparent 64%),
+    #0e0e0e;
+}
+
+.s14-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+.s14-page > .relative {
+  position: relative;
+  z-index: 1;
+}
+
+.s14-page .site-nav,
+.s14-page nav {
+  background: linear-gradient(180deg, rgba(11, 11, 11, 0.92), rgba(11, 11, 11, 0.74));
+  backdrop-filter: blur(12px);
+  border-bottom-color: var(--s14-border) !important;
+}
+
+.s14-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  border: 1px solid var(--s14-soft-border);
+  border-radius: 22px;
+  background: var(--s14-shell-bg);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.s14-shell.s14-shell-tight {
+  max-width: 1080px;
+}
+
+.s14-card {
+  background: var(--s14-card-bg) !important;
+  border-color: var(--s14-border) !important;
+  border-radius: 16px;
+  box-shadow: var(--s14-card-shadow);
+}
+
+.s14-card-strong {
+  background: var(--s14-strong-bg) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  color: #06171d !important;
+  box-shadow: 0 16px 36px rgba(0, 224, 255, 0.24);
+}
+
+.s14-table {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+}
+
+.s14-pills {
+  border-radius: 999px;
+  overflow: hidden;
+  border-color: var(--s14-border) !important;
+  background: rgba(10, 10, 10, 0.52);
+}
+
+.s14-pills button {
+  letter-spacing: 0.07em;
+}
+
+.s14-auth .s14-auth-hero {
+  background:
+    radial-gradient(circle at 18% 15%, rgba(255, 255, 255, 0.34), transparent 36%),
+    linear-gradient(165deg, #00e0ff 0%, #00b8d1 54%, #0a0a0a 100%) !important;
+}
+
+.s14-auth .s14-auth-panel {
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.66), rgba(10, 10, 10, 0.92));
+}
+
+.s14-auth .s14-auth-form {
+  border: 1px solid var(--s14-border);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(21, 24, 26, 0.9), rgba(11, 12, 14, 0.92));
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+}
+
+.s14-auth .s14-auth-form input,
+.s14-auth .s14-auth-form select {
+  border-radius: 12px;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  background: rgba(8, 8, 8, 0.55) !important;
+}
+
+.s14-auth .s14-auth-form button[type="submit"] {
+  border-radius: 12px;
+  box-shadow: 0 14px 32px rgba(0, 224, 255, 0.2);
+}
+
+.s14-auth .s14-topbar {
+  backdrop-filter: blur(12px);
+}
+
+.s14-home .kinetic-gradient {
+  background: linear-gradient(130deg, #00e0ff 0%, #00bdd8 50%, #00a6be 100%);
+  box-shadow: 0 14px 30px rgba(0, 224, 255, 0.28);
+}
+
+.s14-home .marquee-container {
+  box-shadow:
+    0 -10px 30px rgba(0, 0, 0, 0.22) inset,
+    0 10px 30px rgba(0, 0, 0, 0.22) inset;
+}
+
+@media (max-width: 1024px) {
+  .s14-page::before {
+    opacity: 0.1;
+    background-size: 40px 40px;
+  }
+
+  .s14-shell {
+    border-radius: 16px;
+    border-left: none;
+    border-right: none;
+  }
+
+  .s14-auth .s14-auth-form {
+    padding: 1.1rem;
+    border-radius: 14px;
+  }
+}

@@ -22,7 +22,7 @@
   <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
 
@@ -74,7 +74,7 @@
       </header>
 
       <main class="flex-1 flex flex-col">
-        <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto max-w-7xl mx-auto w-full">
+        <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto max-w-7xl mx-auto w-full s14-shell s14-shell-tight">
 
           <div class="mb-10">
             <h1
@@ -88,7 +88,7 @@
 </div>
 
           <div class="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div class="bg-surface p-12 border-l-4 border-primary">
+            <div class="bg-surface p-12 border-l-4 border-primary s14-card">
               <h4 class="font-headline text-2xl font-black text-white uppercase italic tracking-tighter mb-4">The
                 GymFlow Promise</h4>
               <p class="text-on-surface-variant font-body leading-relaxed mb-8">
@@ -107,7 +107,7 @@
               </div>
             </div>
 
-            <div class="relative aspect-video bg-surface overflow-hidden group border border-white/5">
+            <div class="relative aspect-video bg-surface overflow-hidden group border border-white/5 s14-card">
               <img alt="Gym environment"
                 class="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8qVtlNtPkAgM9AZ9nePOqZELmT0uUgoNcqUhAg6w_Noz-nBqaD-UKg1QieZJC9TDW6QJ4MjA3enVqCC8qdtVdg86N9qHb4hT0nLHl_eg6ejy3MyEOnz0rRqRT1bW9p14nPdHa5LA0Y_8JpcQx_NmNVANjO5_X7fDZtPctlBfCLiizTbHa5nCxZp5I9kb5zohXqCsgNKs2n4WfoPQsAKYOtFxchRXG-maMFDcDMOGoKExVBDIdMfZkw1mkQ9F7iKdiirHS_8jlyTM">
@@ -215,6 +215,7 @@
         const cardClasses = isActive 
           ? 'bg-primary text-black border-primary' 
           : 'bg-surface text-white border-white/5 hover:bg-surface-variant';
+        const cardVisualClass = isActive ? 's14-card-strong' : 's14-card';
         const iconClasses = isActive ? 'text-white' : 'text-primary';
 
         const buttonHTML = isActive
@@ -250,7 +251,7 @@
         }
 
         const cardHTML = `
-          <div class="flex flex-col p-8 border transition-all duration-300 ${cardClasses}">
+          <div class="flex flex-col p-8 border transition-all duration-300 ${cardClasses} ${cardVisualClass}">
             <div class="mb-8 flex-grow">
               <span class="font-headline font-bold uppercase tracking-widest text-[10px] block mb-2 opacity-80">Plan 0${index + 1}</span>
               <h2 class="font-headline text-4xl font-black uppercase italic mb-4 tracking-tighter">${plan.name}</h2>
