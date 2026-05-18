@@ -563,14 +563,16 @@ if (data) {
       btn.disabled = true;
 
       try {
-        // Get current calories burnt
+        // Get current figures
         const { data: currentStats } = await supabaseClient
           .from('profiles')
-          .select('calories_burnt')
+          .select('calories_burnt, workouts_this_month')
           .eq('user_id', realUserId)
           .single();
 
-        const newCalorieTotal = (currentStats?.calories_burnt || 0) + 150;
+        const randomCalories = Math.floor(Math.random()* (100-50+1))+50;  
+        const newCalorieTotal = (currentStats?.calories_burnt || 0) + randomCalories;
+        const newWorkoutTotal = (currentStats?.workouts_this_month || 0) + 1;
 
         // Gets current PR
         const { data: existingRecord } = await supabaseClient
@@ -578,14 +580,14 @@ if (data) {
           .select('*')
           .eq('user_id', realUserId)
           .eq('exercise_name', exerciseName)
-          .single(); // returns ONE object!
+          .single(); 
 
         // Update or Insert PR
         if (existingRecord) {
           await supabaseClient.from('personal_records').update({
             weight: exerciseWeight,
-            previous_weight: existingRecord.weight // Removed the [0]
-          }).eq('id', existingRecord.id); // Removed the [0]
+            previous_weight: existingRecord.weight 
+          }).eq('id', existingRecord.id); 
         } else {
           await supabaseClient.from('personal_records').insert([
             { user_id: realUserId, exercise_name: exerciseName, weight: exerciseWeight }
@@ -595,7 +597,7 @@ if (data) {
         // 4. Update the Calorie Count in the database
         await supabaseClient
           .from('profiles')
-          .update({ calories_burnt: newCalorieTotal })
+          .update({ calories_burnt: newCalorieTotal, workouts_this_month: newWorkoutTotal })
           .eq('user_id', realUserId);
 
         // 5. Refresh UI
