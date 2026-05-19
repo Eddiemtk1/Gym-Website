@@ -158,8 +158,8 @@
   </div>
 
   <script>
-    const RESET_REDIRECT_OVERRIDE = '';
-    const RESET_REDIRECT_LOCAL_FALLBACK = 'http://localhost:5500/login';
+    const RESET_REDIRECT_OVERRIDE = 'https://eddiemtk1.github.io/Gym-Website/login.html';
+    const RESET_REDIRECT_LOCAL_FALLBACK = 'http://localhost:5500/login.html';
     const db = GymflowSupabase.createClient();
 
     const viewIds = ['login-view', 'forgot-view', 'recovery-view'];
@@ -304,17 +304,17 @@
     }
 
     function getPasswordResetRedirectUrl() {
+      const override = RESET_REDIRECT_OVERRIDE.trim();
+      if (override) {
+        return override;
+      }
+
       const isWebUrl = window.location.protocol === 'http:' || window.location.protocol === 'https:';
       if (isWebUrl) {
         return `${window.location.origin}${window.location.pathname}`;
       }
 
       // Supabase can't redirect back to file:// URLs.
-      const override = RESET_REDIRECT_OVERRIDE.trim();
-      if (override) {
-        return override;
-      }
-
       return RESET_REDIRECT_LOCAL_FALLBACK;
     }
 
