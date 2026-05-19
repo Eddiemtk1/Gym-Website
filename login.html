@@ -23,7 +23,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
-      Back to Home
+      Back
     </a>
     <div class="flex items-center gap-3 text-primary">
       <div class="size-5">
@@ -159,6 +159,7 @@
 
   <script>
     const RESET_REDIRECT_OVERRIDE = '';
+    const RESET_REDIRECT_LOCAL_FALLBACK = 'http://localhost:5500/login';
     const db = GymflowSupabase.createClient();
 
     const viewIds = ['login-view', 'forgot-view', 'recovery-view'];
@@ -211,6 +212,7 @@
     const getHomeRoute = GymflowRoles.getHomeRoute;
     const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
     const redirectToRoleHome = user => GymflowRoles.redirectToRoleHome(db, user);
+    let recoveryMode = false;
 
     function showAlert(message, type = 'error') {
       ui.alert.textContent = message;
@@ -275,6 +277,11 @@
       );
     }
 
+    function enterRecoveryMode() {
+      recoveryMode = true;
+      showView('recovery-view');
+    }
+
     async function prepareRecoverySession() {
       const tokenHash = getSearchParam('token_hash') || getHashParam('token_hash');
       if (!tokenHash || !isRecoveryRequest()) {
@@ -303,20 +310,23 @@
       }
 
       // Supabase can't redirect back to file:// URLs.
-      return RESET_REDIRECT_OVERRIDE || null;
+      const override = RESET_REDIRECT_OVERRIDE.trim();
+      if (override) {
+        return override;
+      }
+
+      return RESET_REDIRECT_LOCAL_FALLBACK;
     }
 
     db.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
-        showView('recovery-view');
+        enterRecoveryMode();
         return;
       }
 
       if (event === 'SIGNED_IN' && session) {
-        if (hasAuthCallbackParams()) {
-          if (isRecoveryRequest()) {
-            showView('recovery-view');
-          }
+        if (recoveryMode || isRecoveryRequest() || hasAuthCallbackParams()) {
+          enterRecoveryMode();
           return;
         }
 
@@ -326,7 +336,7 @@
 
     (async () => {
       if (isRecoveryRequest()) {
-        showView('recovery-view');
+        enterRecoveryMode();
       }
 
       const recoveryReady = await prepareRecoverySession();
@@ -334,8 +344,12 @@
         return;
       }
 
+      if (isRecoveryRequest()) {
+        enterRecoveryMode();
+      }
+
       const session = await GymflowSupabase.getSession(db);
-      if (session && !hasAuthCallbackParams()) {
+      if (session && !recoveryMode && !isRecoveryRequest() && !hasAuthCallbackParams()) {
         await redirectToRoleHome(session.user);
       }
     })();
@@ -390,11 +404,6 @@
       setButtonState(ui.resetBtn, 'Sending...', true);
 
       const redirectTo = getPasswordResetRedirectUrl();
-      if (!redirectTo) {
-        setButtonState(ui.resetBtn, 'Send Reset Link', false);
-        showAlert('Open this page via http://localhost (for example Live Server) or set RESET_REDIRECT_OVERRIDE in login.html.');
-        return;
-      }
 
       const { error } = await db.auth.resetPasswordForEmail(email, {
         redirectTo,
@@ -403,6 +412,11 @@
       setButtonState(ui.resetBtn, 'Send Reset Link', false);
 
       if (error) {
+        if (/redirect|not allowed|url/i.test(error.message || '')) {
+          showAlert(`Reset redirect is blocked in Supabase. Add ${redirectTo} in Auth URL settings or set RESET_REDIRECT_OVERRIDE.`);
+          return;
+        }
+
         showAlert(error.message);
         return;
       }

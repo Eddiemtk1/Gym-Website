@@ -512,7 +512,7 @@
         .eq('id', pendingClassId);
 
       // Backward compatibility: some environments may not have trainer_id yet.
-      if (error && /column .* does not exist/i.test(error.message || '')) {
+      if (error && (/column .* does not exist/i.test(error.message || '') || /could not find.*column/i.test(error.message || ''))) {
         const fallback = await db.from('gym_classes').update({ coach: trainerPick.name }).eq('id', pendingClassId);
         error = fallback.error;
       }
@@ -533,7 +533,7 @@
       let { error } = await db.from('gym_classes').update({ coach: null, trainer_id: null }).eq('id', classId);
 
       // Backward compatibility: some environments may not have trainer_id yet.
-      if (error && /column .* does not exist/i.test(error.message || '')) {
+      if (error && (/column .* does not exist/i.test(error.message || '') || /could not find.*column/i.test(error.message || ''))) {
         const fallback = await db.from('gym_classes').update({ coach: null }).eq('id', classId);
         error = fallback.error;
       }

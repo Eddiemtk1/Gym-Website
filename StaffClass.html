@@ -235,7 +235,7 @@
       let { error } = await db.from('gym_classes').insert([richGymClassData]);
 
       // Backward compatibility: some environments may not have richer columns yet.
-      if (error && /column .* does not exist/i.test(error.message || '')) {
+      if (error && (/column .* does not exist/i.test(error.message || '') || /could not find.*column/i.test(error.message || ''))) {
         const fallback = await db.from('gym_classes').insert([baseGymClassData]);
         error = fallback.error;
       }

@@ -23,7 +23,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
-      Back to Home
+      Back
     </a>
     <div class="flex items-center gap-3 text-primary">
       <div class="size-5">
@@ -163,7 +163,6 @@
       ui.submitBtn.textContent = label;
       ui.submitBtn.disabled = disabled;
     }
-
     function setFieldError(fieldId, message) {
       const input = document.getElementById(fieldId);
       const errorEl = document.getElementById(`${fieldId}-error`);
@@ -171,7 +170,6 @@
       errorEl.textContent = message;
       errorEl.classList.remove('hidden');
     }
-
     function clearErrors() {
       requiredFields.forEach(fieldId => {
         const input = document.getElementById(fieldId);

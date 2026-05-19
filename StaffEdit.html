@@ -208,7 +208,10 @@
     }
 
     function isMissingColumnError(error) {
-      return Boolean(error) && /column .* does not exist/i.test(error.message || '');
+      return Boolean(error) && (
+        /column .* does not exist/i.test(error.message || '') ||
+        /could not find.*column/i.test(error.message || '')
+      );
     }
 
     async function loadTrainerDirectory() {
