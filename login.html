@@ -289,13 +289,27 @@
       }
 
       try {
-        await db.auth.signOut();
+        await db.auth.signOut({ scope: 'local' });
       } catch (error) {
         console.warn('Failed to clear recovery session:', error?.message || error);
       }
 
       recoveryMode = false;
     }
+
+    function clearRecoverySessionOnPageExit() {
+      if (!recoveryMode || recoveryCompleted) {
+        return;
+      }
+
+      db.auth.signOut({ scope: 'local' }).catch(() => {
+        // Best-effort cleanup during page exit.
+      });
+
+      recoveryMode = false;
+    }
+
+    window.addEventListener('pagehide', clearRecoverySessionOnPageExit);
 
     function shouldBypassRecoveryNavigation(rawHref) {
       if (!rawHref) {
