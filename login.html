@@ -213,6 +213,7 @@
     const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
     const redirectToRoleHome = user => GymflowRoles.redirectToRoleHome(db, user);
     let recoveryMode = false;
+    let recoveryCompleted = false;
 
     function showAlert(message, type = 'error') {
       ui.alert.textContent = message;
@@ -282,6 +283,63 @@
       showView('recovery-view');
     }
 
+    async function clearRecoverySessionIfNeeded() {
+      if (!recoveryMode || recoveryCompleted) {
+        return;
+      }
+
+      try {
+        await db.auth.signOut();
+      } catch (error) {
+        console.warn('Failed to clear recovery session:', error?.message || error);
+      }
+
+      recoveryMode = false;
+    }
+
+    function shouldBypassRecoveryNavigation(rawHref) {
+      if (!rawHref) {
+        return true;
+      }
+
+      const href = rawHref.trim();
+      if (!href || href === '#' || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+        return true;
+      }
+
+      try {
+        const target = new URL(href, window.location.href);
+        const current = new URL(window.location.href);
+        const isSameDocument = target.origin === current.origin &&
+          target.pathname === current.pathname &&
+          target.search === current.search;
+
+        return isSameDocument;
+      } catch {
+        return true;
+      }
+    }
+
+    document.addEventListener('click', async event => {
+      if (!recoveryMode || recoveryCompleted) {
+        return;
+      }
+
+      const link = event.target.closest('a[href]');
+      if (!link) {
+        return;
+      }
+
+      const rawHref = link.getAttribute('href');
+      if (shouldBypassRecoveryNavigation(rawHref)) {
+        return;
+      }
+
+      event.preventDefault();
+      await clearRecoverySessionIfNeeded();
+      window.location.href = link.href;
+    });
+
     async function prepareRecoverySession() {
       const tokenHash = getSearchParam('token_hash') || getHashParam('token_hash');
       if (!tokenHash || !isRecoveryRequest()) {
@@ -294,7 +352,11 @@
       });
 
       if (error) {
-        showAlert(error.message);
+        if (/invalid|expired|token|otp/i.test(error.message || '')) {
+          showAlert('This reset link is no longer valid. Request a new reset email and use the newest link.');
+        } else {
+          showAlert(error.message);
+        }
         return false;
       }
 
@@ -421,7 +483,7 @@
         return;
       }
 
-      showAlert('We have sent a reset link. Check your inbox.', 'success');
+      showAlert('We have sent a reset link. Use the newest email link once.', 'success');
       ui.forgotForm.reset();
     });
 
@@ -453,6 +515,7 @@
         return;
       }
 
+      recoveryCompleted = true;
       showAlert('Password updated. Taking you back in...', 'success');
       setTimeout(async () => {
         const session = await GymflowSupabase.getSession(db);
