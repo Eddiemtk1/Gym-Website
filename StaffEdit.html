@@ -4,85 +4,71 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Staff | Class Management – GymFlow</title>
+  <title>Staff | Class Schedule – GymFlow</title>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet">
+  <script src="shared-theme.js"></script>
   <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#00E0FF", // Trainer Cyan
-            "on-primary": "#0e0e0e",
-            "background": "#0e0e0e",
-            "surface": "#131313",
-            "surface-variant": "#1a1a1a",
-            "on-surface": "#ffffff",
-            "on-surface-variant": "#a3a3a3",
-          },
-          fontFamily: { "headline": ["Lexend"], "body": ["Inter"] }
-        }
-      }
-    }
+    applyGymflowTailwindConfig();
   </script>
-  <style>
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
-    input[type="date"]::-webkit-calendar-picker-indicator,
-    input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-    
-    select {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300E0FF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
-      background-position: right 0.5rem center !important;
-      background-repeat: no-repeat !important;
-      background-size: 1.5em 1.5em !important;
-      appearance: none;
-    }
-    .specialty-card { backdrop-filter: blur(16px); background: rgba(26, 26, 26, 0.98); }
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #404040; border-radius: 10px; }
-  </style>
+  <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="staff-form-page bg-background text-on-surface font-body antialiased">
 
-  <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-    <div class="flex items-center gap-12">
-      <div class="flex items-center gap-4 text-primary">
+  <header class="site-nav sticky top-0 z-50 relative">
+    <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+      <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
         <div class="size-6">
           <svg fill="currentColor" viewBox="0 0 48 48">
             <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
           </svg>
         </div>
         <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW <span class="text-primary/50 text-[10px] italic ml-1 tracking-widest uppercase">Staff</span></h2>
+      </a>
+
+      <div class="flex items-center gap-3">
+        <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+          <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+          <span>Menu</span>
+        </button>
+
+        <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
+          <div class="text-right">
+            <p id="header-name" class="font-headline font-bold text-white text-xs">Staff Team</p>
+            <p id="header-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Admin Access</p>
+          </div>
+          <div class="size-8 border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+            <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
+            <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">S</span>
+          </div>
+        </a>
+
+        <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
+          <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+          <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
+        </button>
       </div>
-      <nav class="hidden md:flex items-center h-10">
-        <a class="flex items-center gap-2 px-6 h-full text-on-surface-variant hover:text-white transition-all" href="dashboard.html">
-          <span class="material-symbols-outlined text-[20px]">dashboard</span>
-          <span class="text-xs uppercase tracking-widest font-bold">Dashboard</span>
-        </a>
-        <a class="flex items-center gap-2 px-6 h-full bg-primary text-on-primary transition-all font-bold" href="timetable.html">
-          <span class="material-symbols-outlined text-[20px]">calendar_today</span>
-          <span class="text-xs uppercase tracking-widest">Manage Schedule</span>
-        </a>
-      </nav>
+    </div>
+
+    <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+      <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
     </div>
   </header>
 
   <main class="max-w-7xl mx-auto p-6 lg:p-10">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-
-      <!-- FORM SECTION -->
       <div class="lg:col-span-4">
         <form id="class-form" class="bg-surface p-8 border border-white/10 space-y-6 sticky top-24 shadow-2xl">
           <input type="hidden" id="edit-id">
           <div class="space-y-1">
             <h2 id="form-title" class="font-headline text-2xl font-black uppercase italic text-white leading-none">Add New Class</h2>
-            <p class="text-[9px] text-primary uppercase font-bold tracking-[0.2em]">Publish to Live Timetable</p>
+            <p class="text-[9px] text-primary uppercase font-bold tracking-[0.2em]">Create or update timetable classes</p>
           </div>
 
           <div class="space-y-5">
@@ -95,7 +81,7 @@
               <div class="flex justify-between items-end mb-2">
                 <label class="block text-[10px] font-black uppercase tracking-widest text-primary">Class Leader</label>
                 <button type="button" onclick="toggleSpecialties()" class="flex items-center gap-1 text-[9px] font-bold text-on-surface-variant hover:text-primary uppercase">
-                  <span class="material-symbols-outlined text-[14px]">info</span> Expertise
+                  <span class="material-symbols-outlined text-[14px]">info</span> Specialties
                 </button>
               </div>
               <select id="coach" required class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold uppercase text-xs">
@@ -105,7 +91,15 @@
                 <option value="Casey Morgan">Casey Morgan</option>
                 <option value="Taylor Brooks">Taylor Brooks</option>
                 <option value="Riley Quinn">Riley Quinn</option>
+                <option value="Morgan Hayes">Morgan Hayes</option>
                 <option value="Skyler Reed">Skyler Reed</option>
+                <option value="Charlie Lane">Charlie Lane</option>
+                <option value="Dakota West">Dakota West</option>
+                <option value="Jamie Sterling">Jamie Sterling</option>
+                <option value="Parker Solis">Parker Solis</option>
+                <option value="Emerson Knight">Emerson Knight</option>
+                <option value="Rowan Blair">Rowan Blair</option>
+                <option value="Hayden Frost">Hayden Frost</option>
               </select>
 
               <div id="specialtyPanel" class="hidden absolute left-0 right-0 top-full mt-2 z-20 specialty-card border border-primary/30 p-6 shadow-2xl">
@@ -114,7 +108,17 @@
                   <p><span class="text-white">Alex Rivers:</span> <span class="text-on-surface-variant">Swimming, HIIT</span></p>
                   <p><span class="text-white">Jordan Vance:</span> <span class="text-on-surface-variant">Yoga, Pilates</span></p>
                   <p><span class="text-white">Casey Morgan:</span> <span class="text-on-surface-variant">Powerlifting</span></p>
+                  <p><span class="text-white">Taylor Brooks:</span> <span class="text-on-surface-variant">Cardio</span></p>
+                  <p><span class="text-white">Riley Quinn:</span> <span class="text-on-surface-variant">Endurance</span></p>
+                  <p><span class="text-white">Morgan Hayes:</span> <span class="text-on-surface-variant">Zumba</span></p>
                   <p><span class="text-white">Skyler Reed:</span> <span class="text-on-surface-variant">CrossFit, Kettlebell</span></p>
+                  <p><span class="text-white">Charlie Lane:</span> <span class="text-on-surface-variant">Boxing</span></p>
+                  <p><span class="text-white">Dakota West:</span> <span class="text-on-surface-variant">General Coaching</span></p>
+                  <p><span class="text-white">Jamie Sterling:</span> <span class="text-on-surface-variant">General Coaching</span></p>
+                  <p><span class="text-white">Parker Solis:</span> <span class="text-on-surface-variant">General Coaching</span></p>
+                  <p><span class="text-white">Emerson Knight:</span> <span class="text-on-surface-variant">General Coaching</span></p>
+                  <p><span class="text-white">Rowan Blair:</span> <span class="text-on-surface-variant">General Coaching</span></p>
+                  <p><span class="text-white">Hayden Frost:</span> <span class="text-on-surface-variant">General Coaching</span></p>
                 </div>
               </div>
             </div>
@@ -140,6 +144,21 @@
                 <input type="number" id="capacity" required placeholder="20" class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold text-xs">
               </div>
             </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Duration (min)</label>
+                <input type="number" id="duration" required min="15" step="15" placeholder="60" class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">Status</label>
+                <select id="status" required class="w-full bg-surface-variant border-none text-white p-4 focus:ring-2 focus:ring-primary font-bold uppercase text-xs">
+                  <option value="scheduled" selected>Scheduled</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="pt-4 space-y-3">
@@ -153,14 +172,12 @@
         </form>
       </div>
 
-      <!-- LIST SECTION -->
       <div class="lg:col-span-8">
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-xs font-black uppercase tracking-[0.4em] text-on-surface-variant italic">Live Schedule Feed</h2>
+          <h2 class="text-xs font-black uppercase tracking-[0.4em] text-on-surface-variant italic">Current Class Schedule</h2>
           <span id="class-count" class="bg-primary/10 text-primary border border-primary/20 text-[10px] font-black px-3 py-1 uppercase tracking-widest">0 TOTAL</span>
         </div>
         <div id="staff-list" class="space-y-4">
-          <!-- Dynamically populated -->
         </div>
       </div>
     </div>
@@ -168,19 +185,69 @@
 
   <footer class="bg-surface border-t border-white/10 p-10 mt-20">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-      <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.3em]">© 2026 GymFlow Staff Portal • Admin Mode</p>
+      <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.3em]">© 2026 GymFlow Staff Tools</p>
     </div>
   </footer>
 
   <script>
-    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const _supabase = GymflowSupabase.createClient();
 
     const form = document.getElementById('class-form');
     const submitBtn = document.getElementById('submit-btn');
     const editIdInput = document.getElementById('edit-id');
     const cancelEditBtn = document.getElementById('cancel-edit');
+    let currentSession = null;
+    let trainerIdByName = new Map();
+
+    function normalizeName(value) {
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function isMissingColumnError(error) {
+      return Boolean(error) && (
+        /column .* does not exist/i.test(error.message || '') ||
+        /could not find.*column/i.test(error.message || '')
+      );
+    }
+
+    async function loadTrainerDirectory() {
+      const { data, error } = await _supabase.from('trainers').select('id, name');
+      if (error) {
+        console.error('Trainer directory error:', error);
+        trainerIdByName = new Map();
+        return;
+      }
+
+      trainerIdByName = new Map((data || []).map(row => [normalizeName(row.name), row.id]));
+    }
+
+    async function init() {
+      const session = await GymflowSupabase.getSession(_supabase);
+      if (!session) return window.location.replace('login.html');
+      currentSession = session;
+
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'admin', activeHref: 'StaffEdit.html' });
+      GymflowNav.initMenuNav();
+
+      const { data: profile } = await _supabase
+        .from('profiles')
+        .select('name, avatar_url')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      GymflowNav.applyProfileMini({
+        nameId: 'header-name',
+        subtitleId: 'header-plan',
+        avatarImgId: 'header-avatar-img',
+        avatarInitialId: 'header-avatar-initial',
+        name: profile?.name || session.user.email || 'Staff Team',
+        subtitle: 'Admin Access',
+        avatarUrl: profile?.avatar_url,
+      });
+
+      await loadTrainerDirectory();
+      fetchStaffSchedule();
+    }
 
     function toggleSpecialties() {
       document.getElementById('specialtyPanel').classList.toggle('hidden');
@@ -189,29 +256,55 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = editIdInput.value;
-      const classData = {
+      const baseClassData = {
         name: document.getElementById('name').value.toUpperCase(),
         coach: document.getElementById('coach').value,
         date: document.getElementById('date').value,
         time: document.getElementById('time').value,
         location: document.getElementById('location').value.toUpperCase(),
-        capacity: parseInt(document.getElementById('capacity').value)
+        capacity: parseInt(document.getElementById('capacity').value),
+      };
+
+      const durationMinutes = parseInt(document.getElementById('duration').value) || 60;
+      const status = (document.getElementById('status').value || 'scheduled').toLowerCase();
+      const trainerId = trainerIdByName.get(normalizeName(baseClassData.coach)) ?? null;
+
+      const richClassData = {
+        ...baseClassData,
+        duration_minutes: durationMinutes,
+        status,
+        trainer_id: trainerId,
       };
 
       submitBtn.disabled = true;
-      submitBtn.innerText = "SYNCING...";
+      submitBtn.innerText = "Saving...";
 
       let result;
       if (id) {
-        result = await _supabase.from('gym_classes').update(classData).eq('id', id);
+        result = await _supabase.from('gym_classes').update(richClassData).eq('id', id);
+        if (result.error && isMissingColumnError(result.error)) {
+          result = await _supabase.from('gym_classes').update(baseClassData).eq('id', id);
+        }
       } else {
-        result = await _supabase.from('gym_classes').insert([classData]);
+        const richInsertData = {
+          ...richClassData,
+          user_id: currentSession?.user?.id,
+        };
+        result = await _supabase.from('gym_classes').insert([richInsertData]);
+
+        if (result.error && isMissingColumnError(result.error)) {
+          const fallbackInsertData = {
+            ...baseClassData,
+            user_id: currentSession?.user?.id,
+          };
+          result = await _supabase.from('gym_classes').insert([fallbackInsertData]);
+        }
       }
 
       if (result.error) {
         alert("Error: " + result.error.message);
         submitBtn.disabled = false;
-        submitBtn.innerText = id ? "Confirm Update" : "Publish Class";
+        submitBtn.innerText = id ? "Save Changes" : "Publish Class";
       } else {
         resetForm();
         fetchStaffSchedule();
@@ -224,23 +317,29 @@
 
       if (error) return;
 
-      document.getElementById('class-count').innerText = `${classes.length} TOTAL CLASSES`;
+      document.getElementById('class-count').innerText = `${classes.length} CLASSES`;
       container.innerHTML = '';
 
       classes.forEach(cls => {
         const row = document.createElement('div');
         row.className = "bg-surface border border-white/5 p-6 flex justify-between items-center group hover:border-primary/50 transition-all";
         
-        // Escape strings for the onclick function to prevent syntax errors
         const safeName = cls.name.replace(/'/g, "\\'");
         const safeCoach = (cls.coach || '').replace(/'/g, "\\'");
+        const safeDate = (cls.date || '').replace(/'/g, "\\'");
+        const safeTime = (cls.time || '').replace(/'/g, "\\'");
         const safeLoc = (cls.location || '').replace(/'/g, "\\'");
+        const safeStatus = (cls.status || 'scheduled').replace(/'/g, "\\'");
+        const durationMinutes = Number(cls.duration_minutes) || 60;
+        const displayTime = cls.time ? cls.time.slice(0, 5) : '--:--';
+        const displayDate = cls.date ? cls.date.split('-').slice(1).join('/') : '--/--';
+        const displayStatus = String(cls.status || 'scheduled').toUpperCase();
 
         row.innerHTML = `
             <div class="flex gap-6 items-center">
                 <div class="text-center border-r border-white/10 pr-6">
-                    <p class="text-primary font-black text-xl leading-none italic">${cls.time.slice(0, 5)}</p>
-                    <p class="text-[9px] font-bold text-on-surface-variant uppercase mt-1">${cls.date.split('-').slice(1).join('/')}</p>
+              <p class="text-primary font-black text-xl leading-none italic">${displayTime}</p>
+              <p class="text-[9px] font-bold text-on-surface-variant uppercase mt-1">${displayDate}</p>
                 </div>
                 <div>
                     <h3 class="text-xl font-black uppercase italic text-white mb-1 group-hover:text-primary transition-colors">${cls.name}</h3>
@@ -250,11 +349,15 @@
                         <span>${cls.location}</span>
                         <span class="text-white/20">|</span>
                         <span>Cap: ${cls.capacity}</span>
+                <span class="text-white/20">|</span>
+                <span>Dur: ${durationMinutes}m</span>
+                <span class="text-white/20">|</span>
+                <span>Status: ${displayStatus}</span>
                     </div>
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="loadEdit('${cls.id}', '${safeName}', '${safeCoach}', '${cls.date}', '${cls.time}', '${safeLoc}', ${cls.capacity})" class="size-12 bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
+            <button onclick="loadEdit('${cls.id}', '${safeName}', '${safeCoach}', '${safeDate}', '${safeTime}', '${safeLoc}', ${cls.capacity}, ${durationMinutes}, '${safeStatus}')" class="size-12 bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
                     <span class="material-symbols-outlined text-[20px]">edit</span>
                 </button>
                 <button onclick="handleDelete('${cls.id}')" class="size-12 bg-white/5 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">
@@ -266,25 +369,30 @@
       });
     }
 
-    window.loadEdit = (id, name, coach, date, time, location, capacity) => {
+    window.loadEdit = (id, name, coach, date, time, location, capacity, durationMinutes = 60, status = 'scheduled') => {
       editIdInput.value = id;
       document.getElementById('name').value = name;
       document.getElementById('coach').value = coach;
       document.getElementById('date').value = date;
-      // Handle time formats (some browsers might send HH:MM:SS)
       document.getElementById('time').value = time.slice(0, 5);
       document.getElementById('location').value = location;
       document.getElementById('capacity').value = capacity;
+      document.getElementById('duration').value = durationMinutes || 60;
 
-      document.getElementById('form-title').innerText = "Modify Session";
-      submitBtn.innerText = "Confirm Update";
+      const normalizedStatus = String(status || 'scheduled').toLowerCase();
+      document.getElementById('status').value = ['scheduled', 'completed', 'cancelled'].includes(normalizedStatus)
+        ? normalizedStatus
+        : 'scheduled';
+
+      document.getElementById('form-title').innerText = "Edit Class";
+      submitBtn.innerText = "Save Changes";
       submitBtn.disabled = false;
       cancelEditBtn.classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.handleDelete = async (id) => {
-      if (confirm("Terminate this session record?")) {
+      if (confirm("Delete this class from the timetable?")) {
         const { error } = await _supabase.from('gym_classes').delete().eq('id', id);
         if (!error) fetchStaffSchedule();
       }
@@ -293,6 +401,8 @@
     function resetForm() {
       form.reset();
       editIdInput.value = '';
+      document.getElementById('duration').value = 60;
+      document.getElementById('status').value = 'scheduled';
       document.getElementById('form-title').innerText = "Add New Class";
       submitBtn.innerText = "Publish Class";
       submitBtn.disabled = false;
@@ -300,7 +410,11 @@
     }
 
     cancelEditBtn.onclick = resetForm;
-    fetchStaffSchedule();
+    document.getElementById('logout-btn').onclick = async () => {
+      await _supabase.auth.signOut();
+      window.location.replace('login.html');
+    };
+    init();
   </script>
 </body>
 

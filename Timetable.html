@@ -9,47 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
+  <script src="auth-role.js"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet">
+  <script src="shared-theme.js"></script>
   <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "var(--primary-color, #D7FF00)",
-            "on-primary": "#0e0e0e",
-            "background": "#0e0e0e",
-            "surface": "#131313",
-            "surface-variant": "#1a1a1a",
-            "outline": "#404040",
-            "on-surface": "#ffffff",
-            "on-surface-variant": "#a3a3a3",
-          },
-          fontFamily: { "headline": ["Lexend"], "body": ["Inter"], "label": ["Inter"] },
-          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
-        },
-      },
-    }
+    applyGymflowTailwindConfig();
   </script>
-  <style>
-    :root { --primary-color: #D7FF00; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
-    .timetable-grid { display: grid; grid-template-columns: 80px 1fr; }
-    .book-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .book-btn:not(:disabled):hover { letter-spacing: 0.2em; transform: scale(1.05); }
-    .hidden { display: none !important; }
-    @media (min-width: 768px) { .md-nav-flex { display: flex !important; } }
-    
-    /* Custom Scrollbar for Modal */
-    #participants-list::-webkit-scrollbar { width: 4px; }
-    #participants-list::-webkit-scrollbar-track { background: #1a1a1a; }
-    #participants-list::-webkit-scrollbar-thumb { background: var(--primary-color); }
-  </style>
+  <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
-  <!-- MODAL OVERLAY -->
-  <div id="participant-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm">
+<body class="timetable-page bg-background text-on-surface font-body antialiased">
+    <div id="participant-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm">
     <div class="bg-surface border border-white/10 w-full max-w-md p-8 relative">
       <button onclick="closeModal()" class="absolute top-4 right-4 text-on-surface-variant hover:text-white transition-colors">
         <span class="material-symbols-outlined">close</span>
@@ -59,40 +31,50 @@
         <h2 id="modal-class-name" class="font-headline text-3xl font-black text-white uppercase italic leading-none">Class Name</h2>
       </div>
       <div id="participants-list" class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-        <!-- Participants injected here -->
-      </div>
+        </div>
       <button onclick="closeModal()" class="w-full mt-8 bg-white text-black py-4 font-headline font-black uppercase text-xs tracking-widest hover:bg-primary transition-all">
         Close Roster
       </button>
     </div>
   </div>
-
   <div class="min-h-screen flex flex-col">
-    <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-      <div class="flex items-center gap-12">
-        <div class="flex items-center gap-4 text-primary">
+    <header class="site-nav sticky top-0 z-50 relative">
+      <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+        <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
           <div class="size-6">
             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
             </svg>
           </div>
           <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
-        </div>
-        <nav id="main-nav" class="hidden md-nav-flex items-center h-10"></nav>
-      </div>
+        </a>
 
-      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
+          <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+            <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+            <span>Menu</span>
+          </button>
+
         <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
           <div class="text-right">
             <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
-            <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
+            <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
           </div>
-          <div id="avatar-container" class="size-8 rounded-full border border-primary overflow-hidden flex items-center justify-center bg-surface-variant">
+          <div class="size-8 rounded-full border border-primary overflow-hidden flex items-center justify-center bg-surface-variant">
             <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
             <span id="nav-avatar-initial" class="text-primary font-bold text-xs">?</span>
           </div>
         </div>
-        <button id="logout-btn" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Logout</button>
+
+        <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
+          <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+          <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
+        </button>
+      </div>
+      </div>
+
+      <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+        <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
       </div>
     </header>
 
@@ -112,7 +94,7 @@
           </div>
         </div>
         <div class="flex flex-col items-start md:items-end">
-          <p class="text-primary font-black uppercase text-[10px] tracking-[0.4em]">Live Database Connection</p>
+          <p class="text-primary font-black uppercase text-[10px] tracking-[0.4em]">Live Class Timetable</p>
           <p id="current-week" class="text-on-surface-variant font-bold uppercase text-[10px] tracking-[0.2em] mt-1"></p>
         </div>
       </div>
@@ -120,81 +102,109 @@
       <div id="timetable-container" class="space-y-1 border-t border-white/10">
         <div id="loading-state" class="py-24 text-center">
           <div class="inline-block animate-spin size-10 border-[3px] border-primary border-t-transparent mb-6"></div>
-          <p class="text-white uppercase text-[10px] font-black tracking-[0.4em] animate-pulse">Syncing Weekly Schedule...</p>
+          <p class="text-white uppercase text-[10px] font-black tracking-[0.4em] animate-pulse">Loading class timetable...</p>
         </div>
       </div>
     </main>
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhd29vYWxrZ2l2ZWx0cmJ5bHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNDQxNDUsImV4cCI6MjA4OTYyMDE0NX0.Jd5aCIt6BOaYolHrmtZ77V1Jxsh5oHomR9FCICpbdFk';
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const db = GymflowSupabase.createClient();
 
     const today = new Date();
     document.getElementById('current-week').innerText = `Week of ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
     let currentUser = null;
-    let userProfile = null;
+    let currentRole = 'member';
+    const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
 
     async function init() {
-      const { data: { session }, error: sessionError } = await db.auth.getSession();
-      if (sessionError || !session) {
-        window.location.href = 'login.html';
-        return;
-      }
-      currentUser = session.user;
+      const session = await GymflowSupabase.getSession(db);
+
+      currentUser = session?.user || null;
+      currentRole = currentUser ? await resolveUserRole(currentUser) : 'member';
+
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: currentRole, activeHref: 'Timetable.html' });
+      GymflowNav.initMenuNav();
+
       await loadProfile();
       await fetchAndRenderTimetable();
     }
 
     async function loadProfile() {
-      const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
-      userProfile = profile;
-      
-      document.getElementById('nav-user-name').innerText = profile?.name || 'User';
-      document.getElementById('nav-avatar-initial').innerText = (profile?.name || 'U').charAt(0).toUpperCase();
-
-      if (profile?.avatar_url) {
-        const img = document.getElementById('nav-user-avatar');
-        img.src = profile.avatar_url;
-        img.classList.remove('hidden');
-        document.getElementById('nav-avatar-initial').classList.add('hidden');
+      if (!currentUser) {
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          avatarInitialId: 'nav-avatar-initial',
+          name: 'Guest',
+          subtitle: 'Public View',
+        });
+        const logoutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
+        if (logoutLabel) logoutLabel.innerText = 'Sign In';
+        return;
       }
 
-      const role = profile?.role || 'member';
-      renderNavbar(role);
-      
-      if (role === 'trainer') {
-        document.documentElement.style.setProperty('--primary-color', '#00E0FF');
-        document.getElementById('nav-user-role').innerText = 'Staff / Trainer';
-        document.getElementById('trainer-actions').classList.remove('hidden');
-      }
-    }
+      const { data: profile, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
+      if (error) console.error("Profile Load Error:", error);
 
-    function renderNavbar(role) {
-      const nav = document.getElementById('main-nav');
-      const links = role === 'trainer' ? 
-        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Trainer Report', url: 'trainer-report.html', icon: 'manage_accounts' }, { name: 'Profile', url: 'profile.html', icon: 'person' }] : 
-        [{ name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' }, { name: 'Memberships', url: 'membership.html', icon: 'card_membership' }, { name: 'Timetable', url: 'timetable.html', icon: 'calendar_today', active: true }, { name: 'Profile', url: 'profile.html', icon: 'person' }];
-      
-      nav.innerHTML = links.map(link => `
-        <a href="${link.url}" class="flex items-center gap-2 px-6 h-full transition-all ${link.active ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}">
-          <span class="material-symbols-outlined" style="font-size:20px; ${link.active ? "font-variation-settings:'FILL' 1;" : ''}">${link.icon}</span>
-          <span class="text-xs uppercase tracking-widest font-bold">${link.name}</span>
-        </a>`).join('');
+      if (profile) {
+        const miniSubtitle = currentRole !== 'member' ? 'Staff' : (profile.plan_name || 'Member');
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          avatarInitialId: 'nav-avatar-initial',
+          name: profile.name || currentUser.email || 'Member',
+          subtitle: miniSubtitle,
+          avatarUrl: profile.avatar_url,
+        });
+
+        if (currentRole !== 'member') {
+          GymflowTheme.applyStaffAccent();
+
+          if (currentRole === 'admin') {
+            document.getElementById('trainer-actions').classList.remove('hidden');
+          }
+        }
+      } else {
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          avatarInitialId: 'nav-avatar-initial',
+          name: currentUser.email || 'Member',
+          subtitle: GymflowNav.getRoleLabel(currentRole),
+        });
+      }
     }
 
     async function fetchAndRenderTimetable() {
       const container = document.getElementById('timetable-container');
       const { data: classes, error } = await db.from('gym_classes').select('*').order('date', { ascending: true });
-      const { data: myBookings } = await db.from('class_bookings').select('class_id').eq('user_id', currentUser.id);
-      const bookedIds = myBookings?.map(b => b.class_id) || [];
+      let bookedIds = [];
+
+      if (currentUser) {
+        const { data: myBookings } = await db
+          .from('class_bookings')
+          .select('class_id')
+          .eq('user_id', currentUser.id);
+
+        bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
+      }
 
       if (error) {
-        container.innerHTML = `<div class="py-20 text-center text-red-500 uppercase font-black tracking-widest">${error.message}</div>`;
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-red-500 font-bold">Error: ${error.message}</p></div>`;
         return;
       }
+
+      if (!classes || classes.length === 0) {
+        container.innerHTML = `<div class="py-20 text-center"><p class="text-on-surface-variant uppercase text-xs tracking-widest font-bold">No classes scheduled.</p></div>`;
+        return;
+      }
+
+      const isPrivileged = currentRole === 'trainer' || currentRole === 'admin';
 
       container.innerHTML = '';
       classes.forEach(cls => {
@@ -202,9 +212,24 @@
         const dateObj = new Date(year, month - 1, day);
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
         const dayNum = dateObj.getDate();
+        
         const isFull = (cls.capacity || 0) <= 0;
         const isBooked = bookedIds.includes(cls.id);
-        const isTrainer = userProfile?.role === 'trainer';
+        let buttonHTML = '';
+        if (isPrivileged) {
+          buttonHTML = `<button onclick="viewParticipants('${cls.id}', '${cls.name}')" class="px-6 py-4 border border-primary text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">View Roster</button>`;
+        } else {
+  
+          if (!currentUser) {
+             buttonHTML = `<button onclick="window.location.href='login.html'" class="px-6 py-4 border border-primary/40 text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">Sign In to Book</button>`;
+          } else if (isBooked) {
+             buttonHTML = `<button onclick="cancelBooking('${cls.id}', ${cls.capacity})" class="px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all bg-red-600/20 text-red-500 border border-red-500/50 hover:bg-red-600 hover:text-white">Remove Booking</button>`;
+          } else if (isFull) {
+             buttonHTML = `<button disabled class="px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all bg-zinc-800 text-zinc-500 cursor-not-allowed">Class Full</button>`;
+          } else {
+             buttonHTML = `<button onclick="bookClass('${cls.id}', ${cls.capacity})" class="book-btn bg-white text-black hover:bg-primary px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all">Book Spot</button>`;
+          }
+        }
 
         container.insertAdjacentHTML('beforeend', `
           <div class="timetable-grid border-b border-white/10 group hover:bg-surface-variant/30 transition-all duration-300">
@@ -225,17 +250,7 @@
                 </div>
               </div>
               <div class="flex gap-3">
-                ${isTrainer ? `
-                  <button onclick="viewParticipants('${cls.id}', '${cls.name}')" class="px-6 py-4 border border-primary text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">
-                    View Roster
-                  </button>
-                ` : `
-                  <button onclick="${isBooked ? `cancelBooking('${cls.id}', ${cls.capacity})` : `bookClass('${cls.id}', ${cls.capacity})`}" 
-                    ${!isBooked && isFull ? 'disabled' : ''} 
-                    class="${!isBooked && isFull ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : isBooked ? 'bg-red-600/20 text-red-500 border border-red-500/50 hover:bg-red-600 hover:text-white' : 'book-btn bg-white text-black hover:bg-primary'} px-10 py-4 font-headline font-black uppercase text-xs tracking-widest transition-all">
-                    ${isBooked ? 'Remove Booking' : (isFull ? 'Class Full' : 'Book Spot')}
-                  </button>
-                `}
+                ${buttonHTML}
               </div>
             </div>
           </div>`);
@@ -243,18 +258,31 @@
     }
 
     async function bookClass(classId, capacity) {
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       if (capacity <= 0) return;
+      const userName = document.getElementById('nav-user-name').innerText; 
+
       const { error: bookingError } = await db.from('class_bookings').insert({
         class_id: classId,
         user_id: currentUser.id,
-        user_name: userProfile?.name || 'Anonymous'
+        user_name: userName || 'Member'
       });
-      if (bookingError) return;
+      if (bookingError) return alert('Booking failed: ' + bookingError.message);
+      
       await db.from('gym_classes').update({ capacity: capacity - 1 }).eq('id', classId);
       fetchAndRenderTimetable();
     }
 
     async function cancelBooking(classId, capacity) {
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       await db.from('class_bookings').delete().match({ class_id: classId, user_id: currentUser.id });
       await db.from('gym_classes').update({ capacity: capacity + 1 }).eq('id', classId);
       fetchAndRenderTimetable();
@@ -288,10 +316,15 @@
       document.getElementById('participant-modal').classList.add('hidden');
     }
 
-    document.getElementById('logout-btn').onclick = async () => {
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
       await db.auth.signOut();
       window.location.href = 'login.html';
-    };
+    });
 
     init();
   </script>

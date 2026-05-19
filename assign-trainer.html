@@ -4,84 +4,77 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Staff – Trainer Assignment</title>
+  <title>Trainer Assignment – GymFlow</title>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
+  <script src="auth-role.js"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="shared-theme.js"></script>
   <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#00E0FF", // Trainer Cyan
-            "on-primary": "#0e0e0e",
-            "background": "#0e0e0e",
-            "surface": "#131313",
-            "surface-variant": "#1a1a1a",
-            "outline": "#404040",
-            "on-surface": "#ffffff",
-            "on-surface-variant": "#a3a3a3",
-          },
-          fontFamily: { "headline": ["Lexend"], "body": ["Inter"], "label": ["Inter"] },
-          borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
-        },
-      },
-    }
+    applyGymflowTailwindConfig();
   </script>
-  <style>
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
-    .hidden-load { visibility: hidden; }
-    @media (min-width: 768px) { .md-flex { display: flex !important; } }
-  </style>
+  <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased hidden-load" id="main-body">
+<body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="flex h-full grow flex-col">
 
-      <header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-        <div class="flex items-center gap-12">
-          <div class="flex items-center gap-4 text-primary">
+      <header class="site-nav sticky top-0 z-50 relative">
+        <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+          <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
             <div class="size-6">
               <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
               </svg>
             </div>
             <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">GYMFLOW</h2>
-          </div>
-          
-          <!-- DYNAMIC NAV BAR -->
-          <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
-        </div>
-        
-        <div class="flex items-center gap-6">
-          <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
+          </a>
+
+          <div class="flex items-center gap-3">
+            <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+              <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+              <span>Menu</span>
+            </button>
+
+          <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
               <p id="header-name" class="font-headline font-bold text-white text-xs">Loading...</p>
-              <p id="role-badge" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Staff / Trainer</p>
+              <p id="header-role-label" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Admin</p>
             </div>
             <div class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
+              <img id="header-avatar-img" src="" alt="Profile" class="w-full h-full object-cover hidden">
               <span id="header-avatar-initial" class="font-headline text-sm font-bold text-primary">?</span>
             </div>
-          </div>
-          <button id="logout-btn" class="flex items-center gap-2 px-4 h-10 bg-surface-variant text-on-surface-variant hover:bg-white hover:text-black transition-colors text-xs font-bold uppercase tracking-widest">
+          </a>
+          <button id="logout-btn" title="Sign out"
+            class="flex items-center gap-2 px-4 h-10 bg-surface-variant text-on-surface-variant hover:bg-white hover:text-black transition-colors text-xs font-bold uppercase tracking-widest">
             <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+            <span class="hidden sm:inline">Sign out</span>
           </button>
+        </div>
+        </div>
+
+        <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+          <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
         </div>
       </header>
 
-      <main class="flex-1 p-6 lg:p-10 space-y-8">
+      <main class="flex-1 p-6 lg:p-10 space-y-8 s14-shell">
+
         <div class="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
               Trainer Assignment
             </h1>
-            <p class="text-on-surface-variant mt-3">Staff Management Portal: Assign trainers to classes.</p>
+            <p class="text-on-surface-variant mt-3">Assign trainers to classes and mark sessions complete to auto-log hours.</p>
           </div>
-          <a href="trainer-report.html" class="self-start sm:self-auto flex items-center gap-2 px-5 h-10 border border-primary/40 text-primary hover:bg-primary hover:text-on-primary transition-colors text-xs font-bold uppercase tracking-widest">
+          <a href="trainer-report.html"
+            class="self-start sm:self-auto flex items-center gap-2 px-5 h-10 border border-primary/40 text-primary hover:bg-primary hover:text-on-primary transition-colors text-xs font-bold uppercase tracking-widest">
             <span class="material-symbols-outlined" style="font-size: 18px;">summarize</span>
             View Hours Report
           </a>
@@ -89,171 +82,560 @@
 
         <div id="page-alert" class="hidden px-4 py-3 text-sm font-medium border"></div>
 
-        <div class="bg-surface border border-outline/40 overflow-x-auto">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Total Classes</p>
+            <p id="stat-total" class="font-headline font-black text-white text-3xl">—</p>
+          </div>
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Trainer Assigned</p>
+            <p id="stat-assigned" class="font-headline font-black text-white text-3xl">—</p>
+          </div>
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Completed</p>
+            <p id="stat-completed" class="font-headline font-black text-primary text-3xl">—</p>
+          </div>
+          <div class="bg-surface border border-outline/40 p-4 s14-card">
+            <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Registered Trainers</p>
+            <p id="stat-trainers" class="font-headline font-black text-white text-3xl">—</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-0 border border-outline/40 self-start w-fit s14-pills">
+          <button data-filter="all" class="px-5 h-9 bg-primary text-on-primary text-xs font-bold uppercase tracking-widest transition-colors">All</button>
+          <button data-filter="upcoming" class="px-5 h-9 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">Upcoming</button>
+          <button data-filter="completed" class="px-5 h-9 text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:text-white transition-colors border-l border-outline/40">Completed</button>
+        </div>
+
+        <div class="bg-surface border border-outline/40 overflow-x-auto s14-card s14-table">
           <table class="w-full min-w-[700px]">
             <thead>
               <tr class="border-b border-white/10">
                 <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Class</th>
                 <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Date & Time</th>
+                <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Duration</th>
                 <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Status</th>
-                <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Assigned Trainer</th>
+                <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Trainer</th>
                 <th class="px-4 py-3 text-left text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Actions</th>
               </tr>
             </thead>
             <tbody id="classes-tbody">
-              <tr><td colspan="5" class="text-center py-16 text-on-surface-variant">Syncing with schedule...</td></tr>
+              <tr>
+                <td colspan="6" class="text-center py-16 text-on-surface-variant">
+                  <span class="material-symbols-outlined text-5xl block mb-3 opacity-30">hourglass_empty</span>
+                  Loading classes...
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
+
       </main>
     </div>
   </div>
 
   <div id="assign-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-    <div class="bg-surface border border-outline/60 p-6 w-full max-w-sm space-y-5">
-      <h3 class="font-headline font-black text-white text-lg uppercase tracking-tight">Assign Staff Member</h3>
-      <select id="trainer-select" class="w-full bg-surface-variant border border-outline/60 text-white text-sm px-3 py-2.5 outline-none focus:border-primary">
-        <option value="">Loading trainers...</option>
-      </select>
-      <div class="flex gap-3">
-        <button onclick="closeAssignModal()" class="flex-1 h-10 border border-outline/60 text-xs font-bold uppercase hover:bg-white/5">Cancel</button>
-        <button id="modal-confirm" class="flex-1 h-10 bg-primary text-on-primary text-xs font-bold uppercase hover:brightness-110">Save Changes</button>
+    <div class="bg-surface border border-outline/60 p-6 w-full max-w-sm space-y-5 s14-card">
+      <div class="flex items-center justify-between">
+        <h3 class="font-headline font-black text-white text-lg uppercase tracking-tight">Assign Trainer</h3>
+        <button id="modal-close" class="text-on-surface-variant hover:text-white transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <p id="modal-class-name" class="text-sm text-on-surface-variant border-l-2 border-primary pl-3"></p>
+      <div>
+        <label class="block text-xs text-on-surface-variant uppercase tracking-wider mb-2">Select Trainer</label>
+        <select id="trainer-select"
+          class="w-full bg-surface-variant border border-outline/60 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-primary">
+          <option value="">Choose a trainer...</option>
+        </select>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button id="modal-cancel"
+          class="flex-1 h-10 border border-outline/60 text-on-surface-variant hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
+          Cancel
+        </button>
+        <button id="modal-confirm"
+          class="flex-1 h-10 bg-primary text-on-primary hover:brightness-110 transition-all text-xs font-bold uppercase tracking-widest">
+          Assign
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="complete-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-surface border border-outline/60 p-6 w-full max-w-sm space-y-5 s14-card">
+      <div class="flex items-center justify-between">
+        <h3 class="font-headline font-black text-white text-lg uppercase tracking-tight">Mark Complete</h3>
+        <button id="complete-close" class="text-on-surface-variant hover:text-white transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <p id="complete-summary" class="text-sm text-on-surface-variant leading-relaxed"></p>
+      <div class="bg-surface-variant border border-outline/40 px-4 py-3 flex items-center justify-between">
+        <span class="text-on-surface-variant text-xs uppercase tracking-wider">Hours to log</span>
+        <span id="complete-hours" class="font-headline font-black text-primary text-xl"></span>
+      </div>
+      <p class="text-xs text-on-surface-variant">This marks the class as completed and logs the trainer hours. This action cannot be undone.</p>
+      <div class="flex gap-3 pt-1">
+        <button id="complete-cancel"
+          class="flex-1 h-10 border border-outline/60 text-on-surface-variant hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
+          Cancel
+        </button>
+        <button id="complete-confirm"
+          class="flex-1 h-10 bg-primary text-on-primary hover:brightness-110 transition-all text-xs font-bold uppercase tracking-widest">
+          Confirm
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://pawooalkgiveltrbylqe.supabase.co';
-    const SUPABASE_KEY = 'YOUR_ANON_KEY'; 
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const db = GymflowSupabase.createClient();
 
     let currentUser = null;
+    let currentRole = 'member';
     let allClasses = [];
+    let allTrainers = [];
     let pendingClassId = null;
+    let activeFilter = 'all';
+    let completedClassIds = new Set();
+
+    const getHomeRoute = GymflowRoles.getHomeRoute;
+    const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
 
     async function init() {
-      const { data: { session } } = await db.auth.getSession();
+      const session = await GymflowSupabase.getSession(db);
       if (!session) { window.location.replace('login.html'); return; }
       currentUser = session.user;
 
-      const { data: profile } = await db.from('profiles').select('*').eq('user_id', currentUser.id).single();
-      
-      if (!profile || profile.role !== 'trainer') {
-        window.location.replace('dashboard.html');
+      currentRole = await resolveUserRole(currentUser);
+      if (currentRole !== 'admin') {
+        showAlert('You need an admin account to access this page.', 'error');
+        setTimeout(() => window.location.replace(getHomeRoute(currentRole)), 1200);
         return;
       }
 
-      // Render the specific trainer navbar order
-      renderNavbar(profile.role);
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: currentRole, activeHref: 'assign-trainer.html' });
+      GymflowNav.initMenuNav();
 
-      document.getElementById('main-body').classList.remove('hidden-load');
-      document.getElementById('header-name').textContent = profile.name;
-      document.getElementById('header-avatar-initial').textContent = profile.name.charAt(0).toUpperCase();
-
+      loadHeader();
       await Promise.all([loadClasses(), loadTrainers()]);
+      setupFilterTabs();
       renderAll();
     }
 
-    function renderNavbar(role) {
-      const nav = document.getElementById('main-nav');
-      // Force "assign-trainer.html" to be active for Trainer Report and Assignment sub-pages if desired, 
-      // or match exact URL
-      const currentPath = window.location.pathname.split("/").pop() || "dashboard.html";
-      
-      const trainerLinks = [
-        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
-        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
-        { name: 'Trainer Report', url: 'trainer-report.html', icon: 'analytics' },
-        { name: 'Profile', url: 'profile.html', icon: 'person' }
-      ];
+    async function loadHeader() {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('name, avatar_url')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
 
-      // Since this is a Staff page, we know they are a trainer, but we use the role logic for safety
-      const links = trainerLinks;
+      GymflowNav.applyProfileMini({
+        nameId: 'header-name',
+        subtitleId: 'header-role-label',
+        avatarImgId: 'header-avatar-img',
+        avatarInitialId: 'header-avatar-initial',
+        name: profile?.name || currentUser.email || 'Admin',
+        subtitle: GymflowNav.getRoleLabel(currentRole),
+        avatarUrl: profile?.avatar_url,
+      });
+    }
 
-      nav.innerHTML = links.map(link => {
-        const isActive = currentPath === link.url;
-        // Note: Added specific logic so Trainer Report stays active when on this assignment sub-page
-        const isAssignmentActive = (link.url === 'trainer-report.html' && currentPath === 'assign-trainer.html');
-        
-        return `
-          <a class="flex items-center gap-2 px-6 h-full transition-all ${isActive || isAssignmentActive ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white hover:bg-surface-variant'}" href="${link.url}">
-            <span class="material-symbols-outlined" style="font-size: 20px; ${(isActive || isAssignmentActive) ? "font-variation-settings: 'FILL' 1;" : ''}">${link.icon}</span>
-            <span class="text-xs uppercase tracking-widest">${link.name}</span>
-          </a>
-        `;
-      }).join('');
+    function toDateTime(date, time) {
+      if (!date) return null;
+      const rawTime = String(time || '00:00').trim();
+      const hhmm = rawTime.length >= 5 ? rawTime.slice(0, 5) : '00:00';
+      return `${date}T${hhmm}:00`;
+    }
+
+    function normalizeName(value) {
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function getClassStatus(cls) {
+      const classId = String(cls.id);
+      if (completedClassIds.has(classId)) return 'completed';
+      return cls.status || 'scheduled';
+    }
+
+    function hasAssignedTrainer(cls) {
+      return (cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '') || Boolean(cls.coach_name);
+    }
+
+    function getDisplayedTrainer(cls) {
+      if (cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '') {
+        const trainerById = allTrainers.find(t => String(t.id) === String(cls.trainer_id));
+        if (trainerById) {
+          return {
+            name: trainerById.name,
+            specialisation: trainerById.specialisation || null,
+          };
+        }
+      }
+
+      if (!cls.coach_name) return null;
+
+      const trainerByName = allTrainers.find(t => normalizeName(t.name) === normalizeName(cls.coach_name));
+      if (trainerByName) {
+        return {
+          name: trainerByName.name,
+          specialisation: trainerByName.specialisation || null,
+        };
+      }
+
+      return { name: cls.coach_name, specialisation: null };
+    }
+
+    function getClassTrainer(cls) {
+      if (!cls) return null;
+
+      if (cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '') {
+        const trainerById = allTrainers.find(t => String(t.id) === String(cls.trainer_id));
+        if (trainerById) return trainerById;
+      }
+
+      if (!cls.coach_name) return null;
+      return allTrainers.find(t => normalizeName(t.name) === normalizeName(cls.coach_name)) || null;
+    }
+
+    function findClassById(classId) {
+      return allClasses.find(c => String(c.id) === String(classId));
+    }
+
+    async function markClassCompletedIfSupported(classId) {
+      const result = await db.from('gym_classes').update({ status: 'completed' }).eq('id', classId);
+      if (result.error && /column .* does not exist/i.test(result.error.message || '')) {
+        return;
+      }
+      if (result.error) throw result.error;
     }
 
     async function loadClasses() {
-      const { data } = await db.from('gym_classes').select('*').order('datetime', { ascending: true });
-      allClasses = data || [];
+      const [{ data: gymRows, error: gymErr }, { data: hourRows, error: hourErr }] = await Promise.all([
+        db.from('gym_classes').select('*').order('date', { ascending: true }).order('time', { ascending: true }),
+        db.from('trainer_hours').select('class_id'),
+      ]);
+
+      if (gymErr) { console.error('Gym classes error:', gymErr); }
+      if (hourErr) { console.error('Trainer hours lookup error:', hourErr); }
+
+      completedClassIds = new Set((hourRows || []).map(row => String(row.class_id)));
+
+      const normalized = (gymRows || []).map(row => ({
+        id: row.id,
+        name: row.name,
+        description: row.description || null,
+        datetime: toDateTime(row.date, row.time),
+        duration_minutes: Number(row.duration_minutes) || 60,
+        location: row.location || null,
+        status: row.status || 'scheduled',
+        coach_name: row.coach || null,
+        trainer_id: row.trainer_id ?? null,
+      }));
+
+      normalized.sort((a, b) => new Date(a.datetime || 0) - new Date(b.datetime || 0));
+      allClasses = normalized;
     }
 
     async function loadTrainers() {
-      const { data } = await db.from('profiles').select('name').eq('role', 'trainer');
+      const { data, error } = await db.from('trainers').select('id, name, specialisation').order('name');
+      if (error) { console.error('Trainers error:', error); }
+      allTrainers = data || [];
       const sel = document.getElementById('trainer-select');
       sel.innerHTML = '<option value="">Choose a trainer...</option>';
-      if (data) {
-        data.forEach(t => {
-          sel.innerHTML += `<option value="${t.name}">${t.name}</option>`;
-        });
-      }
+      allTrainers.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.specialisation ? `${t.name} — ${t.specialisation}` : t.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function getFilteredClasses() {
+      if (activeFilter === 'upcoming')  return allClasses.filter(c => getClassStatus(c) !== 'completed' && getClassStatus(c) !== 'cancelled');
+      if (activeFilter === 'completed') return allClasses.filter(c => getClassStatus(c) === 'completed');
+      return allClasses;
     }
 
     function renderAll() {
+      updateStats();
+      const filtered = getFilteredClasses();
       const tbody = document.getElementById('classes-tbody');
       tbody.innerHTML = '';
-      
-      if (allClasses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-16 text-on-surface-variant uppercase text-xs tracking-widest">No classes scheduled</td></tr>';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr>
+          <td colspan="6" class="text-center py-16 text-on-surface-variant">
+            <span class="material-symbols-outlined text-5xl block mb-3 opacity-30">event_busy</span>
+            No classes match this filter.
+          </td></tr>`;
         return;
       }
 
-      allClasses.forEach(cls => {
+      filtered.forEach(cls => {
+        const trainer = getDisplayedTrainer(cls);
+        const dt = cls.datetime ? new Date(cls.datetime) : null;
+        const hasDateTime = dt && !Number.isNaN(dt.getTime());
+        const dateStr = hasDateTime
+          ? dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+          : '—';
+        const timeStr = hasDateTime
+          ? dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+          : '—';
+        const duration = cls.duration_minutes || 60;
+        const status = getClassStatus(cls);
+        const isUpcoming = status !== 'completed' && status !== 'cancelled';
+        const hasTrainer = hasAssignedTrainer(cls);
+
+        const statusBadge = status === 'completed'
+          ? `<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">Completed</span>`
+          : status === 'cancelled'
+          ? `<span class="px-2 py-0.5 bg-red-500/10 text-red-400 text-[10px] font-bold uppercase tracking-wider">Cancelled</span>`
+          : `<span class="px-2 py-0.5 bg-white/10 text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Upcoming</span>`;
+
+        const trainerCell = trainer
+          ? `<div>
+               <p class="text-sm font-semibold text-white">${trainer.name}</p>
+               ${trainer.specialisation ? `<p class="text-[10px] text-on-surface-variant">${trainer.specialisation}</p>` : ''}
+             </div>`
+          : `<span class="text-on-surface-variant text-sm italic">Unassigned</span>`;
+
+        const actions = isUpcoming
+          ? `<div class="flex items-center gap-2 flex-wrap">
+               <button onclick="openAssignModal('${cls.id}')"
+                 class="px-3 py-1.5 bg-surface-variant hover:bg-primary hover:text-on-primary text-xs font-bold uppercase tracking-wider transition-colors">
+                 ${hasTrainer ? 'Change' : 'Assign'}
+               </button>
+               ${hasTrainer ? `
+               <button onclick="removeTrainer('${cls.id}')"
+                 class="px-3 py-1.5 border border-outline/60 hover:border-red-400 hover:text-red-400 text-xs font-bold uppercase tracking-wider transition-colors">
+                 Remove
+               </button>
+               <button onclick="openCompleteModal('${cls.id}')"
+                 class="px-3 py-1.5 border border-primary/40 text-primary hover:bg-primary hover:text-on-primary text-xs font-bold uppercase tracking-wider transition-colors">
+                 Mark Complete
+               </button>` : ''}
+             </div>`
+          : `<span class="text-on-surface-variant text-xs">—</span>`;
+
         const tr = document.createElement('tr');
         tr.className = 'border-b border-white/5 hover:bg-surface-variant/30 transition-colors';
         tr.innerHTML = `
-          <td class="px-4 py-4 font-bold text-white uppercase italic tracking-tighter">${cls.name}</td>
-          <td class="px-4 py-4 text-xs text-on-surface-variant uppercase">${new Date(cls.datetime).toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'})}</td>
-          <td class="px-4 py-4"><span class="text-[10px] px-2 py-1 bg-white/10 uppercase font-black tracking-tighter">${cls.status || 'Upcoming'}</span></td>
-          <td class="px-4 py-4 text-sm font-bold text-primary uppercase">${cls.trainer_name || '<span class="italic opacity-30 text-white">Unassigned</span>'}</td>
           <td class="px-4 py-4">
-            <button onclick="openAssignModal('${cls.id}')" class="px-4 py-2 bg-primary text-black text-[10px] font-black uppercase hover:brightness-110">
-              Assign Staff
-            </button>
+            <p class="text-sm font-semibold text-white">${cls.name}</p>
+            ${cls.location ? `<p class="text-[10px] text-on-surface-variant mt-0.5">${cls.location}</p>` : ''}
           </td>
-        `;
+          <td class="px-4 py-4 text-sm text-on-surface-variant whitespace-nowrap">
+            ${dateStr}<br><span class="text-xs">${timeStr}</span>
+          </td>
+          <td class="px-4 py-4 text-sm text-on-surface-variant whitespace-nowrap">${duration} min</td>
+          <td class="px-4 py-4">${statusBadge}</td>
+          <td class="px-4 py-4">${trainerCell}</td>
+          <td class="px-4 py-4">${actions}</td>`;
         tbody.appendChild(tr);
       });
     }
 
-    function openAssignModal(id) {
-      pendingClassId = id;
+    function updateStats() {
+      document.getElementById('stat-total').textContent     = allClasses.length;
+      document.getElementById('stat-assigned').textContent  = allClasses.filter(hasAssignedTrainer).length;
+      document.getElementById('stat-completed').textContent = allClasses.filter(c => getClassStatus(c) === 'completed').length;
+      document.getElementById('stat-trainers').textContent  = allTrainers.length;
+    }
+
+    function setupFilterTabs() {
+      document.querySelectorAll('[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeFilter = btn.dataset.filter;
+          document.querySelectorAll('[data-filter]').forEach(b => {
+            b.classList.toggle('bg-primary',        b === btn);
+            b.classList.toggle('text-on-primary',   b === btn);
+            b.classList.toggle('text-on-surface-variant', b !== btn);
+          });
+          renderAll();
+        });
+      });
+    }
+
+    function openAssignModal(classId) {
+      pendingClassId = classId;
+      const cls = findClassById(classId);
+      document.getElementById('modal-class-name').textContent = cls?.name || '';
+
+      const select = document.getElementById('trainer-select');
+      const trainerMatch = (cls && cls.trainer_id !== null && cls.trainer_id !== undefined && cls.trainer_id !== '')
+        ? allTrainers.find(t => String(t.id) === String(cls.trainer_id))
+        : allTrainers.find(t => normalizeName(t.name) === normalizeName(cls?.coach_name));
+      select.value = trainerMatch?.id || '';
+
       document.getElementById('assign-modal').classList.remove('hidden');
     }
 
     function closeAssignModal() {
+      pendingClassId = null;
       document.getElementById('assign-modal').classList.add('hidden');
     }
 
-    document.getElementById('modal-confirm').onclick = async () => {
-      const name = document.getElementById('trainer-select').value;
-      if (!name) return;
+    async function saveAssignment() {
+      const trainerId = document.getElementById('trainer-select').value;
+      if (!trainerId) { showAlert('Select a trainer to continue.', 'error'); return; }
 
-      const { error } = await db.from('gym_classes').update({ trainer_name: name }).eq('id', pendingClassId);
-      if (!error) {
-        closeAssignModal();
-        await loadClasses();
-        renderAll();
-      } else {
-        alert("Error saving: " + error.message);
+      const cls = findClassById(pendingClassId);
+      if (!cls) { showAlert('Selected class could not be found.', 'error'); return; }
+
+      const trainerPick = allTrainers.find(t => String(t.id) === String(trainerId));
+      if (!trainerPick) { showAlert('Selected trainer could not be found.', 'error'); return; }
+
+      const btn = document.getElementById('modal-confirm');
+      btn.disabled = true; btn.textContent = 'Saving changes...';
+
+      let { error } = await db
+        .from('gym_classes')
+        .update({ coach: trainerPick.name, trainer_id: trainerPick.id })
+        .eq('id', pendingClassId);
+
+      if (error && (/column .* does not exist/i.test(error.message || '') || /could not find.*column/i.test(error.message || ''))) {
+        const fallback = await db.from('gym_classes').update({ coach: trainerPick.name }).eq('id', pendingClassId);
+        error = fallback.error;
       }
-    };
 
-    document.getElementById('logout-btn').onclick = async () => {
-      await db.auth.signOut();
-      window.location.replace('login.html');
-    };
+      btn.disabled = false; btn.textContent = 'Assign';
+
+      if (error) { showAlert(`Could not assign trainer: ${error.message}`, 'error'); return; }
+      closeAssignModal();
+      await loadClasses();
+      renderAll();
+      showAlert('Trainer assigned.', 'success');
+    }
+
+    async function removeTrainer(classId) {
+      const cls = findClassById(classId);
+      if (!cls) { showAlert('Selected class could not be found.', 'error'); return; }
+
+      let { error } = await db.from('gym_classes').update({ coach: null, trainer_id: null }).eq('id', classId);
+
+
+      if (error && (/column .* does not exist/i.test(error.message || '') || /could not find.*column/i.test(error.message || ''))) {
+        const fallback = await db.from('gym_classes').update({ coach: null }).eq('id', classId);
+        error = fallback.error;
+      }
+
+      if (error) { showAlert(`Could not remove trainer: ${error.message}`, 'error'); return; }
+      await loadClasses();
+      renderAll();
+      showAlert('Trainer removed from class.', 'success');
+    }
+
+    function openCompleteModal(classId) {
+      const cls = findClassById(classId);
+      if (!cls) {
+        showAlert('Selected class could not be found.', 'error');
+        return;
+      }
+
+      const trainerPick = getClassTrainer(cls);
+      if (!trainerPick) {
+        showAlert('Assign a valid trainer before marking complete.', 'error');
+        return;
+      }
+
+      const hours = ((cls?.duration_minutes || 60) / 60).toFixed(2);
+      pendingClassId = classId;
+      document.getElementById('complete-summary').innerHTML =
+        `Mark <strong class="text-white">${cls.name}</strong> as complete and log <strong class="text-white">${hours} hours</strong> for <strong class="text-white">${trainerPick.name}</strong>.`;
+      document.getElementById('complete-hours').textContent = `${hours} hrs`;
+      document.getElementById('complete-modal').classList.remove('hidden');
+    }
+
+    function closeCompleteModal() {
+      pendingClassId = null;
+      document.getElementById('complete-modal').classList.add('hidden');
+    }
+
+    async function confirmComplete() {
+      const cls = findClassById(pendingClassId);
+      if (!cls) {
+        showAlert('Selected class could not be found.', 'error');
+        closeCompleteModal();
+        return;
+      }
+
+      const trainerPick = getClassTrainer(cls);
+      if (!trainerPick) {
+        showAlert('Assign a valid trainer before marking complete.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('complete-confirm');
+      btn.disabled = true; btn.textContent = 'Saving changes...';
+
+      const hours = (cls.duration_minutes || 60) / 60;
+      const parsedDate = cls.datetime ? new Date(cls.datetime) : null;
+      const date = parsedDate && !Number.isNaN(parsedDate.getTime())
+        ? parsedDate.toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      const { error: hoursErr } = await db.from('trainer_hours').upsert({
+        trainer_id: trainerPick.id,
+        class_id: pendingClassId,
+        date,
+        hours_logged: hours,
+        confirmed: false,
+      }, { onConflict: 'trainer_id,class_id' });
+
+      if (!hoursErr) {
+        try {
+          await markClassCompletedIfSupported(pendingClassId);
+        } catch (statusErr) {
+          console.warn('Status update skipped:', statusErr.message || statusErr);
+        }
+      }
+
+      btn.disabled = false; btn.textContent = 'Confirm';
+
+      if (hoursErr) {
+        const fkError = /trainer_hours_class_id_fkey/i.test(hoursErr.message || '');
+        if (fkError) {
+          showAlert('Hour logging is blocked by a database FK that still points to the legacy classes table. Run the FK migration SQL in Supabase.', 'error');
+        } else {
+          showAlert(`Class completed, but hour logging failed: ${hoursErr.message}`, 'error');
+        }
+        return;
+      }
+
+      closeCompleteModal();
+      await loadClasses();
+      renderAll();
+      showAlert(`Class completed. ${hours.toFixed(2)} hrs logged for ${trainerPick.name}.`, 'success');
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('page-alert');
+      el.textContent = msg;
+      el.className = type === 'success'
+        ? 'px-4 py-3 text-sm font-medium border border-primary/30 bg-primary/10 text-primary'
+        : 'px-4 py-3 text-sm font-medium border border-red-500/30 bg-red-500/10 text-red-400';
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 4000);
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await db.auth.signOut(); window.location.replace('login.html');
+    });
+    document.getElementById('modal-cancel').addEventListener('click', closeAssignModal);
+    document.getElementById('modal-close').addEventListener('click',  closeAssignModal);
+    document.getElementById('modal-confirm').addEventListener('click', saveAssignment);
+    document.getElementById('complete-cancel').addEventListener('click', closeCompleteModal);
+    document.getElementById('complete-close').addEventListener('click',  closeCompleteModal);
+    document.getElementById('complete-confirm').addEventListener('click', confirmComplete);
+    document.getElementById('assign-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('assign-modal')) closeAssignModal();
+    });
+    document.getElementById('complete-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('complete-modal')) closeCompleteModal();
+    });
 
     init();
   </script>

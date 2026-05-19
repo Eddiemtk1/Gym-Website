@@ -1,254 +1,605 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="dark" lang="en">
 
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Dashboard – GymFlow</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-supabase.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="auth-role.js"></script>
+  <script src="shared-nav.js"></script>
+  <link href="shared-nav.css" rel="stylesheet" />
+  <script src="shared-theme.js"></script>
   <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "var(--primary-color, #D7FF00)",
-            "on-primary": "#0e0e0e",
-            background: "#0e0e0e",
-            surface: "#131313",
-            "surface-variant": "#1a1a1a",
-            outline: "#404040",
-            "on-surface": "#ffffff",
-            "on-surface-variant": "#a3a3a3",
-          },
-          fontFamily: { headline: ["Lexend"], body: ["Inter"] },
-          borderRadius: { DEFAULT: "0px" },
-        },
-      },
-    };
+    applyGymflowTailwindConfig();
   </script>
-  <style>
-    :root { --primary-color: #D7FF00; }
-    .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
-    .glass-nav { background: rgba(14, 14, 14, 0.8); backdrop-filter: blur(12px); }
-    @media (min-width: 768px) { .md-flex { display: flex !important; } }
-  </style>
+  <link href="shared-theme.css" rel="stylesheet">
 </head>
 
-<body class="bg-background text-on-surface font-body antialiased">
+<body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
-      
-      <!-- HEADER / NAVBAR -->
-      <header class="flex items-center justify-between border-b border-white/10 px-6 lg:px-10 py-4 glass-nav sticky top-0 z-50">
-        <div class="flex items-center gap-12">
-          <div id="brand-logo" class="flex items-center gap-4 text-primary">
+      <!-- Header -->
+      <header class="site-nav sticky top-0 z-50 relative">
+        <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
+          <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
             <div class="size-6">
-              <svg fill="currentColor" viewBox="0 0 48 48">
-                <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
+              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd"
+                  d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"
+                  fill="currentColor" fill-rule="evenodd"></path>
               </svg>
             </div>
-            <h2 class="text-white font-headline text-xl font-black tracking-[-0.03em]">GYMFLOW</h2>
-          </div>
+            <h2 class="text-white font-headline text-xl font-black leading-tight tracking-[-0.03em]">
+              GYMFLOW
+            </h2>
+          </a>
 
-          <!-- DYNAMIC NAV BAR -->
-          <nav id="main-nav" class="hidden md-flex items-center h-10"></nav>
+          <div class="flex items-center gap-3">
+            <button id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" class="menu-toggle">
+              <span id="menu-icon" class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+              <span>Menu</span>
+            </button>
+
+          <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-3 border-r border-white/10 hover:opacity-80 transition-opacity">
+            <div class="text-right">
+              <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
+                ...
+              </p>
+              <p id="nav-user-plan" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">
+                ...
+              </p>
+            </div>
+            <div class="size-8 rounded-full border border-primary overflow-hidden">
+              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover" src="" />
+            </div>
+          </a>
+
+          <button id="logout-btn" class="flex items-center gap-2 text-on-surface-variant hover:text-red-500 transition-colors">
+            <span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+            <span class="hidden md:block text-[10px] font-bold uppercase tracking-widest">Sign Out</span>
+          </button>
+
+        </div>
         </div>
 
-        <div class="flex items-center gap-6">
-          <div class="hidden sm:flex items-center gap-3 pr-4 border-r border-white/10">
-            <div class="text-right">
-              <p id="nav-user-name" class="font-headline font-bold text-white text-xs">...</p>
-              <p id="nav-user-role" class="text-[8px] text-primary uppercase tracking-[0.1em] font-bold">Member</p>
-            </div>
-            <div id="nav-avatar-container" class="size-8 rounded-full border border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
-              <img id="nav-user-avatar" alt="Profile" class="w-full h-full object-cover hidden" src="" />
-              <span id="nav-avatar-initial" class="text-primary font-bold text-xs uppercase">?</span>
-            </div>
-          </div>
-          <button id="logout-btn" class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Logout</button>
+        <div id="menu-panel" class="hidden absolute right-6 top-full z-50 mt-2 w-[30%] min-w-[260px] max-w-[520px] border border-white/10 bg-background/95 p-3 shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+          <nav id="main-nav" class="grid grid-cols-1 gap-3"></nav>
         </div>
       </header>
-
       <main class="flex-1 flex flex-col">
-        <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto">
+        <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto s14-shell">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
-              <h1 class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
-                Ready to <span id="hero-action" class="text-primary">Crush</span> it?
+              <h1
+                class="font-headline text-5xl lg:text-7xl font-black text-white leading-none tracking-tighter uppercase italic">
+                Ready to <span class="text-primary">Train</span> today?
               </h1>
             </div>
             <div class="flex flex-col items-end gap-2">
-              <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Active Workout Stats</span>
-              <div class="text-5xl font-headline font-black text-primary" id="main-stat">...</div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Calories burnt this
+                month:</span>
+              <div id="calories-display" class="text-5xl font-headline font-black text-primary">
+                0 Kcal
+              </div>
             </div>
           </div>
-
-          <!-- Stats Grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-surface p-8 border border-white/5 relative overflow-hidden">
-               <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Status</p>
-               <h3 id="mem-status" class="font-headline text-3xl font-black text-white uppercase italic">...</h3>
-               <span class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none">verified</span>
+            <div
+              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group s14-card">
+              <div class="relative z-10">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                  Membership Status
+                </p>
+                <h3 id="mem-status" class="font-headline text-3xl font-black text-white">
+                  ...
+                </h3>
+              </div>
+              <div class="mt-8 relative z-10">
+                <div class="flex justify-between items-center mb-2">
+                  <span id="next-billing" class="text-sm text-on-surface-variant">Next billing: ...</span>
+                  <span id="profile-score-text" class="text-sm font-bold text-primary">...</span>
+                </div>
+                <div class="w-full h-1 bg-surface-variant">
+                  <div id="profile-score-bar" class="h-full bg-primary w-[0%] transition-all duration-1000"></div>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none transition-transform group-hover:scale-110">verified</span>
             </div>
-            <div id="plan-card" class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden">
-               <div class="relative z-10">
-                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">Current Plan</p>
-                 <h3 id="sub-plan" class="font-headline text-3xl font-black text-on-primary">...</h3>
-               </div>
-               <button onclick="window.location.href='membership.html'" class="mt-8 relative z-10 w-full py-3 bg-black text-white font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all">Manage</button>
+
+            <div class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group s14-card-strong">
+              <div class="relative z-10">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">
+                  Subscription Plan
+                </p>
+                <h3 id="sub-plan" class="font-headline text-3xl font-black text-on-primary">
+                  ...
+                </h3>
+              </div>
+              <div class="mt-8 relative z-10">
+                <button onclick="window.location.href='membership.html'"
+                  class="w-full py-3 bg-black text-white font-headline font-bold uppercase text-sm tracking-widest hover:bg-white hover:text-black transition-all">
+                  Manage Plan
+                </button>
+              </div>
+              <span
+                class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-on-primary/10 pointer-events-none transition-transform group-hover:scale-110">star_rate</span>
             </div>
-            <div class="bg-surface p-8 border border-white/5 relative">
-               <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Workouts (Mo)</p>
-               <div class="flex items-baseline gap-2">
-                 <h3 id="workouts-count" class="font-headline text-5xl font-black text-white">0</h3>
-                 <span class="text-primary font-bold text-xs">+0%</span>
-               </div>
+
+            <div
+              class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group s14-card">
+              <div class="relative z-10">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Workouts this
+                  Month</p>
+                <div class="flex items-baseline gap-2">
+                  <h3 id="workouts-count" class="font-headline text-5xl font-black text-white">...</h3>
+                  <span id="workouts-trend" class="text-primary font-bold text-sm">...</span>
+                </div>
+              </div>
+              <div class="mt-8 flex gap-1 items-end h-12 relative z-10">
+                <div class="flex-1 bg-white/10 h-1/2"></div>
+                <div class="flex-1 bg-white/10 h-3/4"></div>
+                <div class="flex-1 bg-white/10 h-2/3"></div>
+                <div class="flex-1 bg-white/10 h-1/3"></div>
+                <div class="flex-1 bg-primary h-full"></div>
+                <div class="flex-1 bg-white/10 h-2/3"></div>
+                <div class="flex-1 bg-white/10 h-5/6"></div>
+              </div>
             </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
             <div class="lg:col-span-3 space-y-6">
-              <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter border-b border-white/10 pb-4">Upcoming Classes</h2>
-              <div id="upcoming-classes-list" class="space-y-4"><p class="text-on-surface-variant text-sm italic">Loading schedule...</p></div>
+              <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter">
+                  Upcoming Classes
+                </h2>
+                <a class="text-primary text-[10px] font-bold uppercase tracking-widest hover:underline"
+                  href="Timetable.html">View All</a>
+              </div>
+
+              <div id="upcoming-classes-list" class="space-y-4">
+                <p class="text-on-surface-variant text-sm italic py-4">Loading your class schedule...</p>
+              </div>
             </div>
-            <div class="lg:col-span-2">
-              <div id="pr-card" class="bg-surface p-8 border-t-2 border-primary space-y-6">
-                <h3 class="font-headline text-xl font-bold uppercase italic">Personal Records</h3>
-                <div id="pr-list" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                  <p class="text-on-surface-variant text-xs italic">Loading PRs...</p>
+
+            <div class="lg:col-span-2 space-y-6">
+              <div class="bg-surface p-8 space-y-6 border-t-2 border-primary flex flex-col h-full s14-card">
+                <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
+                <div id="pr-list" class="space-y-4 flex-1 overflow-y-auto max-h-[200px] pr-2">
+                  <p class="text-on-surface-variant text-sm italic">No records found. Log your first PR below.</p>
                 </div>
+
+                <div class="mt-8 pt-8 border-t border-white/10">
+                  <h4 class="font-headline text-2xl font-black uppercase italic tracking-tighter mb-6">
+                    ADD NEW <br /><span class="text-primary">RECORD</span>
+                  </h4>
+
+                  <form id="add-pr-form" class="space-y-5">
+                    <div>
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Exercise
+                        Name</label>
+                      <input type="text" id="pr-name" placeholder="e.g. Overhead Press" required
+                        class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary uppercase placeholder:text-white/20">
+                    </div>
+
+                    <div>
+                      <label class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 block">Weight
+                        (KG)</label>
+                      <input type="number" id="pr-weight" placeholder="100" required
+                        class="w-full bg-background border-none text-white font-bold p-4 focus:ring-1 focus:ring-primary placeholder:text-white/20">
+                    </div>
+
+                    <button type="submit" id="pr-submit-btn"
+                      class="w-full py-4 mt-2 bg-primary text-on-primary font-headline font-black uppercase italic tracking-widest hover:brightness-110 transition-all flex justify-center items-center gap-2">
+                      <span>Save Record</span>
+                    </button>
+                  </form>
+                </div>
+
               </div>
             </div>
           </div>
-        </section>
-      </main>
     </div>
+    </section>
+    </main>
   </div>
-
+  </div>
   <script>
-    const supabaseUrl = "https://pawooalkgiveltrbylqe.supabase.co";
-    const supabaseKey = "sb_publishable_T-l5NHtJlVXELrzRoeAlzg_bzJ6F2pR";
-    const db = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseClient = GymflowSupabase.createClient();
+    let currentSession = null;
+    const resolveUserRole = user => GymflowSupabase.resolveUserRole(supabaseClient, user);
 
-    async function init() {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) { window.location.href = 'login.html'; return; }
+    async function loadSubscriptionData() {
+      const session = await GymflowSupabase.getSession(supabaseClient);
+      currentSession = session || null;
+      const logoutLabel = document.querySelector('#logout-btn .hidden.md\\:block');
 
-      const userId = session.user.id;
-      const { data: profile } = await db.from('profiles').select('*').eq('user_id', userId).maybeSingle();
-      const { data: sub } = await db.from('user_subscriptions').select('*').eq('user_id', userId).maybeSingle();
+      if (!session) {
+        GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'dashboard.html' });
 
-      if (profile) {
-        renderNavbar(profile.role);
-        setupBranding(profile);
-      }
+        if (logoutLabel) logoutLabel.innerText = 'Sign In';
 
-      if (sub) {
-        document.getElementById('mem-status').textContent = sub.status || "Inactive";
-        document.getElementById('sub-plan').textContent = sub.plan_name || "Free Tier";
-        document.getElementById('workouts-count').textContent = sub.workouts_this_month || 0;
-      }
-      loadPRs(userId);
-    }
+        GymflowNav.applyProfileMini({
+          nameId: 'nav-user-name',
+          subtitleId: 'nav-user-plan',
+          avatarImgId: 'nav-user-avatar',
+          name: 'Guest',
+          subtitle: 'Public View',
+        });
 
-    function renderNavbar(role) {
-      const nav = document.getElementById('main-nav');
-      const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
-      
-      const memberLinks = [
-        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
-        { name: 'Membership', url: 'membership.html', icon: 'card_membership' },
-        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
-        { name: 'Profile', url: 'profile.html', icon: 'person' }
-      ];
-
-      const trainerLinks = [
-        { name: 'Dashboard', url: 'dashboard.html', icon: 'dashboard' },
-        { name: 'Timetable', url: 'Timetable.html', icon: 'calendar_today' },
-        { name: 'Trainer Report', url: 'trainer-report.html', icon: 'analytics' },
-        { name: 'Profile', url: 'profile.html', icon: 'person' }
-      ];
-
-      const links = (role === 'trainer') ? trainerLinks : memberLinks;
-
-      nav.innerHTML = links.map(link => {
-        const isActive = currentPage === link.url;
-        return `
-          <a class="flex items-center gap-2 px-6 h-full transition-all ${isActive ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:text-white'}" href="${link.url}">
-            <span class="material-symbols-outlined" style="font-size: 20px; ${isActive ? "font-variation-settings: 'FILL' 1;" : ''}">${link.icon}</span>
-            <span class="text-xs uppercase tracking-widest">${link.name}</span>
-          </a>
-        `;
-      }).join('');
-    }
-
-    function setupBranding(profile) {
-      const isTrainer = profile.role === 'trainer';
-      const themeColor = isTrainer ? "#00E0FF" : "#D7FF00";
-      
-      if (isTrainer) document.documentElement.style.setProperty('--primary-color', themeColor);
-
-      document.getElementById('nav-user-name').textContent = profile.name || "User";
-      document.getElementById('nav-avatar-initial').textContent = (profile.name || "U").charAt(0);
-      document.getElementById('nav-user-role').textContent = isTrainer ? 'Staff / Trainer' : 'Member';
-      if (isTrainer) document.getElementById('nav-user-role').style.color = themeColor;
-
-      if (profile.avatar_url) {
-        const img = document.getElementById('nav-user-avatar');
-        img.src = profile.avatar_url;
-        img.classList.remove('hidden');
-        document.getElementById('nav-avatar-initial').classList.add('hidden');
-      }
-
-      document.getElementById('hero-action').textContent = isTrainer ? 'Manage' : 'Crush';
-      document.getElementById('main-stat').textContent = isTrainer ? 'Staff Portal' : '6,749 Kcal';
-      document.getElementById('plan-card').style.backgroundColor = themeColor;
-      document.getElementById('pr-card').style.borderColor = themeColor;
-      
-      loadUpcomingClasses(themeColor);
-    }
-
-    async function loadUpcomingClasses(themeColor) {
-      const container = document.getElementById('upcoming-classes-list');
-      const { data: classes } = await db.from('gym_classes').select('*').limit(3).order('datetime', {ascending: true});
-      
-      if (!classes || classes.length === 0) {
-        container.innerHTML = '<p class="text-on-surface-variant text-xs uppercase">No classes today.</p>';
+        document.getElementById("mem-status").innerText = 'SIGN IN';
+        document.getElementById("sub-plan").innerText = 'STARTER';
+        document.getElementById("next-billing").innerText = 'Sign in to track billing';
+        document.getElementById("profile-score-text").innerText = 'Create an account to track progress';
+        document.getElementById("profile-score-bar").style.width = '0%';
+        document.getElementById('workouts-count').innerText = '--';
+        document.getElementById('workouts-trend').innerText = 'Sign in to track';
+        document.getElementById('calories-display').innerText = '0 Kcal';
+        document.getElementById('pr-list').innerHTML =
+          '<p class="text-on-surface-variant text-sm italic">Sign in to log and track personal records.</p>';
         return;
       }
 
-      container.innerHTML = classes.map(cls => `
-        <div class="flex items-center gap-6 p-4 bg-surface border-l-4 group" style="border-color: ${themeColor}">
-          <div class="flex-1">
-            <p class="text-[10px] font-bold uppercase tracking-widest" style="color: ${themeColor}">
-                ${new Date(cls.datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-            </p>
-            <h4 class="font-headline text-lg font-bold text-white uppercase italic">${cls.name}</h4>
-            <p class="text-sm text-on-surface-variant">Coach: ${cls.trainer_name || 'Staff'}</p>
+      if (logoutLabel) logoutLabel.innerText = 'Sign Out';
+
+      const realUserId = session.user.id;
+      const resolvedRole = await resolveUserRole(session.user);
+      GymflowNav.renderRoleMenu({ navId: 'main-nav', role: resolvedRole, activeHref: 'dashboard.html' });
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (urlParams.get('success') === 'true') {
+        const upgradedPlan = urlParams.get('new_plan');
+
+        if (upgradedPlan) {
+          const nextBilling = new Date();
+          nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+          const formattedBillingDate = nextBilling.toISOString().split('T')[0];
+
+          const { error: updateError } = await supabaseClient
+            .from('profiles')
+            .update({
+              plan_name: upgradedPlan.toUpperCase(),
+              status: 'ACTIVE',
+              next_billing_date: formattedBillingDate
+            })
+            .eq('user_id', realUserId);
+
+          if (updateError) {
+            alert("Failed to update database: " + updateError.message);
+            console.error("Failed to update plan:", updateError);
+          } else {
+            window.location.href = window.location.pathname;
+            return;
+          }
+        }
+      }
+
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("user_id", realUserId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching subscription:", error.message);
+      }
+
+      const { data: prData, error: prError } = await supabaseClient
+        .from('personal_records')
+        .select('*')
+        .eq('user_id', realUserId)
+        .order('weight', { ascending: false }); 
+
+      if (prError) {
+        console.error('Error fetching personal records:', prError.message);
+      }
+
+      if (prData && prData.length > 0) {
+        const prContainer = document.getElementById('pr-list');
+        prContainer.innerHTML = ''; 
+
+        prData.forEach(record => {
+
+          let trendHTML = '';
+          if (record.previous_weight !== null) {
+            const difference = record.weight - record.previous_weight;
+
+            if (difference > 0) {
+           
+              trendHTML = `<span class="text-[10px] font-bold text-primary ml-2 tracking-widest">+${difference}KG</span>`;
+            } else if (difference < 0) {
+            
+              trendHTML = `<span class="text-[10px] font-bold text-red-500 ml-2 tracking-widest">${difference}KG</span>`;
+            } else {
+             
+              trendHTML = `<span class="text-[10px] font-bold text-on-surface-variant ml-2 tracking-widest opacity-50">NO CHANGE</span>`;
+            }
+          }
+
+          prContainer.innerHTML += `
+            <div class="flex justify-between items-center pb-3 border-b border-white/5">
+              <span class="text-on-surface-variant font-medium uppercase">${record.exercise_name}</span>
+              <div class="flex items-baseline">
+                <span class="font-headline font-bold text-white">${record.weight} kg</span>
+                ${trendHTML} </div>
+            </div>
+          `;
+        });
+      }
+
+
+if (data) {
+  const miniSubtitle = resolvedRole !== 'member' ? 'Staff' : (data.plan_name || 'Member');
+  GymflowNav.applyProfileMini({
+    nameId: 'nav-user-name',
+    subtitleId: 'nav-user-plan',
+    avatarImgId: 'nav-user-avatar',
+    name: data.name || session.user.email || 'Member',
+    subtitle: miniSubtitle,
+    avatarUrl: data.avatar_url,
+  });
+
+  document.getElementById("mem-status").innerText = data.status || 'PENDING';
+  document.getElementById("sub-plan").innerText = data.plan_name || 'GUEST PASS';
+  
+
+  document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date || 'N/A'}`;
+
+  document.getElementById("profile-score-text").innerText = `${data.profile_score || 0}% Profile Score`;
+  document.getElementById("profile-score-bar").style.width = `${data.profile_score || 0}%`;
+
+  document.getElementById('workouts-count').innerText = data.workouts_this_month || 0;
+
+
+  let lastMonth = data.workouts_last_month || 1; 
+  let diff = (data.workouts_this_month || 0) - (data.workouts_last_month || 0);
+  let percentChange = (diff / lastMonth) * 100;
+
+  let roundedChange = Math.round(percentChange);
+  let sign = roundedChange >= 0 ? '+' : '';
+
+  document.getElementById('workouts-trend').innerText = `${sign}${roundedChange}% vs last mo.`;
+  document.getElementById('calories-display').innerText = `${data.calories_burnt || 0} Kcal`;
+
+  if (resolvedRole !== 'member') {
+    GymflowTheme.applyStaffAccent();
+  }
+} else {
+  GymflowNav.applyProfileMini({
+    nameId: 'nav-user-name',
+    subtitleId: 'nav-user-plan',
+    avatarImgId: 'nav-user-avatar',
+    name: session.user.email || 'Member',
+    subtitle: GymflowNav.getRoleLabel(resolvedRole),
+  });
+}
+    }
+
+
+    async function loadUpcomingClasses() {
+      const container = document.getElementById('upcoming-classes-list');
+
+      const session = await GymflowSupabase.getSession(supabaseClient);
+      const currentUser = session?.user || null;
+
+      let bookedIds = [];
+      if (currentUser) {
+        const { data: myBookings } = await supabaseClient
+          .from('class_bookings')
+          .select('class_id')
+          .eq('user_id', currentUser.id);
+
+        bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
+      }
+
+
+      const { data: classes, error } = await supabaseClient
+        .from('gym_classes')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true })
+        .limit(5); 
+
+      if (error) {
+        console.error("Error fetching classes:", error);
+        container.innerHTML = '<p class="text-red-500 text-xs font-bold uppercase tracking-widest">Failed to load classes.</p>';
+        return;
+      }
+
+      if (!classes || classes.length === 0) {
+        container.innerHTML = '<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest py-4">No upcoming classes scheduled.</p>';
+        return;
+      }
+
+      container.innerHTML = ''; 
+
+      classes.forEach((cls, index) => {
+        // Format the Date
+        const [year, month, day] = cls.date.split('-');
+        const dateObj = new Date(year, month - 1, day);
+        const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+        const dayNum = dateObj.getDate();
+
+
+        const [hourStr, minStr] = cls.time.split(':');
+        let hour = parseInt(hourStr);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12;
+        hour = hour ? hour : 12;
+        const timeFormatted = `${hour.toString().padStart(2, '0')}:${minStr} ${ampm}`;
+
+
+        const isBooked = bookedIds.includes(cls.id);
+        const isFull = cls.capacity <= 0;
+
+        const borderClass = index === 0 ? 'border-primary' : 'border-transparent';
+
+        
+        let buttonHtml = '';
+        if (!currentUser) {
+          buttonHtml = `<button onclick="window.location.href='login.html'" class="px-6 py-2 border border-primary/40 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-black transition-all">Sign In to Book</button>`;
+        } else if (isBooked) {
+          buttonHtml = `<button onclick="cancelDashboardBooking('${cls.id}', ${cls.capacity})" class="px-6 py-2 bg-red-600/20 text-red-500 border border-red-500/50 text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">Cancel</button>`;
+        } else if (isFull) {
+          buttonHtml = `<button disabled class="px-6 py-2 bg-zinc-900 text-zinc-600 text-[10px] font-bold uppercase tracking-widest cursor-not-allowed">Full</button>`;
+        } else {
+          buttonHtml = `<button onclick="bookDashboardClass('${cls.id}', ${cls.capacity})" class="px-6 py-2 bg-primary text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Book</button>`;
+        }
+
+  
+        const classHTML = `
+          <div class="flex items-center gap-6 p-4 bg-surface border-l-4 ${borderClass} group hover:bg-surface-variant transition-colors s14-card">
+            <div class="flex flex-col items-center justify-center bg-surface-variant min-w-[60px] h-[60px]">
+              <span class="text-[10px] font-bold text-on-surface-variant">${monthName}</span>
+              <span class="text-xl font-headline font-bold text-white leading-none">${dayNum}</span>
+            </div>
+            <div class="flex-1">
+              <p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">
+                ${timeFormatted} — ${cls.location}
+              </p>
+              <h4 class="font-headline text-lg font-bold text-white uppercase italic">
+                ${cls.name}
+              </h4>
+              <p class="text-sm text-on-surface-variant">
+                Coach: ${cls.coach || 'Lead Staff'} • Spots: ${cls.capacity}
+              </p>
+            </div>
+            ${buttonHtml}
           </div>
-          <a href="Timetable.html" class="px-6 py-2 bg-white/5 text-white text-[10px] font-bold uppercase hover:bg-white hover:text-black transition-all">View</a>
-        </div>
-      `).join('');
+        `;
+        container.innerHTML += classHTML;
+      });
     }
 
-    async function loadPRs(userId) {
-      const { data } = await db.from('personal_records').select('*').eq('user_id', userId).order('weight', {ascending: false});
-      const container = document.getElementById('pr-list');
-      container.innerHTML = (data && data.length > 0) 
-        ? data.map(r => `<div class="flex justify-between items-center pb-3 border-b border-white/5"><span class="text-on-surface-variant font-medium uppercase text-xs">${r.exercise_name}</span><span class="font-headline font-bold text-white">${r.weight} kg</span></div>`).join('')
-        : '<p class="text-on-surface-variant text-xs italic">No records recorded yet.</p>';
+    async function bookDashboardClass(classId, capacity) {
+      if (capacity <= 0) return;
+      
+      const session = await GymflowSupabase.getSession(supabaseClient);
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const userName = document.getElementById('nav-user-name').innerText; 
+
+      const { error: bookingError } = await supabaseClient.from('class_bookings').insert({
+        class_id: classId,
+        user_id: session.user.id,
+        user_name: userName || 'Member'
+      });
+      
+      if (bookingError) return alert('Booking failed: ' + bookingError.message);
+      
+      await supabaseClient.from('gym_classes').update({ capacity: capacity - 1 }).eq('id', classId);
+      loadUpcomingClasses(); 
     }
 
-    document.getElementById('logout-btn').onclick = async () => {
-      await db.auth.signOut();
+    async function cancelDashboardBooking(classId, capacity) {
+      const session = await GymflowSupabase.getSession(supabaseClient);
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      await supabaseClient.from('class_bookings').delete().match({ class_id: classId, user_id: session.user.id });
+      await supabaseClient.from('gym_classes').update({ capacity: capacity + 1 }).eq('id', classId);
+      
+      loadUpcomingClasses(); 
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      GymflowNav.initMenuNav();
+      loadSubscriptionData();
+      loadUpcomingClasses();
+    });
+    document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const session = await GymflowSupabase.getSession(supabaseClient);
+      const realUserId = session?.user?.id;
+      if (!realUserId) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const exerciseName = document.getElementById('pr-name').value.trim().toUpperCase();
+      const exerciseWeight = parseInt(document.getElementById('pr-weight').value); // Added parseInt!
+      const btn = document.getElementById('pr-submit-btn');
+
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>PUBLISHING...</span><span class="material-symbols-outlined animate-spin" style="font-size: 20px;">sync</span>';
+      btn.disabled = true;
+
+      try {
+        const { data: currentStats } = await supabaseClient
+          .from('profiles')
+          .select('calories_burnt, workouts_this_month')
+          .eq('user_id', realUserId)
+          .single();
+
+        const randomCalories = Math.floor(Math.random()* (100-50+1))+50;  
+        const newCalorieTotal = (currentStats?.calories_burnt || 0) + randomCalories;
+        const newWorkoutTotal = (currentStats?.workouts_this_month || 0) + 1;
+
+        const { data: existingRecord } = await supabaseClient
+          .from('personal_records')
+          .select('*')
+          .eq('user_id', realUserId)
+          .eq('exercise_name', exerciseName)
+          .single(); 
+
+
+        if (existingRecord) {
+          await supabaseClient.from('personal_records').update({
+            weight: exerciseWeight,
+            previous_weight: existingRecord.weight 
+          }).eq('id', existingRecord.id); 
+        } else {
+          await supabaseClient.from('personal_records').insert([
+            { user_id: realUserId, exercise_name: exerciseName, weight: exerciseWeight }
+          ]);
+        }
+
+      
+        await supabaseClient
+          .from('profiles')
+          .update({ calories_burnt: newCalorieTotal, workouts_this_month: newWorkoutTotal })
+          .eq('user_id', realUserId);
+
+        document.getElementById('pr-name').value = '';
+        document.getElementById('pr-weight').value = '';
+        await loadSubscriptionData();
+
+      } catch (err) {
+        console.error("PR Update Error:", err);
+        alert("Could not save your record. Please try again.");
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    if (!currentSession) {
       window.location.href = 'login.html';
-    };
+      return;
+    }
 
-    init();
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html'; 
+  });
+
   </script>
 </body>
+
 </html>
