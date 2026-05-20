@@ -278,6 +278,20 @@
             alert("Failed to update database: " + updateError.message);
             console.error("Failed to update plan:", updateError);
           } else {
+            try {
+              const { data: profile } = await supabaseClient.from('profiles').select('name, email').eq('user_id', realUserId).single();
+              const userName = profile && profile.name ? profile.name.split(' ')[0] : 'Athlete';
+              const userEmail = profile && profile.email ? profile.email : session.user.email;
+
+              // Fire the webhook
+              const { data: funcData, error: funcError } = await supabaseClient.functions.invoke('send-welcome-email', {
+                body: { email: userEmail, name: userName, planName: upgradedPlan.toUpperCase() }
+              });
+
+              if (funcError) console.error("Email Function Error:", funcError);
+            } catch (err) {
+              console.error("Failed to trigger email function:", err);
+            }
             window.location.href = window.location.pathname;
             return;
           }
@@ -348,8 +362,12 @@ if (data) {
   document.getElementById("mem-status").innerText = data.status || 'PENDING';
   document.getElementById("sub-plan").innerText = data.plan_name || 'GUEST PASS';
   
-  document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date || 'N/A'}`;
-
+if (data.next_billing_date) {
+    const [year, month, day] = data.next_billing_date.split('-');
+    document.getElementById("next-billing").innerText = `Next billing: ${day}/${month}/${year}`;
+  } else {
+    document.getElementById("next-billing").innerText = 'Next billing: N/A';
+  }
   document.getElementById("profile-score-text").innerText = `${data.profile_score || 0}% Profile Score`;
   document.getElementById("profile-score-bar").style.width = `${data.profile_score || 0}%`;
 
