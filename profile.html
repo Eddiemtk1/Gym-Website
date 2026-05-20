@@ -24,7 +24,6 @@
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="flex h-full grow flex-col">
 
-      <!-- Header -->
       <header class="site-nav sticky top-0 z-50 relative">
         <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
           <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
@@ -64,10 +63,8 @@
         </div>
       </header>
 
-      <!-- Main content -->
       <main class="flex-1 p-6 lg:p-10 space-y-10 s14-shell s14-shell-tight">
 
-        <!-- Page title -->
         <div class="border-b border-white/10 pb-6">
           <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
             My Profile
@@ -75,17 +72,13 @@
           <p class="text-on-surface-variant mt-3">Manage your personal information, photo, and preferences.</p>
         </div>
 
-        <!-- Alert banner -->
         <div id="page-alert" class="hidden px-4 py-3 text-sm font-medium border"></div>
 
-        <!-- Profile grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          <!-- Left: Avatar card -->
           <div class="lg:col-span-1">
             <div class="bg-surface border border-white/5 p-8 flex flex-col items-center gap-6 s14-card">
 
-              <!-- Avatar -->
               <div class="relative">
                 <div id="avatar-ring" class="size-28 rounded-full border-2 border-primary overflow-hidden bg-surface-variant flex items-center justify-center">
                   <img id="avatar-img" src="" alt="Profile photo" class="w-full h-full object-cover hidden">
@@ -93,20 +86,17 @@
                 </div>
               </div>
 
-              <!-- Name + email -->
               <div class="text-center w-full">
                 <p id="card-name" class="font-headline text-xl font-bold text-white">Loading...</p>
                 <p id="card-email" class="text-on-surface-variant text-sm mt-1 break-all"></p>
               </div>
 
-              <!-- Membership badge -->
               <div class="w-full bg-surface-variant p-4 text-center border-t-2 border-primary s14-card">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Membership</p>
                 <p class="font-headline font-bold text-white text-sm">No active plan</p>
                 <p class="text-on-surface-variant text-xs mt-1">Membership details appear after plan activation.</p>
               </div>
 
-              <!-- Upload photo button (only shown in edit mode) -->
               <button id="upload-btn" type="button"
                 class="hidden w-full py-3 border border-outline text-on-surface-variant text-xs font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors">
                 <span class="material-symbols-outlined align-middle mr-1" style="font-size: 14px;">upload</span>
@@ -118,11 +108,9 @@
             </div>
           </div>
 
-          <!-- Right: Profile details -->
           <div class="lg:col-span-2">
             <div class="bg-surface border border-white/5 p-8 s14-card">
 
-              <!-- Section header -->
               <div class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                 <h2 class="font-headline text-xl font-black uppercase italic tracking-tighter">Personal Information</h2>
                 <button id="edit-btn" type="button"
@@ -131,7 +119,6 @@
                 </button>
               </div>
 
-              <!-- View mode -->
               <div id="view-mode" class="space-y-1">
                 <div class="grid grid-cols-2 gap-4 py-4 border-b border-white/5">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant self-center">Full Name</span>
@@ -155,7 +142,6 @@
                 </div>
               </div>
 
-              <!-- Edit mode -->
               <form id="edit-form" class="hidden space-y-5" novalidate>
 
                 <div>
@@ -221,30 +207,23 @@
 
   <script>
     const db = GymflowSupabase.createClient();
-
     let currentUser = null;
     let currentProfile = {};
     let currentRole = 'member';
-
     const CONTACT_LABELS = {
       email: 'Email only',
       phone: 'Phone only',
       both: 'Email and phone',
       none: 'Do not contact'
     };
-
     const getHomeRoute = GymflowRoles.getHomeRoute;
     const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
-
     function renderProfileNav() {
       GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'member', activeHref: 'profile.html' });
-
       const nav = document.getElementById('main-nav');
       if (!nav || document.getElementById('trainers-nav-link')) return;
-
       const profileLink = nav.querySelector('a[href="profile.html"]');
       if (!profileLink) return;
-
       profileLink.insertAdjacentHTML('beforebegin', `
         <a id="trainers-nav-link" class="hidden site-nav-link" href="assign-trainer.html">
           <span class="link-left">
@@ -255,23 +234,18 @@
         </a>
       `);
     }
-
     function applyRoleVisibility(role) {
       const trainersNavLink = document.getElementById('trainers-nav-link');
       const roleLabel = document.getElementById('header-role-label');
 
       roleLabel.textContent = GymflowNav.getRoleLabel(role);
-
       if (role === 'member') {
         trainersNavLink.classList.add('hidden');
         return;
       }
-
       trainersNavLink.classList.remove('hidden');
       trainersNavLink.href = getHomeRoute(role);
     }
-
-    // Top alert banner
     function showPageAlert(message, type = 'error') {
       const el = document.getElementById('page-alert');
       el.textContent = message;
@@ -281,8 +255,6 @@
       el.classList.remove('hidden');
       setTimeout(() => el.classList.add('hidden'), 5000);
     }
-
-    // Sync profile data into the page
     function renderProfile(profile, user) {
       const name = profile.name || user.user_metadata?.name || 'Member';
       const email = profile.email || user.email || '';
@@ -290,8 +262,6 @@
       const contactPrefs = profile.contact_preferences  || 'email';
       const privacyHide  = profile.privacy_hide_profile || false;
       const avatarUrl = profile.avatar_url || '';
-
-      // Header
       const initial = name.charAt(0).toUpperCase();
       GymflowNav.applyProfileMini({
         nameId: 'header-name',
@@ -302,8 +272,6 @@
         subtitle: GymflowNav.getRoleLabel(currentRole),
         avatarUrl,
       });
-
-      // Avatar card
       document.getElementById('card-name').textContent = name;
       document.getElementById('card-email').textContent = email;
       document.getElementById('avatar-initial').textContent = initial;
@@ -316,8 +284,6 @@
         avatarImg.classList.add('hidden');
         document.getElementById('avatar-initial').classList.remove('hidden');
       }
-
-      // View mode rows
       document.getElementById('vw-name').textContent = name || 'Not set';
       document.getElementById('vw-email').textContent = email || 'Not set';
       document.getElementById('vw-phone').textContent = phone || 'Not set';
@@ -325,16 +291,12 @@
       document.getElementById('vw-privacy').textContent = privacyHide
         ? 'Hidden from trainer directory'
         : 'Visible to trainers';
-
-      // Pre-fill edit form
       document.getElementById('edit-name').value = name;
       document.getElementById('edit-email').value = email;
       document.getElementById('edit-phone').value = phone;
       document.getElementById('edit-contact-prefs').value = contactPrefs;
       document.getElementById('edit-privacy').checked = privacyHide;
     }
-
-    // Load profile row for current user
     async function loadProfile() {
       const { data } = await db
         .from('profiles')
@@ -345,8 +307,6 @@
       currentProfile = data || {};
       renderProfile(currentProfile, currentUser);
     }
-
-    // Guard page and bootstrap profile
     async function init() {
       const session = await GymflowSupabase.getSession(db);
       if (!session) {
@@ -358,15 +318,12 @@
       applyRoleVisibility(currentRole);
       await loadProfile();
     }
-
-    // Edit mode controls
     function enterEditMode() {
       document.getElementById('view-mode').classList.add('hidden');
       document.getElementById('edit-form').classList.remove('hidden');
       document.getElementById('edit-btn').classList.add('hidden');
       document.getElementById('upload-btn').classList.remove('hidden');
     }
-
     function exitEditMode() {
       document.getElementById('view-mode').classList.remove('hidden');
       document.getElementById('edit-form').classList.add('hidden');
@@ -375,93 +332,72 @@
       document.getElementById('edit-name-error').classList.add('hidden');
       document.getElementById('edit-name').classList.remove('border-red-500');
     }
-
     document.getElementById('edit-btn').addEventListener('click', enterEditMode);
 
     document.getElementById('cancel-btn').addEventListener('click', () => {
       renderProfile(currentProfile, currentUser);
       exitEditMode();
     });
-
-    // Save profile changes
     document.getElementById('edit-form').addEventListener('submit', async e => {
       e.preventDefault();
-
       const nameErr = document.getElementById('edit-name-error');
       nameErr.classList.add('hidden');
       document.getElementById('edit-name').classList.remove('border-red-500');
-
       const name = document.getElementById('edit-name').value.trim();
       const phone = document.getElementById('edit-phone').value.trim();
       const contactPrefs = document.getElementById('edit-contact-prefs').value;
       const privacyHide = document.getElementById('edit-privacy').checked;
       const saveBtn = document.getElementById('save-btn');
-
       if (!name) {
         nameErr.textContent = 'Please enter your full name.';
         nameErr.classList.remove('hidden');
         document.getElementById('edit-name').classList.add('border-red-500');
         return;
       }
-
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
-
       const { error } = await db.from('profiles').update({
         name,
         phone: phone || null,
         contact_preferences: contactPrefs,
         privacy_hide_profile: privacyHide
       }).eq('user_id', currentUser.id);
-
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save Changes';
-
       if (error) {
         showPageAlert('Could not save changes: ' + error.message);
         return;
       }
-
       currentProfile = { ...currentProfile, name, phone, contact_preferences: contactPrefs, privacy_hide_profile: privacyHide };
       renderProfile(currentProfile, currentUser);
       exitEditMode();
       showPageAlert('Profile updated.', 'success');
     });
-
-    // Avatar upload
     document.getElementById('upload-btn').addEventListener('click', () => {
       document.getElementById('avatar-input').click();
     });
-
     document.getElementById('avatar-input').addEventListener('change', async e => {
       const file = e.target.files[0];
       if (!file) return;
-
       const statusEl = document.getElementById('upload-status');
       statusEl.textContent = 'Uploading photo...';
       statusEl.className = 'text-xs text-center text-on-surface-variant';
       statusEl.classList.remove('hidden');
-
       const ext = file.name.split('.').pop();
       const path = `${currentUser.id}/avatar.${ext}`;
-
       const { error: uploadError } = await db.storage
         .from('avatars')
         .upload(path, file, { upsert: true });
-
       if (uploadError) {
         statusEl.textContent = `Could not upload photo: ${uploadError.message}`;
         statusEl.className = 'text-xs text-center text-red-400';
         console.error('Avatar upload error:', uploadError);
         return;
       }
-
       const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(path);
-
       await db.from('profiles')
         .update({ avatar_url: publicUrl })
         .eq('user_id', currentUser.id);
-
       currentProfile.avatar_url = publicUrl;
       renderProfile(currentProfile, currentUser);
       statusEl.textContent = 'Profile photo updated.';
@@ -469,11 +405,7 @@
       setTimeout(() => statusEl.classList.add('hidden'), 3000);
     });
 
-    // Logout
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await db.auth.signOut();
-      window.location.replace('login.html');
-    });
+    GymflowSupabase.bindLogoutButton(db, { redirectPath: 'login.html' });
 
     renderProfileNav();
     GymflowNav.initMenuNav();

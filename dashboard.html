@@ -26,7 +26,6 @@
 <body class="s14-page s14-app bg-background text-on-surface font-body antialiased">
   <div class="relative flex h-auto min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
-      <!-- Header -->
       <header class="site-nav sticky top-0 z-50 relative">
         <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
           <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
@@ -48,7 +47,6 @@
               <span>Menu</span>
             </button>
 
-          <!-- Profile Mini -->
           <a href="profile.html" class="hidden sm:flex items-center gap-3 pr-3 border-r border-white/10 hover:opacity-80 transition-opacity">
             <div class="text-right">
               <p id="nav-user-name" class="font-headline font-bold text-white text-xs">
@@ -76,9 +74,7 @@
         </div>
       </header>
       <main class="flex-1 flex flex-col">
-        <!-- Dashboard Content -->
         <section class="flex-1 p-6 lg:p-10 space-y-10 bg-background overflow-y-auto s14-shell">
-          <!-- Hero Section -->
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
               <h1
@@ -94,9 +90,7 @@
               </div>
             </div>
           </div>
-          <!-- Grid Layout -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Membership Status Card -->
             <div
               class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group s14-card">
               <div class="relative z-10">
@@ -120,7 +114,6 @@
                 class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-white/5 pointer-events-none transition-transform group-hover:scale-110">verified</span>
             </div>
 
-            <!-- Subscription Plan Card -->
             <div class="bg-primary p-8 flex flex-col justify-between relative overflow-hidden group s14-card-strong">
               <div class="relative z-10">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-on-primary/60 mb-2">
@@ -140,7 +133,6 @@
                 class="material-symbols-outlined absolute -right-4 -top-4 text-9xl text-on-primary/10 pointer-events-none transition-transform group-hover:scale-110">star_rate</span>
             </div>
 
-            <!-- Monthly Stats Card -->
             <div
               class="bg-surface p-8 border border-white/5 flex flex-col justify-between relative overflow-hidden group s14-card">
               <div class="relative z-10">
@@ -163,9 +155,7 @@
             </div>
           </div>
 
-          <!-- Content Rows -->
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
-            <!-- Upcoming Classes -->
             <div class="lg:col-span-3 space-y-6">
               <div class="flex justify-between items-center border-b border-white/10 pb-4">
                 <h2 class="font-headline text-2xl font-black uppercase italic tracking-tighter">
@@ -180,18 +170,14 @@
               </div>
             </div>
 
-            <!-- Personal Records -->
             <div class="lg:col-span-2 space-y-6">
               <div class="bg-surface p-8 space-y-6 border-t-2 border-primary flex flex-col h-full s14-card">
                 <h3 class="font-headline text-xl font-bold uppercase italic tracking-tighter">Personal Records</h3>
 
-                <!-- Dynamic List Container -->
                 <div id="pr-list" class="space-y-4 flex-1 overflow-y-auto max-h-[200px] pr-2">
-                  <!-- Records will be injected here by JavaScript -->
                   <p class="text-on-surface-variant text-sm italic">No records found. Log your first PR below.</p>
                 </div>
 
-                <!-- ADD NEW PR FORM (Styled like your screenshot) -->
                 <div class="mt-8 pt-8 border-t border-white/10">
                   <h4 class="font-headline text-2xl font-black uppercase italic tracking-tighter mb-6">
                     ADD NEW <br /><span class="text-primary">RECORD</span>
@@ -228,12 +214,10 @@
   </div>
   </div>
   <script>
-    //Contact Supabase
     const supabaseClient = GymflowSupabase.createClient();
     let currentSession = null;
     const resolveUserRole = user => GymflowSupabase.resolveUserRole(supabaseClient, user);
 
-    //Fetch the Data
     async function loadSubscriptionData() {
       const session = await GymflowSupabase.getSession(supabaseClient);
       currentSession = session || null;
@@ -310,21 +294,19 @@
         console.error("Error fetching subscription:", error.message);
       }
 
-      // --- FETCH DYNAMIC PERSONAL RECORDS DATA ---
       const { data: prData, error: prError } = await supabaseClient
         .from('personal_records')
         .select('*')
         .eq('user_id', realUserId)
-        .order('weight', { ascending: false }); // Sorts highest weight first!
+        .order('weight', { ascending: false });
 
       if (prError) {
         console.error('Error fetching personal records:', prError.message);
       }
 
-      // Inject the Dynamic Records
       if (prData && prData.length > 0) {
         const prContainer = document.getElementById('pr-list');
-        prContainer.innerHTML = ''; // Clear the "No records found" message
+        prContainer.innerHTML = '';
 
         prData.forEach(record => {
 
@@ -333,13 +315,10 @@
             const difference = record.weight - record.previous_weight;
 
             if (difference > 0) {
-              // They got stronger! Show neon green
               trendHTML = `<span class="text-[10px] font-bold text-primary ml-2 tracking-widest">+${difference}KG</span>`;
             } else if (difference < 0) {
-              // They lifted less. Show subtle gray or red
               trendHTML = `<span class="text-[10px] font-bold text-red-500 ml-2 tracking-widest">${difference}KG</span>`;
             } else {
-              // Same exact weight
               trendHTML = `<span class="text-[10px] font-bold text-on-surface-variant ml-2 tracking-widest opacity-50">NO CHANGE</span>`;
             }
           }
@@ -355,7 +334,6 @@
         });
       }
 
-      // Inject the Data into the HTML
 if (data) {
   const miniSubtitle = resolvedRole !== 'member' ? 'Staff' : (data.plan_name || 'Member');
   GymflowNav.applyProfileMini({
@@ -370,7 +348,6 @@ if (data) {
   document.getElementById("mem-status").innerText = data.status || 'PENDING';
   document.getElementById("sub-plan").innerText = data.plan_name || 'GUEST PASS';
   
-  // Use a fallback if next_billing_date doesn't exist yet
   document.getElementById("next-billing").innerText = `Next billing: ${data.next_billing_date || 'N/A'}`;
 
   document.getElementById("profile-score-text").innerText = `${data.profile_score || 0}% Profile Score`;
@@ -378,7 +355,6 @@ if (data) {
 
   document.getElementById('workouts-count').innerText = data.workouts_this_month || 0;
 
-  // Protect against math errors if last month was 0
   let lastMonth = data.workouts_last_month || 1; 
   let diff = (data.workouts_this_month || 0) - (data.workouts_last_month || 0);
   let percentChange = (diff / lastMonth) * 100;
@@ -403,14 +379,12 @@ if (data) {
 }
     }
 
-    //////// Fetch upcoming classes ///////
     async function loadUpcomingClasses() {
       const container = document.getElementById('upcoming-classes-list');
 
       const session = await GymflowSupabase.getSession(supabaseClient);
       const currentUser = session?.user || null;
 
-      // get the user's bookings from supabase
       let bookedIds = [];
       if (currentUser) {
         const { data: myBookings } = await supabaseClient
@@ -421,7 +395,6 @@ if (data) {
         bookedIds = myBookings ? myBookings.map(b => b.class_id) : [];
       }
 
-      // Puts the next 3 classes onto dashboard.
       const { data: classes, error } = await supabaseClient
         .from('gym_classes')
         .select('*')
@@ -440,16 +413,14 @@ if (data) {
         return;
       }
 
-      container.innerHTML = ''; // Clear the loading text
+      container.innerHTML = '';
 
       classes.forEach((cls, index) => {
-        // Format the Date
         const [year, month, day] = cls.date.split('-');
         const dateObj = new Date(year, month - 1, day);
         const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
         const dayNum = dateObj.getDate();
 
-        // Format the Time to 12-hour AM/PM
         const [hourStr, minStr] = cls.time.split(':');
         let hour = parseInt(hourStr);
         const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -457,13 +428,11 @@ if (data) {
         hour = hour ? hour : 12;
         const timeFormatted = `${hour.toString().padStart(2, '0')}:${minStr} ${ampm}`;
 
-        // --- THE REAL DATABASE CHECKS ---
         const isBooked = bookedIds.includes(cls.id);
         const isFull = cls.capacity <= 0;
 
         const borderClass = index === 0 ? 'border-primary' : 'border-transparent';
 
-        // Determine which button to show based on the real database!
         let buttonHtml = '';
         if (!currentUser) {
           buttonHtml = `<button onclick="window.location.href='login.html'" class="px-6 py-2 border border-primary/40 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-black transition-all">Sign In to Book</button>`;
@@ -475,7 +444,6 @@ if (data) {
           buttonHtml = `<button onclick="bookDashboardClass('${cls.id}', ${cls.capacity})" class="px-6 py-2 bg-primary text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Book</button>`;
         }
 
-        // Build the HTML card
         const classHTML = `
           <div class="flex items-center gap-6 p-4 bg-surface border-l-4 ${borderClass} group hover:bg-surface-variant transition-colors s14-card">
             <div class="flex flex-col items-center justify-center bg-surface-variant min-w-[60px] h-[60px]">
@@ -500,7 +468,6 @@ if (data) {
       });
     }
 
-    // --- DASHBOARD BOOKING LOGIC (Synced with Database) ---
     async function bookDashboardClass(classId, capacity) {
       if (capacity <= 0) return;
       
@@ -521,7 +488,7 @@ if (data) {
       if (bookingError) return alert('Booking failed: ' + bookingError.message);
       
       await supabaseClient.from('gym_classes').update({ capacity: capacity - 1 }).eq('id', classId);
-      loadUpcomingClasses(); // Instantly refresh the dashboard list
+      loadUpcomingClasses();
     }
 
     async function cancelDashboardBooking(classId, capacity) {
@@ -534,7 +501,7 @@ if (data) {
       await supabaseClient.from('class_bookings').delete().match({ class_id: classId, user_id: session.user.id });
       await supabaseClient.from('gym_classes').update({ capacity: capacity + 1 }).eq('id', classId);
       
-      loadUpcomingClasses(); // Instantly refresh the dashboard list
+      loadUpcomingClasses();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -543,7 +510,6 @@ if (data) {
       loadUpcomingClasses();
     });
 
-    ////// Personal records  /////////
     document.getElementById('add-pr-form').addEventListener('submit', async (event) => {
       event.preventDefault();
 
@@ -555,7 +521,7 @@ if (data) {
       }
 
       const exerciseName = document.getElementById('pr-name').value.trim().toUpperCase();
-      const exerciseWeight = parseInt(document.getElementById('pr-weight').value); // Added parseInt!
+      const exerciseWeight = parseInt(document.getElementById('pr-weight').value);
       const btn = document.getElementById('pr-submit-btn');
 
       const originalText = btn.innerHTML;
@@ -563,7 +529,6 @@ if (data) {
       btn.disabled = true;
 
       try {
-        // Get current figures
         const { data: currentStats } = await supabaseClient
           .from('profiles')
           .select('calories_burnt, workouts_this_month')
@@ -574,7 +539,6 @@ if (data) {
         const newCalorieTotal = (currentStats?.calories_burnt || 0) + randomCalories;
         const newWorkoutTotal = (currentStats?.workouts_this_month || 0) + 1;
 
-        // Gets current PR
         const { data: existingRecord } = await supabaseClient
           .from('personal_records')
           .select('*')
@@ -582,7 +546,6 @@ if (data) {
           .eq('exercise_name', exerciseName)
           .single(); 
 
-        // Update or Insert PR
         if (existingRecord) {
           await supabaseClient.from('personal_records').update({
             weight: exerciseWeight,
@@ -594,13 +557,11 @@ if (data) {
           ]);
         }
 
-        // 4. Update the Calorie Count in the database
         await supabaseClient
           .from('profiles')
           .update({ calories_burnt: newCalorieTotal, workouts_this_month: newWorkoutTotal })
           .eq('user_id', realUserId);
 
-        // 5. Refresh UI
         document.getElementById('pr-name').value = '';
         document.getElementById('pr-weight').value = '';
         await loadSubscriptionData();
@@ -609,21 +570,14 @@ if (data) {
         console.error("PR Update Error:", err);
         alert("Could not save your record. Please try again.");
       } finally {
-        // Reset Button State
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
     });
 
-    // --- SIGN OUT LOGIC ---
-  document.getElementById('logout-btn').addEventListener('click', async () => {
-    if (!currentSession) {
-      window.location.href = 'login.html';
-      return;
-    }
-
-    await supabaseClient.auth.signOut();
-    window.location.href = 'login.html'; 
+  GymflowSupabase.bindLogoutButton(supabaseClient, {
+    redirectPath: 'login.html',
+    shouldSkipSignOut: () => !currentSession,
   });
 
   </script>

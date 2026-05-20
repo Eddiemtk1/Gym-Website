@@ -24,7 +24,6 @@
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="flex h-full grow flex-col">
 
-      <!-- Header -->
       <header class="site-nav sticky top-0 z-50 relative">
         <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
           <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
@@ -65,10 +64,8 @@
         </div>
       </header>
 
-      <!-- Main content -->
       <main class="flex-1 p-6 lg:p-10 space-y-8 s14-shell">
 
-        <!-- Page title -->
         <div class="border-b border-white/10 pb-6">
           <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
             My Schedule
@@ -76,7 +73,6 @@
           <p class="text-on-surface-variant mt-3">Classes currently assigned to you.</p>
         </div>
 
-        <!-- Not a trainer message (hidden by default) -->
         <div id="not-trainer-msg" class="hidden">
           <div class="bg-surface border border-outline/40 p-10 text-center space-y-3 s14-card">
             <span class="material-symbols-outlined text-5xl text-on-surface-variant opacity-40 block">person_off</span>
@@ -90,10 +86,8 @@
           </div>
         </div>
 
-        <!-- Schedule content (shown when trainer record found) -->
         <div id="schedule-content" class="space-y-8">
 
-          <!-- Trainer info card -->
           <div class="bg-surface border border-outline/40 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5 s14-card">
             <div class="size-14 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
               <span id="trainer-initial" class="font-headline font-black text-on-primary text-2xl">?</span>
@@ -114,7 +108,6 @@
             </div>
           </div>
 
-          <!-- Upcoming classes -->
           <div>
             <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Upcoming Sessions</h2>
             <div id="upcoming-empty" class="hidden bg-surface border border-outline/40 p-10 text-center s14-card">
@@ -124,7 +117,6 @@
             <div id="upcoming-list" class="space-y-3"></div>
           </div>
 
-          <!-- Past classes -->
           <div>
             <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Past Sessions</h2>
             <div id="past-empty" class="hidden bg-surface border border-outline/40 p-10 text-center s14-card">
@@ -149,7 +141,6 @@
     const getHomeRoute = GymflowRoles.getHomeRoute;
     const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
 
-    // Start page
     async function init() {
       const session = await GymflowSupabase.getSession(db);
       if (!session) { window.location.replace('login.html'); return; }
@@ -163,7 +154,6 @@
 
       loadHeader();
 
-      // Check if user has a trainer record
       const { data: trainer } = await db
         .from('trainers')
         .select('id, name, specialisation')
@@ -184,7 +174,6 @@
       await loadSchedule();
     }
 
-    // Header user info
     async function loadHeader() {
       const { data: profile } = await db
         .from('profiles')
@@ -220,11 +209,9 @@
         return String(rowTrainerId) === String(trainer?.id);
       }
 
-      // Legacy fallback for rows that predate trainer_id.
       return namesMatch(row?.coach, trainer?.name);
     }
 
-    // Load trainer schedule
     async function loadSchedule() {
       const [{ data: classesRows, error: classesErr }, { data: hoursRows, error: hoursErr }] = await Promise.all([
         db.from('gym_classes').select('*').order('date', { ascending: true }).order('time', { ascending: true }),
@@ -262,7 +249,6 @@
       renderClassList(past, 'past-list', 'past-empty');
     }
 
-    // Render class cards
     function renderClassList(classes, listId, emptyId) {
       const container = document.getElementById(listId);
       const emptyEl = document.getElementById(emptyId);
@@ -316,10 +302,7 @@
       });
     }
 
-    // Logout
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await db.auth.signOut(); window.location.replace('login.html');
-    });
+    GymflowSupabase.bindLogoutButton(db, { redirectPath: 'login.html' });
 
     GymflowNav.renderRoleMenu({ navId: 'main-nav', role: 'trainer', activeHref: 'trainer-schedule.html' });
     GymflowNav.initMenuNav();

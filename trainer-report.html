@@ -24,7 +24,6 @@
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     <div class="flex h-full grow flex-col">
 
-      <!-- Header -->
       <header class="site-nav sticky top-0 z-50 relative">
         <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
           <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
@@ -65,10 +64,8 @@
         </div>
       </header>
 
-      <!-- Main content -->
       <main class="flex-1 p-6 lg:p-10 space-y-8 s14-shell">
 
-        <!-- Page title -->
         <div class="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h1 class="font-headline text-4xl lg:text-5xl font-black text-white leading-none tracking-tighter uppercase italic">
@@ -76,7 +73,6 @@
             </h1>
             <p id="page-subtitle" class="text-on-surface-variant mt-3">Overview of trainer hours across sessions.</p>
           </div>
-          <!-- Staff only: link back to assignment page -->
           <a id="staff-link" href="assign-trainer.html"
             class="self-start sm:self-auto flex items-center gap-2 px-5 h-10 border border-outline/60 text-on-surface-variant hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
             <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
@@ -84,10 +80,8 @@
           </a>
         </div>
 
-        <!-- Alert -->
         <div id="page-alert" class="hidden px-4 py-3 text-sm font-medium border"></div>
 
-        <!-- Filter bar -->
         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
           <div class="flex items-center gap-0 border border-outline/40 self-start s14-pills">
             <button data-range="today"
@@ -100,7 +94,6 @@
           <p id="date-range" class="text-on-surface-variant text-xs"></p>
         </div>
 
-        <!-- Summary stats -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-surface border border-outline/40 p-4 s14-card">
             <p class="text-on-surface-variant text-xs uppercase tracking-wider mb-1">Total Hours</p>
@@ -120,13 +113,11 @@
           </div>
         </div>
 
-        <!-- Grouped totals (staff only) -->
         <div id="grouped-section" class="space-y-3">
           <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest">By Trainer</h2>
           <div id="grouped-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </div>
 
-        <!-- Detail table -->
         <div>
           <h2 class="font-headline font-bold text-white text-sm uppercase tracking-widest mb-4">Session Breakdown</h2>
           <div class="bg-surface border border-outline/40 overflow-x-auto s14-card s14-table">
@@ -175,62 +166,51 @@
       logoutBtn: document.getElementById('logout-btn'),
       rangeButtons: Array.from(document.querySelectorAll('[data-range]')),
     };
-
     let currentUser = null;
     let currentRole = 'member';
     let trainerRecord = null;
     let isTrainer = false;
     let activeRange = 'week';
-
     const toIsoDate = date => date.toISOString().split('T')[0];
     const toHours = value => Number(value || 0);
 
-    const getHomeRoute = GymflowRoles.getHomeRoute;
     const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
-
     async function init() {
       const session = await GymflowSupabase.getSession(db);
       if (!session) {
         window.location.replace('login.html');
         return;
       }
-
       currentUser = session.user;
       currentRole = await resolveUserRole(currentUser);
       if (currentRole === 'member') {
         window.location.replace('dashboard.html');
         return;
       }
-
       GymflowNav.renderRoleMenu({ navId: 'main-nav', role: currentRole, activeHref: 'trainer-report.html' });
       GymflowNav.initMenuNav();
-
       await loadHeader();
       const roleReady = await detectRole();
       if (!roleReady) return;
       bindRangeButtons();
       await refreshReport();
     }
-
     async function detectRole() {
       if (currentRole !== 'trainer') {
         isTrainer = false;
         trainerRecord = null;
         return true;
       }
-
       const { data: trainer } = await db
         .from('trainers')
         .select('id, name')
         .eq('user_id', currentUser.id)
         .maybeSingle();
-
       if (!trainer) {
         showAlert('We could not find your trainer profile. Contact an admin.', 'error');
         setTimeout(() => window.location.replace('dashboard.html'), 1400);
         return false;
       }
-
       isTrainer = true;
       trainerRecord = trainer;
       ui.pageSubtitle.textContent = 'Your logged hours for this period.';
@@ -239,14 +219,12 @@
       ui.staffLink.classList.add('hidden');
       return true;
     }
-
     async function loadHeader() {
       const { data: profile } = await db
         .from('profiles')
         .select('name, avatar_url')
         .eq('user_id', currentUser.id)
         .maybeSingle();
-
       GymflowNav.applyProfileMini({
         nameId: 'header-name',
         subtitleId: 'header-role-label',
@@ -257,31 +235,25 @@
         avatarUrl: profile?.avatar_url,
       });
     }
-
     function getDateRange(rangeKey) {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
       if (rangeKey === 'today') {
         const date = toIsoDate(today);
         return { start: date, end: date };
       }
-
       if (rangeKey === 'week') {
         const dayOfWeek = today.getDay();
         const monday = new Date(today);
         monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
         const sunday = new Date(monday);
         sunday.setDate(monday.getDate() + 6);
-
         return { start: toIsoDate(monday), end: toIsoDate(sunday) };
       }
-
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
       const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       return { start: toIsoDate(firstDay), end: toIsoDate(lastDay) };
     }
-
     function formatDate(dateStr) {
       return new Date(`${dateStr}T00:00:00`).toLocaleDateString('en-GB', {
         day: '2-digit',
@@ -289,7 +261,6 @@
         year: 'numeric',
       });
     }
-
     function setActiveRangeButton(activeButton) {
       ui.rangeButtons.forEach(button => {
         button.classList.toggle('bg-primary', button === activeButton);
@@ -297,7 +268,6 @@
         button.classList.toggle('text-on-surface-variant', button !== activeButton);
       });
     }
-
     function bindRangeButtons() {
       ui.rangeButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -307,12 +277,10 @@
         });
       });
     }
-
     function renderLoadingState() {
       ui.reportBody.innerHTML =
         '<tr><td colspan="5" class="text-center py-12 text-on-surface-variant text-sm">Loading report...</td></tr>';
     }
-
     function renderEmptyState(message) {
       ui.reportBody.innerHTML = `<tr>
         <td colspan="5" class="text-center py-16 text-on-surface-variant">
@@ -321,37 +289,30 @@
         </td>
       </tr>`;
     }
-
     function asKey(value) {
       return String(value);
     }
-
     async function refreshReport() {
       const { start, end } = getDateRange(activeRange);
       ui.dateRange.textContent = `${formatDate(start)} – ${formatDate(end)}`;
       renderLoadingState();
-
       let query = db
         .from('trainer_hours')
         .select('id, trainer_id, class_id, date, hours_logged, confirmed')
         .gte('date', start)
         .lte('date', end)
         .order('date', { ascending: false });
-
       if (isTrainer && trainerRecord) {
         query = query.eq('trainer_id', trainerRecord.id);
       }
-
       const { data: rawRows, error: hoursError } = await query;
       if (hoursError) {
         showAlert(`Could not load report: ${hoursError.message}`, 'error');
         renderEmptyState('Error loading data.');
         return;
       }
-
       const trainerIds = [...new Set((rawRows || []).map(row => row.trainer_id).filter(Boolean))];
       const classIds = [...new Set((rawRows || []).map(row => row.class_id).filter(Boolean))];
-
       let trainersById = new Map();
       if (trainerIds.length) {
         const { data: trainers, error: trainerError } = await db
@@ -364,7 +325,6 @@
           trainersById = new Map((trainers || []).map(row => [asKey(row.id), row]));
         }
       }
-
       let classesById = new Map();
       if (classIds.length) {
         const { data: classes, error: classError } = await db
@@ -377,41 +337,32 @@
           classesById = new Map((classes || []).map(row => [asKey(row.id), row]));
         }
       }
-
       const rows = (rawRows || []).map(row => ({
         ...row,
         trainer: trainersById.get(asKey(row.trainer_id)) || null,
         classInfo: classesById.get(asKey(row.class_id)) || null,
       }));
-
       updateStats(rows);
-
       if (!isTrainer) {
         renderTrainerTotals(rows);
       }
-
       renderTable(rows);
     }
-
     function updateStats(rows) {
       const totalHours = rows.reduce((sum, row) => sum + toHours(row.hours_logged), 0);
       const unconfirmedCount = rows.filter(row => !row.confirmed).length;
       const trainerIds = rows.map(row => row.trainer?.id).filter(Boolean);
-
       ui.statHours.textContent = totalHours.toFixed(1);
       ui.statSessions.textContent = rows.length;
       ui.statTrainers.textContent = new Set(trainerIds).size;
       ui.statUnconfirmed.textContent = unconfirmedCount;
     }
-
     function renderTrainerTotals(rows) {
       ui.groupedList.innerHTML = '';
-
       const totalsByTrainer = {};
       for (const row of rows) {
         const trainer = row.trainer;
         if (!trainer?.id) continue;
-
         if (!totalsByTrainer[trainer.id]) {
           totalsByTrainer[trainer.id] = {
             name: trainer.name,
@@ -420,18 +371,14 @@
             sessions: 0,
           };
         }
-
         totalsByTrainer[trainer.id].hours += toHours(row.hours_logged);
         totalsByTrainer[trainer.id].sessions += 1;
       }
-
       const trainers = Object.values(totalsByTrainer).sort((a, b) => b.hours - a.hours);
-
       if (!trainers.length) {
         ui.groupedList.innerHTML = '<p class="text-on-surface-variant text-sm col-span-full">No trainer activity for this period.</p>';
         return;
       }
-
       trainers.forEach(trainer => {
         const card = document.createElement('div');
         card.className = 'bg-surface border border-outline/40 p-4 flex items-center gap-4 s14-card';
@@ -451,7 +398,6 @@
         ui.groupedList.appendChild(card);
       });
     }
-
     function renderTable(rows) {
       ui.reportBody.innerHTML = '';
 
@@ -459,7 +405,6 @@
         renderEmptyState('No logged hours for this period.');
         return;
       }
-
       rows.forEach(row => {
         const trainer = row.trainer;
         const className = row.classInfo?.name || (row.class_id ? `Class #${row.class_id}` : '—');
@@ -488,18 +433,15 @@
         ui.reportBody.appendChild(tr);
       });
     }
-
     async function confirmHours(rowId) {
       const { error } = await db.from('trainer_hours').update({ confirmed: true }).eq('id', rowId);
       if (error) {
         showAlert(`Could not confirm hours: ${error.message}`, 'error');
         return;
       }
-
       await refreshReport();
       showAlert('Hours confirmed.', 'success');
     }
-
     function showAlert(message, type) {
       ui.alert.textContent = message;
       ui.alert.className = type === 'success'
@@ -508,13 +450,7 @@
       ui.alert.classList.remove('hidden');
       setTimeout(() => ui.alert.classList.add('hidden'), 4000);
     }
-
-    async function handleLogout() {
-      await db.auth.signOut();
-      window.location.replace('login.html');
-    }
-
-    ui.logoutBtn.addEventListener('click', handleLogout);
+    GymflowSupabase.bindLogoutButton(db, { redirectPath: 'login.html' });
     window.confirmHours = confirmHours;
     init();
   </script>

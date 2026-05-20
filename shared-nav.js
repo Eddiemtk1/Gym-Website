@@ -50,6 +50,10 @@
   }
 
   function normalizeRole(role) {
+    if (global.GymflowRoles && typeof global.GymflowRoles.normalizeRole === 'function') {
+      return global.GymflowRoles.normalizeRole(role) || 'member';
+    }
+
     const value = String(role || 'member').toLowerCase();
     if (value === 'staff') return 'admin';
     if (value === 'admin' || value === 'trainer') return value;

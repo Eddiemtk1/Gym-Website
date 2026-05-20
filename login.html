@@ -161,7 +161,6 @@
     const RESET_REDIRECT_OVERRIDE = 'https://eddiemtk1.github.io/Gym-Website/login.html';
     const RESET_REDIRECT_LOCAL_FALLBACK = 'http://localhost:5500/login.html';
     const db = GymflowSupabase.createClient();
-
     const viewIds = ['login-view', 'forgot-view', 'recovery-view'];
     const ui = {
       alert: document.getElementById('alert'),
@@ -187,34 +186,26 @@
       newConfirmError: document.getElementById('new-confirm-error'),
       recoveryBtn: document.getElementById('recovery-btn'),
     };
-
     function syncPasswordToggle(button, input) {
       const isVisible = input.type === 'text';
       button.textContent = isVisible ? 'Hide' : 'Show';
       button.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
       button.setAttribute('aria-pressed', String(isVisible));
     }
-
     function bindPasswordToggle(button, input) {
       if (!button || !input) return;
-
       syncPasswordToggle(button, input);
       button.addEventListener('click', () => {
         input.type = input.type === 'password' ? 'text' : 'password';
         syncPasswordToggle(button, input);
       });
     }
-
     bindPasswordToggle(ui.passwordToggle, ui.password);
     bindPasswordToggle(ui.newPasswordToggle, ui.newPassword);
     bindPasswordToggle(ui.newConfirmToggle, ui.newConfirm);
-
-    const getHomeRoute = GymflowRoles.getHomeRoute;
-    const resolveUserRole = user => GymflowSupabase.resolveUserRole(db, user);
     const redirectToRoleHome = user => GymflowRoles.redirectToRoleHome(db, user);
     let recoveryMode = false;
     let recoveryCompleted = false;
-
     function showAlert(message, type = 'error') {
       ui.alert.textContent = message;
       ui.alert.className = type === 'error'
@@ -222,48 +213,39 @@
         : 'mb-6 px-4 py-3 text-sm font-medium border border-primary/40 bg-primary/10 text-primary';
       ui.alert.classList.remove('hidden');
     }
-
     function hideAlert() {
       ui.alert.classList.add('hidden');
     }
-
     function showView(viewId) {
       viewIds.forEach(id => {
         document.getElementById(id).classList.toggle('hidden', id !== viewId);
       });
       hideAlert();
     }
-
     function setButtonState(button, label, disabled) {
       button.disabled = disabled;
       button.textContent = label;
     }
-
     function clearLoginErrors() {
       ui.emailError.classList.add('hidden');
       ui.passwordError.classList.add('hidden');
       hideAlert();
     }
-
     function clearRecoveryErrors() {
       ui.newPasswordError.classList.add('hidden');
       ui.newConfirmError.classList.add('hidden');
       hideAlert();
     }
-
     function getSearchParam(name) {
       return new URLSearchParams(window.location.search).get(name);
     }
-
     function getHashParam(name) {
       const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
       return new URLSearchParams(hash).get(name);
     }
-
     function isRecoveryRequest() {
       return getSearchParam('type') === 'recovery' || getHashParam('type') === 'recovery';
     }
-
     function hasAuthCallbackParams() {
       return Boolean(
         getSearchParam('type') ||
@@ -277,7 +259,6 @@
         getHashParam('refresh_token')
       );
     }
-
     function enterRecoveryMode() {
       recoveryMode = true;
       showView('recovery-view');
@@ -287,47 +268,37 @@
       if (!recoveryMode || recoveryCompleted) {
         return;
       }
-
       try {
         await db.auth.signOut({ scope: 'local' });
       } catch (error) {
         console.warn('Failed to clear recovery session:', error?.message || error);
       }
-
       recoveryMode = false;
     }
-
     function clearRecoverySessionOnPageExit() {
       if (!recoveryMode || recoveryCompleted) {
         return;
       }
-
       db.auth.signOut({ scope: 'local' }).catch(() => {
-        // Best-effort cleanup during page exit.
       });
-
       recoveryMode = false;
     }
-
     window.addEventListener('pagehide', clearRecoverySessionOnPageExit);
 
     function shouldBypassRecoveryNavigation(rawHref) {
       if (!rawHref) {
         return true;
       }
-
       const href = rawHref.trim();
       if (!href || href === '#' || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
         return true;
       }
-
       try {
         const target = new URL(href, window.location.href);
         const current = new URL(window.location.href);
         const isSameDocument = target.origin === current.origin &&
           target.pathname === current.pathname &&
           target.search === current.search;
-
         return isSameDocument;
       } catch {
         return true;
@@ -343,28 +314,23 @@
       if (!link) {
         return;
       }
-
       const rawHref = link.getAttribute('href');
       if (shouldBypassRecoveryNavigation(rawHref)) {
         return;
       }
-
       event.preventDefault();
       await clearRecoverySessionIfNeeded();
       window.location.href = link.href;
     });
-
     async function prepareRecoverySession() {
       const tokenHash = getSearchParam('token_hash') || getHashParam('token_hash');
       if (!tokenHash || !isRecoveryRequest()) {
         return true;
       }
-
       const { error } = await db.auth.verifyOtp({
         type: 'recovery',
         token_hash: tokenHash,
       });
-
       if (error) {
         if (/invalid|expired|token|otp/i.test(error.message || '')) {
           showAlert('This reset link is no longer valid. Request a new reset email and use the newest link.');
@@ -373,138 +339,106 @@
         }
         return false;
       }
-
       const cleanUrl = `${window.location.origin}${window.location.pathname}#type=recovery`;
       window.history.replaceState({}, '', cleanUrl);
       return true;
     }
-
     function getPasswordResetRedirectUrl() {
       const override = RESET_REDIRECT_OVERRIDE.trim();
       if (override) {
         return override;
       }
-
       const isWebUrl = window.location.protocol === 'http:' || window.location.protocol === 'https:';
       if (isWebUrl) {
         return `${window.location.origin}${window.location.pathname}`;
       }
-
-      // Supabase can't redirect back to file:// URLs.
       return RESET_REDIRECT_LOCAL_FALLBACK;
     }
-
     db.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         enterRecoveryMode();
         return;
       }
-
       if (event === 'SIGNED_IN' && session) {
         if (recoveryMode || isRecoveryRequest() || hasAuthCallbackParams()) {
           enterRecoveryMode();
           return;
         }
-
         redirectToRoleHome(session.user);
       }
     });
-
     (async () => {
       if (isRecoveryRequest()) {
         enterRecoveryMode();
       }
-
       const recoveryReady = await prepareRecoverySession();
       if (!recoveryReady) {
         return;
       }
-
       if (isRecoveryRequest()) {
         enterRecoveryMode();
       }
-
       const session = await GymflowSupabase.getSession(db);
       if (session && !recoveryMode && !isRecoveryRequest() && !hasAuthCallbackParams()) {
         await redirectToRoleHome(session.user);
       }
     })();
-
     ui.loginForm.addEventListener('submit', async event => {
       event.preventDefault();
       clearLoginErrors();
-
       const email = ui.email.value.trim();
       const password = ui.password.value;
-
       if (!email) {
         ui.emailError.textContent = 'Please enter your email.';
         ui.emailError.classList.remove('hidden');
         return;
       }
-
       if (!password) {
         ui.passwordError.textContent = 'Please enter your password.';
         ui.passwordError.classList.remove('hidden');
         return;
       }
-
       setButtonState(ui.loginBtn, 'Signing in...', true);
       const { data, error } = await db.auth.signInWithPassword({ email, password });
-
       if (!error && data?.user) {
         await redirectToRoleHome(data.user);
         return;
       }
-
       showAlert('We could not sign you in with those details.');
       setButtonState(ui.loginBtn, 'Sign In', false);
     });
-
     ui.forgotLink.addEventListener('click', () => showView('forgot-view'));
     ui.backToLogin.addEventListener('click', () => showView('login-view'));
-
     ui.forgotForm.addEventListener('submit', async event => {
       event.preventDefault();
-
       const email = ui.resetEmail.value.trim();
       ui.resetEmailError.classList.add('hidden');
       hideAlert();
-
       if (!email) {
         ui.resetEmailError.textContent = 'Please enter your email.';
         ui.resetEmailError.classList.remove('hidden');
         return;
       }
-
       setButtonState(ui.resetBtn, 'Sending...', true);
-
       const redirectTo = getPasswordResetRedirectUrl();
-
       const { error } = await db.auth.resetPasswordForEmail(email, {
         redirectTo,
       });
-
       setButtonState(ui.resetBtn, 'Send Reset Link', false);
-
       if (error) {
         if (/redirect|not allowed|url/i.test(error.message || '')) {
           showAlert(`Reset redirect is blocked in Supabase. Add ${redirectTo} in Auth URL settings or set RESET_REDIRECT_OVERRIDE.`);
           return;
         }
-
         showAlert(error.message);
         return;
       }
-
       showAlert('We have sent a reset link. Use the newest email link once.', 'success');
       ui.forgotForm.reset();
     });
-
     ui.recoveryForm.addEventListener('submit', async event => {
       event.preventDefault();
       clearRecoveryErrors();
-
       const newPassword = ui.newPassword.value;
       const confirmPassword = ui.newConfirm.value;
 
@@ -513,22 +447,18 @@
         ui.newPasswordError.classList.remove('hidden');
         return;
       }
-
       if (newPassword !== confirmPassword) {
         ui.newConfirmError.textContent = 'Passwords do not match.';
         ui.newConfirmError.classList.remove('hidden');
         return;
       }
-
       setButtonState(ui.recoveryBtn, 'Updating...', true);
       const { error } = await db.auth.updateUser({ password: newPassword });
-
       if (error) {
         showAlert(error.message);
         setButtonState(ui.recoveryBtn, 'Update Password', false);
         return;
       }
-
       recoveryCompleted = true;
       showAlert('Password updated. Taking you back in...', 'success');
       setTimeout(async () => {
@@ -537,7 +467,6 @@
           window.location.replace('login.html');
           return;
         }
-
         await redirectToRoleHome(session.user);
       }, 2000);
     });

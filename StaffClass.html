@@ -22,7 +22,6 @@
 <body class="staff-form-page bg-background text-on-surface font-body antialiased">
   <div class="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
     
-    <!-- DYNAMIC HEADER -->
     <header class="site-nav sticky top-0 z-50 relative">
       <div class="flex items-center justify-between gap-4 px-6 lg:px-10 py-3">
         <a href="index.html" class="flex items-center gap-4 text-primary hover:opacity-90 transition-opacity">
@@ -234,7 +233,6 @@
 
       let { error } = await db.from('gym_classes').insert([richGymClassData]);
 
-      // Backward compatibility: some environments may not have richer columns yet.
       if (error && (/column .* does not exist/i.test(error.message || '') || /could not find.*column/i.test(error.message || ''))) {
         const fallback = await db.from('gym_classes').insert([baseGymClassData]);
         error = fallback.error;

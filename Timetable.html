@@ -183,7 +183,6 @@
     async function fetchAndRenderTimetable() {
       const container = document.getElementById('timetable-container');
 
-      // 1. Fetch classes and current user's bookings
       const { data: classes, error } = await db.from('gym_classes').select('*').order('date', { ascending: true });
       let bookedIds = [];
 
@@ -218,13 +217,10 @@
         const isFull = (cls.capacity || 0) <= 0;
         const isBooked = bookedIds.includes(cls.id);
 
-        // --- DYNAMIC BUTTON LOGIC ---
         let buttonHTML = '';
         if (isPrivileged) {
-          // Show Trainer Button
           buttonHTML = `<button onclick="viewParticipants('${cls.id}', '${cls.name}')" class="px-6 py-4 border border-primary text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">View Roster</button>`;
         } else {
-          // Show Member Buttons
           if (!currentUser) {
              buttonHTML = `<button onclick="window.location.href='login.html'" class="px-6 py-4 border border-primary/40 text-primary font-headline font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-on-primary transition-all">Sign In to Book</button>`;
           } else if (isBooked) {
@@ -269,7 +265,6 @@
       }
 
       if (capacity <= 0) return;
-      // Fetch the user's name directly from the navigation bar so we don't have to change your variables!
       const userName = document.getElementById('nav-user-name').innerText; 
 
       const { error: bookingError } = await db.from('class_bookings').insert({
@@ -322,14 +317,9 @@
       document.getElementById('participant-modal').classList.add('hidden');
     }
 
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      if (!currentUser) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      await db.auth.signOut();
-      window.location.href = 'login.html';
+    GymflowSupabase.bindLogoutButton(db, {
+      redirectPath: 'login.html',
+      shouldSkipSignOut: () => !currentUser,
     });
 
     init();

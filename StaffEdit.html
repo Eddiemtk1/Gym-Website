@@ -64,7 +64,6 @@
   <main class="max-w-7xl mx-auto p-6 lg:p-10">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-      <!-- FORM SECTION -->
       <div class="lg:col-span-4">
         <form id="class-form" class="bg-surface p-8 border border-white/10 space-y-6 sticky top-24 shadow-2xl">
           <input type="hidden" id="edit-id">
@@ -174,14 +173,12 @@
         </form>
       </div>
 
-      <!-- LIST SECTION -->
       <div class="lg:col-span-8">
         <div class="mb-6 flex items-center justify-between">
           <h2 class="text-xs font-black uppercase tracking-[0.4em] text-on-surface-variant italic">Current Class Schedule</h2>
           <span id="class-count" class="bg-primary/10 text-primary border border-primary/20 text-[10px] font-black px-3 py-1 uppercase tracking-widest">0 TOTAL</span>
         </div>
         <div id="staff-list" class="space-y-4">
-          <!-- Dynamically populated -->
         </div>
       </div>
     </div>
@@ -328,7 +325,6 @@
         const row = document.createElement('div');
         row.className = "bg-surface border border-white/5 p-6 flex justify-between items-center group hover:border-primary/50 transition-all";
         
-        // Escape strings for the onclick function to prevent syntax errors
         const safeName = cls.name.replace(/'/g, "\\'");
         const safeCoach = (cls.coach || '').replace(/'/g, "\\'");
         const safeDate = (cls.date || '').replace(/'/g, "\\'");
@@ -379,7 +375,6 @@
       document.getElementById('name').value = name;
       document.getElementById('coach').value = coach;
       document.getElementById('date').value = date;
-      // Handle time formats (some browsers might send HH:MM:SS)
       document.getElementById('time').value = time.slice(0, 5);
       document.getElementById('location').value = location;
       document.getElementById('capacity').value = capacity;

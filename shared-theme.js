@@ -90,9 +90,9 @@
     if (footer) return footer;
 
     const existingFooters = Array.from(document.querySelectorAll("footer"));
-    existingFooters.forEach(function (node) {
-      node.remove();
-    });
+    if (existingFooters.length > 0) {
+      return existingFooters[existingFooters.length - 1];
+    }
 
     footer = document.createElement("footer");
     footer.id = "gymflow-global-footer";

@@ -43,6 +43,38 @@
     return global.GymflowRoles.resolveUserRole(client, user);
   }
 
+  function bindLogoutButton(client, options) {
+    if (!global.document || !client?.auth || typeof client.auth.signOut !== 'function') {
+      return null;
+    }
+
+    const opts = options || {};
+    const buttonId = opts.buttonId || 'logout-btn';
+    const redirectPath = opts.redirectPath || 'login.html';
+    const button = global.document.getElementById(buttonId);
+    if (!button || button.dataset.logoutBound === 'true') {
+      return button;
+    }
+
+    button.addEventListener('click', async () => {
+      if (typeof opts.shouldSkipSignOut === 'function' && opts.shouldSkipSignOut()) {
+        global.location.replace(redirectPath);
+        return;
+      }
+
+      await client.auth.signOut();
+
+      if (typeof opts.onSignedOut === 'function') {
+        opts.onSignedOut();
+      }
+
+      global.location.replace(redirectPath);
+    });
+
+    button.dataset.logoutBound = 'true';
+    return button;
+  }
+
   global.GymflowSupabase = {
     SUPABASE_URL,
     SUPABASE_KEY,
@@ -50,5 +82,6 @@
     getSession,
     requireSession,
     resolveUserRole,
+    bindLogoutButton,
   };
 })(window);
